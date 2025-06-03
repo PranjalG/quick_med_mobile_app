@@ -20,7 +20,7 @@ Tools • Dart 3.4.3 • DevTools 2.34.3
 ## Screenshots
 
 1. Logo - Splash
-<img src="https://github.com/user-attachments/assets/ab0495c6-d309-4a50-b222-359e9e43b679" alt="launch_splash_screen_debug" height="500"/>
+<img src="https://github.com/user-attachments/assets/0c4c8624-771b-4c33-b23f-115011f6fdb3" alt="launch_splash_screen_debug" height="500"/>
 
 2. Login Screen
 <img src="https://github.com/user-attachments/assets/607edec3-1fc0-40c6-893a-68c1c3c6dec1" alt="login_screen_debug" height="500"/>
