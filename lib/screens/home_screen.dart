@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -80,6 +81,11 @@ class _HomeScreenState extends State<HomeScreen> {
           //   'Your trusted medicine delivery app',
           //   style: TextStyle(fontSize: 16, color: Colors.black54),
           // ),
+          ElevatedButton(
+              onPressed: () {
+                context.go('/login');
+              },
+              child: const Text('Login ->'))
         ],
       ),
     );
