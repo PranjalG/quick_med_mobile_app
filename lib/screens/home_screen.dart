@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:quick_med/blocs/home_bloc/home_bloc.dart';
+import 'package:quick_med/custom_components/floating_navbar.dart';
+import 'package:quick_med/screens/cart_screen.dart';
+import 'package:quick_med/screens/landing_screen.dart';
+import 'package:quick_med/screens/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -8,85 +13,58 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController tabController;
+  late HomeBloc _homeBloc;
+
+  @override
+  void initState() {
+    _homeBloc = HomeBloc();
+    tabController = TabController(length: 3, vsync: this);
+    tabController.addListener(() {
+      _homeBloc.add(TabIndexChangeEvent(index: tabController.index));
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    tabController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          Stack(
-            children: [
-              SizedBox(
-                height: screenHeight * 0.45,
-                width: double.infinity,
-                child: Image.asset(
-                  'assets/images/Gradient.png',
-                  fit: BoxFit.cover,
-                ),
-              ),
-              Positioned.fill(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    height: screenHeight * 0.12,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Colors.white.withOpacity(0.9), Colors.white],
-                      ),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(100),
-                        topRight: Radius.circular(100),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Container(
-            margin: const EdgeInsets.only(top: 16),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              // shape: BoxShape.circle,
-              // boxShadow: [
-              //   BoxShadow(
-              //     blurRadius: 10,
-              //     color: Colors.black12,
-              //     offset: Offset(0, 4),
-              //   )
-              // ],
+    return BlocProvider(
+      create: (context) => _homeBloc,
+      child: BlocConsumer<HomeBloc, HomeState>(
+        bloc: _homeBloc,
+        listener: (context, state) {
+          if (tabController.index != state.tabIndex) {
+            tabController.animateTo(state.tabIndex);
+          }
+        },
+        builder: (context, state) {
+          return Scaffold(
+            backgroundColor: Colors.white,
+            body: TabBarView(
+              controller: tabController,
+              // physics: const NeverScrollableScrollPhysics(),
+              children: const [
+                LandingScreen(),
+                ProfileScreen(),
+                CartScreen(),
+              ],
             ),
-            padding: const EdgeInsets.all(24),
-            child: Image.asset(
-              'assets/images/Logo.png',
-              height: 80,
-              // width: 100,
-            ),
-          ),
-          const SizedBox(height: 24),
-          // const Text(
-          //   'Welcome to QuickMed',
-          //   style: TextStyle(
-          //     fontSize: 24,
-          //     fontWeight: FontWeight.bold,
-          //     color: Colors.teal,
-          //   ),
-          // ),
-          // const SizedBox(height: 12),
-          // const Text(
-          //   'Your trusted medicine delivery app',
-          //   style: TextStyle(fontSize: 16, color: Colors.black54),
-          // ),
-          ElevatedButton(
-              onPressed: () {
-                context.go('/login');
+            bottomNavigationBar: FloatingNavbar(
+              currentIndex: state.tabIndex,
+              onTap: (value) {
+                _homeBloc.add(TabIndexChangeEvent(index: value));
               },
-              child: const Text('Login ->'))
-        ],
+            ),
+          );
+        },
       ),
     );
   }
