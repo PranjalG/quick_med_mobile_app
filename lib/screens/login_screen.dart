@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:quick_med/custom_components/themed_floating_button.dart';
+import 'package:quick_med/services/theme_colours.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -7,14 +9,13 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, //ThemeColours.lightGreen.withOpacity(0.2),
       body: Stack(
         children: [
           Opacity(
             opacity: 0.2,
             child: Image.asset(
               'assets/images/Gradient.png',
-              // height: 800,
-              // fit: BoxFit.cover,
             ),
           ),
           SingleChildScrollView(
@@ -115,23 +116,17 @@ class LoginScreen extends StatelessWidget {
                     onPressed: () {},
                     child: const Text(
                       'Forgot Your Password?',
-                      style: TextStyle(color: Colors.green),
+                      style: TextStyle(
+                        color: ThemeColours.darkGreen,
+                      ),
                     ),
                   ),
 
                   const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                        context.go('/home_screen');
+                  ThemedFloatingButton(
+                    onTap: () {
+                      context.go('/home_screen');
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      minimumSize: const Size.fromHeight(50),
-                    ),
                     child: const Text(
                       'Login',
                       style: TextStyle(fontSize: 16, color: Colors.white),

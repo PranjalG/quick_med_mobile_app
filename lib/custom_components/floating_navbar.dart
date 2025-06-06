@@ -25,7 +25,6 @@ class FloatingNavbar extends StatelessWidget {
       child: Material(
         elevation: 8,
         borderRadius: BorderRadius.circular(20),
-        color: Colors.white,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child: Theme(

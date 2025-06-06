@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quick_med/custom_components/themed_floating_button.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -25,7 +26,11 @@ class _LandingScreenState extends State<LandingScreen> {
               color: Colors.blue.shade200,
             ),
           ),
-        )
+        ),
+        ThemedFloatingButton(
+          child: const Text('Login', style: TextStyle(color: Colors.white),),
+          onTap: () {},
+        ),
       ],
     );
   }
