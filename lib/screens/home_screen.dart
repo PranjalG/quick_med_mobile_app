@@ -60,7 +60,9 @@ class _HomeScreenState extends State<HomeScreen>
             bottomNavigationBar: FloatingNavbar(
               currentIndex: state.tabIndex,
               onTap: (value) {
-                _homeBloc.add(TabIndexChangeEvent(index: value));
+                _homeBloc.add(
+                  TabIndexChangeEvent(index: value),
+                );
               },
             ),
           );
