@@ -12,9 +12,19 @@ class _LandingScreenState extends State<LandingScreen> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        Row(
+          children: [
+            Text(
+              'Landing',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey
+              ),
+            ),
+          ],
+        ),
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4),
