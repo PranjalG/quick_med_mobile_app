@@ -48,14 +48,15 @@ class _HomeScreenState extends State<HomeScreen>
         builder: (context, state) {
           return Scaffold(
             backgroundColor: Colors.white,
-            body: TabBarView(
-              controller: tabController,
-              // physics: const NeverScrollableScrollPhysics(),
-              children: const [
-                LandingScreen(),
-                ProfileScreen(),
-                CartScreen(),
-              ],
+            body: SafeArea(
+              child: TabBarView(
+                controller: tabController,
+                children: const [
+                  LandingScreen(),
+                  ProfileScreen(),
+                  CartScreen(),
+                ],
+              ),
             ),
             bottomNavigationBar: FloatingNavbar(
               currentIndex: state.tabIndex,
