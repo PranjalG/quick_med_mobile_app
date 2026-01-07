@@ -7,6 +7,9 @@ import 'package:quick_med/services/router.dart';
 
 // late HydratedStorage hydratedStorage;
 
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // final directory = await getApplicationDocumentsDirectory();
@@ -15,6 +18,9 @@ void main() async {
   //   storageDirectory: hydratedStorageDirectory,
   // );
   // HydratedBloc.storage = hydratedStorage;
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]).then((value) {

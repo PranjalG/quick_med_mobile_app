@@ -39,7 +39,7 @@ class ThemedCard extends StatelessWidget {
           BoxShadow(
             color: Colors.grey.withOpacity(0.2),
             blurRadius: 6,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
