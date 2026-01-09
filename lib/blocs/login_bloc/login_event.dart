@@ -9,11 +9,17 @@ class LoginEvent extends Equatable {
 
 class SignUpClickEvent extends LoginEvent {}
 
+class SignInClickEvent extends LoginEvent {}
+
+class BackButtonClick extends LoginEvent {}
+
 class EmailChangeEvent extends LoginEvent {
   final String emailText;
 
   const EmailChangeEvent({required this.emailText});
 }
+
+class EmailValidateEvent extends LoginEvent {}
 
 class PasswordChangeEvent extends LoginEvent {
   final String pswdText;

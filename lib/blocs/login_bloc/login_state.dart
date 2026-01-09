@@ -3,35 +3,43 @@ part of 'login_bloc.dart';
 class LoginState extends Equatable {
   final String? email;
   final String? pswd;
-  final Status apiStatus;
+  final Status loginResponseStatus;
   final String? errorMsg;
-  final bool signUp;
+  final bool userLogin;
+  final UserLogin userLoginType;
   final bool loginSuccess;
+  final String? emailErrorText;
 
   const LoginState({
     this.email,
     this.pswd,
-    this.apiStatus = Status.initial,
+    this.loginResponseStatus = Status.initial,
     this.errorMsg,
-    this.signUp = false,
+    this.userLogin = false,
+    this.userLoginType = UserLogin.signUp,
     this.loginSuccess = false,
+    this.emailErrorText,
   });
 
   LoginState copyWith({
     String? email,
     String? pswd,
-    Status? apiStatus,
+    Status? loginResponseStatus,
     String? errorMsg,
-    bool? signUp,
+    bool? userLogin,
+    UserLogin? userLoginType,
     bool? loginSuccess,
+    String? emailErrorText,
   }) {
     return LoginState(
-      apiStatus: apiStatus ?? this.apiStatus,
+      loginResponseStatus: loginResponseStatus ?? this.loginResponseStatus,
       email: email ?? this.email,
       pswd: pswd ?? this.pswd,
       errorMsg: errorMsg ?? this.errorMsg,
-      signUp: signUp ?? this.signUp,
+      userLogin: userLogin ?? this.userLogin,
+      userLoginType: userLoginType ?? this.userLoginType,
       loginSuccess: loginSuccess ?? this.loginSuccess,
+      emailErrorText: emailErrorText ?? this.emailErrorText,
     );
   }
 
@@ -39,9 +47,11 @@ class LoginState extends Equatable {
   List<Object?> get props => [
         email,
         pswd,
-        apiStatus,
+        loginResponseStatus,
         errorMsg,
-        signUp,
+        userLogin,
+        userLoginType,
         loginSuccess,
+        emailErrorText,
       ];
 }

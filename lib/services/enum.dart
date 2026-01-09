@@ -4,3 +4,8 @@ enum Status {
   success,
   failure,
 }
+
+enum UserLogin {
+  signIn,
+  signUp,
+}

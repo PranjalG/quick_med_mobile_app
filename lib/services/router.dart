@@ -1,6 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:quick_med/screens/home_screen.dart';
-import 'package:quick_med/screens/login_screen.dart';
+import 'package:quick_med/screens/login/login_screen.dart';
 import 'package:quick_med/screens/splash_screen.dart';
 
 

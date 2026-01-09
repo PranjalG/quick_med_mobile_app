@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quick_med/services/theme_colours.dart';
+import 'package:quick_med/utils/screen_size.dart';
 
 class BorderedTextField extends StatelessWidget {
   final String? label;
@@ -14,9 +15,13 @@ class BorderedTextField extends StatelessWidget {
   final bool? enabled;
   final bool? allowPasting;
   final List<TextInputFormatter>? inputFormatter;
-  final Icon? suffixIcon;
+  final IconData? suffixIcon;
+  final VoidCallback? suffixIconOnTap;
   final bool isRequired;
   final InputDecoration? textDecoration;
+  final VoidCallback? onSubmit;
+  final TextInputAction textInputAction;
+
 
   const BorderedTextField({
     super.key,
@@ -33,34 +38,39 @@ class BorderedTextField extends StatelessWidget {
     this.inputFormatter,
     this.isRequired = false,
     this.textDecoration,
+    this.suffixIconOnTap,
+    this.onSubmit,
+    this.textInputAction = TextInputAction.done,
   });
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final bool hasError = errorText != null && errorText!.isNotEmpty;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        label != null ? Padding(
-          padding: const EdgeInsets.only(left: 12, bottom: 6),
-          child: Text(
-            label ?? '',
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: ThemeColours.darkGreen,
+        if (label != null)
+          Padding(
+            padding: EdgeInsets.only(
+                left: context.sw * 0.01, bottom: context.sh * 0.005),
+            child: Text(
+              label!,
+              style: GoogleFonts.montserrat(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: ThemeColours.darkGreen,
+              ),
             ),
           ),
-        ) : const SizedBox.shrink(),
         Container(
-          width: screenWidth * 0.8,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          width: context.sw * 0.8,
+          padding: EdgeInsets.symmetric(horizontal: context.sw * 0.04),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30),
             border: Border.all(
               width: 2,
-              color: ThemeColours.lightGreen,
+              color: hasError ? Colors.red : ThemeColours.lightGreen,
             ),
           ),
           child: TextFormField(
@@ -69,30 +79,56 @@ class BorderedTextField extends StatelessWidget {
             obscureText: obscureText,
             inputFormatters: inputFormatter,
             cursorColor: ThemeColours.darkGreen,
-            enabled: enabled ?? false,
+            enabled: enabled ?? true,
             style: GoogleFonts.montserrat(
               fontSize: 16,
               color: ThemeColours.darkGreen,
               decoration: TextDecoration.none,
             ),
-            enableInteractiveSelection: allowPasting ?? true,
-            decoration: textDecoration ?? InputDecoration(
-              isDense: true,
-              contentPadding: const EdgeInsets.symmetric(vertical: 12),
-              hintText: hintText,
-              hintStyle: GoogleFonts.montserrat(
-                color: ThemeColours.darkGreen,
-                fontSize: 14,
-                decoration: TextDecoration.none,
-              ),
-              border: InputBorder.none,
-              suffixIcon: suffixIcon,
-            ),
-            onChanged: (v) {
-              onChange(v);
+            textInputAction: textInputAction,
+            onFieldSubmitted: (value) {
+              if (onSubmit != null) {
+                onSubmit!();
+              }
             },
+            enableInteractiveSelection: allowPasting ?? true,
+            decoration: textDecoration ??
+                InputDecoration(
+                  isDense: true,
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: context.sh * 0.01),
+                  hintText: hintText,
+                  hintStyle: GoogleFonts.montserrat(
+                    color: ThemeColours.darkGreen,
+                    fontSize: 14,
+                  ),
+                  border: InputBorder.none,
+                  errorText: null,
+                  suffixIcon: suffixIcon == null
+                      ? null
+                      : IconButton(
+                          icon: Icon(
+                            suffixIcon,
+                            color: ThemeColours.darkGreen,
+                          ),
+                          onPressed: suffixIconOnTap ?? () {},
+                        ),
+                ),
+            onChanged: onChange,
           ),
         ),
+        if (hasError)
+          Padding(
+            padding: EdgeInsets.only(
+                left: context.sw * 0.02, top: context.sh * 0.01),
+            child: Text(
+              errorText!,
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                color: Colors.red,
+              ),
+            ),
+          ),
       ],
     );
   }

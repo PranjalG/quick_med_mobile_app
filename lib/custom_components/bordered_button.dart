@@ -5,11 +5,13 @@ import 'package:quick_med/services/theme_colours.dart';
 class BorderedButton extends StatelessWidget {
   final String buttonText;
   final VoidCallback onTap;
+  final IconData? trailingIcon;
 
   const BorderedButton({
     super.key,
     required this.buttonText,
     required this.onTap,
+    this.trailingIcon,
   });
 
   @override
@@ -41,10 +43,10 @@ class BorderedButton extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Icon(
-                Icons.arrow_forward_rounded,
+                trailingIcon ?? Icons.arrow_forward_rounded,
                 color: ThemeColours.darkGreen,
                 size: 26,
               ),

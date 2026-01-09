@@ -12,17 +12,59 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   LoginBloc() : super(const LoginState()) {
     on<LoginEvent>((event, emit) {});
     on<SignUpEvent>(_onSignUpEvent);
+
     on<SignUpClickEvent>(_onSignUpClickEvent);
+    on<SignInClickEvent>(_onSignInClickEvent);
+
+    on<BackButtonClick>(_onBackButtonClick);
+
     on<EmailChangeEvent>(_onEmailChangeEvent);
+    on<EmailValidateEvent>(_onEmailValidateEvent);
     on<PasswordChangeEvent>(_onPasswordChangeEvent);
   }
 
   void _onSignUpClickEvent(SignUpClickEvent event, Emitter<LoginState> emit) {
-    emit(state.copyWith(signUp: !state.signUp));
+    emit(
+      state.copyWith(
+        userLogin: !state.userLogin,
+        userLoginType: UserLogin.signUp,
+      ),
+    );
+  }
+
+  void _onSignInClickEvent(SignInClickEvent event, Emitter<LoginState> emit) {
+    emit(
+      state.copyWith(
+        userLogin: !state.userLogin,
+        userLoginType: UserLogin.signIn,
+      ),
+    );
+  }
+
+  void _onBackButtonClick(BackButtonClick event, Emitter<LoginState> emit) {
+    emit(
+      state.copyWith(
+        userLogin: false,
+      ),
+    );
   }
 
   void _onEmailChangeEvent(EmailChangeEvent event, Emitter<LoginState> emit) {
     emit(state.copyWith(email: event.emailText));
+  }
+
+  void _onEmailValidateEvent(
+      EmailValidateEvent event, Emitter<LoginState> emit) {
+    final email = state.email;
+    emit(
+      state.copyWith(
+        emailErrorText: email == null
+            ? 'Email is required'
+            : !isValidEmail(email)
+                ? 'Enter a valid email'
+                : '',
+      ),
+    );
   }
 
   void _onPasswordChangeEvent(
@@ -31,7 +73,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   }
 
   void _onSignUpEvent(SignUpEvent event, Emitter<LoginState> emit) async {
-    emit(state.copyWith(apiStatus: Status.loading));
+    emit(state.copyWith(loginResponseStatus: Status.loading));
     final Auth auth = Auth();
 
     try {
@@ -43,7 +85,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       if (response.additionalUserInfo?.isNewUser == true) {
         emit(
           state.copyWith(
-            apiStatus: Status.success,
+            loginResponseStatus: Status.success,
             loginSuccess: true,
           ),
         );
@@ -51,10 +93,14 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     } catch (err) {
       emit(
         state.copyWith(
-          apiStatus: Status.failure,
+          loginResponseStatus: Status.failure,
           errorMsg: err.toString(),
         ),
       );
     }
+  }
+
+  bool isValidEmail(String email) {
+    return RegExp(r'^[\w.-]+@[\w.-]+\.\w+$').hasMatch(email);
   }
 }

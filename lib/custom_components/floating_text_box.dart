@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:quick_med/utils/screen_size.dart';
 
 class FloatingTextBox extends StatelessWidget {
   final String text;
@@ -12,13 +13,16 @@ class FloatingTextBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 4),
+      margin: EdgeInsets.symmetric(horizontal: context.sw * 0.03),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(40),
         color: Colors.white,
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.sw * 0.02,
+          vertical: context.sh * 0.02,
+        ),
         child: Text(
           text,
           maxLines: 2,
