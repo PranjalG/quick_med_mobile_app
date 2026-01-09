@@ -5,11 +5,13 @@ import 'package:quick_med/services/theme_colours.dart';
 class GradientButton extends StatelessWidget {
   final String buttonText;
   final VoidCallback onTap;
+  final double? width;
 
   const GradientButton({
     super.key,
     required this.buttonText,
     required this.onTap,
+    this.width,
   });
 
   @override
@@ -20,7 +22,7 @@ class GradientButton extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 18),
-        width: screenWidth * 0.8,
+        width: screenWidth *(width ?? 0.8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(30),
           gradient: const LinearGradient(

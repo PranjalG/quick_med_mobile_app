@@ -36,9 +36,9 @@ class MyApp extends StatelessWidget {
     // final repository = LandingScreenRepository(LandingScreenDataProvider());
     return  MaterialApp.router(
         routerConfig: router,
-        title: 'Flutter Articles App',
+        title: 'Quick Med mobile app',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreenAccent),
           useMaterial3: true,
         ),
     );
