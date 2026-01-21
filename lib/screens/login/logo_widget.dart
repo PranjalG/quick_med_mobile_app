@@ -6,7 +6,6 @@ class LogoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
       children: [
         SizedBox(height: context.sh * 0.15),
@@ -16,14 +15,16 @@ class LogoWidget extends StatelessWidget {
             Container(
               decoration: const BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.all(
-                    Radius.circular(30)),
+                borderRadius: BorderRadius.all(Radius.circular(30)),
               ),
               padding: const EdgeInsets.all(24),
-              child: SizedBox(height: context.sh * 0.098,) // Image.asset(
-                // 'assets/images/Logo.png',
-                // height: context.sh * 0.098,
-              // ),
+              child: SizedBox(
+                height: context.sh * 0.098,
+                child: Image.asset(
+                  'assets/images/Logo.png',
+                  height: context.sh * 0.098,
+                ),
+              ),
             ),
           ],
         ),

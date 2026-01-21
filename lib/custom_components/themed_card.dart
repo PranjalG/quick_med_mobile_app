@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:quick_med/services/theme_colours.dart';
 
@@ -37,7 +39,7 @@ class ThemedCard extends StatelessWidget {
         color: ThemeColours.appWhite,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha: 0.2),
             blurRadius: 6,
             offset: const Offset(0, 4),
           ),
@@ -48,9 +50,11 @@ class ThemedCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(10), // Adjust radius as needed
+            borderRadius: BorderRadius.circular(10),
             child: Image.asset(
-              'assets/images/apollo_pharmacy.png',
+              Random().nextInt(10) % 2 == 0
+                  ? 'assets/images/paracetamol.png'
+                  : 'assets/images/levocitrizine.jpg',
               height: 90,
               fit: BoxFit.cover,
             ),
@@ -64,8 +68,9 @@ class ThemedCard extends StatelessWidget {
             ),
           ),
           Text(
-            '$time mins',
-            style: const TextStyle(fontSize: 14, color: ThemeColours.textLightGrey),
+            '$time rupees',
+            style: const TextStyle(
+                fontSize: 14, color: ThemeColours.textLightGrey),
           ),
         ],
       ),

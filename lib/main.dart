@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:quick_med/services/router.dart';
+
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:hydrated_bloc/hydrated_bloc.dart';
 // import 'package:path_provider/path_provider.dart';
@@ -34,13 +35,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // final repository = LandingScreenRepository(LandingScreenDataProvider());
-    return  MaterialApp.router(
-        routerConfig: router,
-        title: 'Quick Med mobile app',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreenAccent),
-          useMaterial3: true,
-        ),
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      routerConfig: router,
+      title: 'Quick Med mobile app',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreenAccent),
+        useMaterial3: true,
+      ),
     );
   }
 }

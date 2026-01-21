@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quick_med/blocs/home_bloc/home_bloc.dart';
 import 'package:quick_med/custom_components/floating_navbar.dart';
-import 'package:quick_med/screens/cart_screen.dart';
+import 'package:quick_med/screens/cart/cart_screen.dart';
 import 'package:quick_med/screens/landing_screen.dart';
-import 'package:quick_med/screens/profile_screen.dart';
+import 'package:quick_med/screens/profile/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

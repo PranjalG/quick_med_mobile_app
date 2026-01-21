@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:quick_med/custom_components/themed_card.dart';
 import 'package:quick_med/custom_components/themed_text_field.dart';
 import 'package:quick_med/services/theme_colours.dart';
+import 'package:quick_med/utils/screen_size.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -14,7 +15,7 @@ class LandingScreen extends StatefulWidget {
 
 class _LandingScreenState extends State<LandingScreen> {
   final List<String> items =
-      List.generate(30, (index) => 'Apollo Pharmacy $index');
+      List.generate(30, (index) => 'Medicine name $index');
 
   @override
   Widget build(BuildContext context) {
@@ -22,20 +23,23 @@ class _LandingScreenState extends State<LandingScreen> {
       backgroundColor: ThemeColours.appWhite,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(top: 20, right: 10, left: 10),
+          padding: EdgeInsets.symmetric(
+            horizontal: context.sw * 0.03,
+            vertical: context.sh * 0.01,
+          ),
           child: Column(
             children: [
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
-                    width: 200,
-                    child: Column(
+                    width: context.sw * 0.6,
+                    child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Find your medicine',
+                          'Your medicine',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -43,7 +47,7 @@ class _LandingScreenState extends State<LandingScreen> {
                           ),
                         ),
                         Text(
-                          'via nearest pharmacy',
+                          'delivered in a whoosh!',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -53,14 +57,17 @@ class _LandingScreenState extends State<LandingScreen> {
                       ],
                     ),
                   ),
-                  Icon(
-                    Icons.notifications,
-                    color: ThemeColours.lightGreen,
-                    size: 24,
+                  Padding(
+                    padding: EdgeInsets.all(context.sh * 0.02),
+                    child: const Icon(
+                      Icons.notifications,
+                      color: ThemeColours.lightGreen,
+                      size: 24,
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: context.sh * 0.02),
               const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -79,7 +86,7 @@ class _LandingScreenState extends State<LandingScreen> {
                   )
                 ],
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: context.sh * 0.02),
               Expanded(
                 child: GridView.builder(
                   itemCount: items.length,
@@ -87,7 +94,7 @@ class _LandingScreenState extends State<LandingScreen> {
                     crossAxisCount: 2, // 🔧 Number of columns
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 8,
-                    childAspectRatio: 1/1, // Width/Height ratio of each card
+                    childAspectRatio: 1 / 1, // Width/Height ratio of each card
                   ),
                   itemBuilder: (context, index) {
                     return ThemedCard(

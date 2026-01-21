@@ -173,8 +173,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                                     buttonText: 'Submit',
                                                     width: 0.6,
                                                     enabled:
-                                                        state.emailErrorText ==
-                                                                '' &&
+                                                        (state.emailErrorText ==
+                                                                    null ||
+                                                                state.emailErrorText ==
+                                                                    '') &&
                                                             state.pswd != null,
                                                     onTap: () {
                                                       _loginBloc.add(
