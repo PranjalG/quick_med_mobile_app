@@ -206,7 +206,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                                       'Sign in with Google',
                                                   trailingIcon:
                                                       FontAwesomeIcons.google,
-                                                  onTap: () {},
+                                                  onTap: () {
+                                                    context.go('/home_screen');
+                                                  },
                                                 ),
                                                 SizedBox(
                                                     height: context.sh * 0.02),
@@ -215,7 +217,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                                       'Sign in with Apple',
                                                   trailingIcon:
                                                       Icons.apple_rounded,
-                                                  onTap: () {},
+                                                  onTap: () {
+                                                    context.go('/home_screen');
+                                                  },
                                                 ),
                                                 SizedBox(
                                                     height: context.sh * 0.04),

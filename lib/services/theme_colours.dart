@@ -15,4 +15,7 @@ class ThemeColours {
   static const Color darkOrange = Color.fromRGBO(218, 99, 23, 1.0);
   static const Color lightGrey = Color.fromRGBO(180, 180, 180, 1.0);
 
+  static const Color errorRed = Color.fromRGBO(211, 24, 24, 1.0);
+  static const Color warningYellow = Color.fromRGBO(255, 210, 52, 1.0);
+  static const Color successGreen = Color.fromRGBO(21, 182, 21, 1.0);
 }
