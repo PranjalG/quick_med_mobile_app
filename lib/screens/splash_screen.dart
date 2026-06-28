@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:quick_med/utils/screen_size.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -24,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void _navigateToLanding() async {
     await Future.delayed(const Duration(seconds: 3));
     if (mounted) {
-      context.go('/login');
+      context.go('/onboarding');
     }
   }
 
@@ -69,14 +70,31 @@ class _SplashScreenState extends State<SplashScreen> {
             ],
           ),
           Container(
-            margin: EdgeInsets.only(top: context.sh * 0.01),
+            margin: EdgeInsets.only(top: context.sh * 0.02),
             decoration: const BoxDecoration(
               color: Colors.white,
             ),
-            child: Image.asset(
-              'assets/images/Logo.png',
-              height: context.sh * 0.1,
-              // width: 100,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'QuickMedD',
+                  style: GoogleFonts.palanquinDark(
+                    fontSize: 42,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF4CAF50),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Swift Medicine Delivery',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF444444),
+                  ),
+                ),
+              ],
             ),
           ),
           SizedBox(height: context.sh * 0.2),

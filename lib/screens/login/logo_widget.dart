@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:quick_med/utils/screen_size.dart';
 
 class LogoWidget extends StatelessWidget {
@@ -8,27 +9,35 @@ class LogoWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(height: context.sh * 0.15),
+        SizedBox(height: context.sh * 0.08),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.all(Radius.circular(30)),
-              ),
-              padding: const EdgeInsets.all(24),
-              child: SizedBox(
-                height: context.sh * 0.098,
-                child: Image.asset(
-                  'assets/images/Logo.png',
-                  height: context.sh * 0.098,
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'QuickMedD',
+                  style: GoogleFonts.palanquinDark(
+                    fontSize: 42,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF4CAF50),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 8),
+                Text(
+                  'Swift Medicine Delivery',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF444444),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
-        SizedBox(height: context.sh * 0.12),
+        SizedBox(height: context.sh * 0.04),
       ],
     );
   }

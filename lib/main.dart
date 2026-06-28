@@ -9,16 +9,19 @@ import 'package:quick_med/services/router.dart';
 // late HydratedStorage hydratedStorage;
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:quick_med/services/supabase_config.dart';
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // final directory = await getApplicationDocumentsDirectory();
-  // final hydratedStorageDirectory = HydratedStorageDirectory(directory.path);
-  // hydratedStorage = await HydratedStorage.build(
-  //   storageDirectory: hydratedStorageDirectory,
-  // );
-  // HydratedBloc.storage = hydratedStorage;
+  
+  // Initialize Supabase
+  await Supabase.initialize(
+    url: SupabaseConfig.url,
+    publishableKey: SupabaseConfig.publishableKey,
+  );
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

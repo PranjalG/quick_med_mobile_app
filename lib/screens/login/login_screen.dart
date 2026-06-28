@@ -1,20 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:quick_med/custom_components/bordered_button.dart';
-import 'package:quick_med/custom_components/bordered_icon_button.dart';
-import 'package:quick_med/custom_components/bordered_textfield.dart';
-import 'package:quick_med/custom_components/floating_text_box.dart';
-import 'package:quick_med/custom_components/gradient_button.dart';
-import 'package:quick_med/custom_components/loading_indicator.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:quick_med/screens/login/logo_widget.dart';
-import 'package:quick_med/services/auth.dart';
-import 'package:quick_med/services/enum.dart';
+import 'package:quick_med/services/theme_colours.dart';
 import 'package:quick_med/utils/screen_size.dart';
-
-import '../../blocs/login_bloc/login_bloc.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -24,233 +15,287 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  late LoginBloc _loginBloc;
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _pswdController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
-  void initState() {
-    _loginBloc = LoginBloc();
-    super.initState();
+  void dispose() {
+    _phoneController.dispose();
+    super.dispose();
   }
 
-  Future<void> signOut() async {
-    await Auth().signOut();
+  void _onLogin() {
+    if (_formKey.currentState!.validate()) {
+      // Navigate to OTP Verification screen
+      context.go('/otp_verification');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => _loginBloc,
-      child: Scaffold(
-        body: SafeArea(
-          child: BlocConsumer<LoginBloc, LoginState>(
-            listener: (context, state) {
-              if (state.loginResponseStatus == Status.success) {
-                context.go('/home_screen');
-              }
-            },
-            builder: (context, state) {
-              return SingleChildScrollView(
-                child: Stack(
-                  children: [
-                    Opacity(
-                      opacity: 1,
-                      child: Image.asset(
-                        'assets/images/Gradient.png',
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(context.sw * 0.02),
-                      child: Column(
-                        children: [
-                          const LogoWidget(),
-                          state.loginResponseStatus == Status.loading
-                              ? SizedBox(
-                            height: context.sh * 0.5,
-                            child: const LoadingIndicator(),
-                          )
-                              : !state.userLogin
-                              ? Column(
-                            children: [
-                              const FloatingTextBox(
-                                text:
-                                'We deliver at your doorstep within minutes !',
-                              ),
-                              SizedBox(height: context.sh * 0.14),
-                              GradientButton(
-                                buttonText: 'Sign in',
-                                onTap: () {
-                                  _loginBloc.add(SignInClickEvent());
-                                },
-                              ),
-                              SizedBox(height: context.sh * 0.02),
-                              BorderedButton(
-                                buttonText: 'Sign up',
-                                onTap: () {
-                                  _loginBloc.add(SignUpClickEvent());
-                                },
-                              ),
-                            ],
-                          )
-                              : state.userLoginType == UserLogin.signUp
-                              ?
-                          // sign up action widget
-                          Padding(
-                            padding: EdgeInsets.only(
-                              left: context.sw * 0.07,
-                              right: context.sw * 0.07,
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: SizedBox(
+            height: context.sh - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom,
+            child: Stack(
+              children: [
+                // Top curve background
+                Opacity(
+                  opacity: 0.8,
+                  child: Image.asset(
+                    'assets/images/Gradient.png',
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Logo and App Name Header
+                        const LogoWidget(),
+                        
+                        // Login Title
+                        Center(
+                          child: Text(
+                            'Login',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF111827),
                             ),
-                            child: Column(
-                              crossAxisAlignment:
-                              CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                    height: context.sh * 0.106),
-                                BorderedTextField(
-                                  label: 'Enter your email',
-                                  hintText: '',
-                                  enabled: true,
-                                  controller: _emailController,
-                                  keyboardType:
-                                  TextInputType.emailAddress,
-                                  inputFormatter: [
-                                    FilteringTextInputFormatter
-                                        .allow(
-                                      RegExp(
-                                          r'[a-zA-Z0-9@._\-+]'),
-                                    ),
-                                    FilteringTextInputFormatter
-                                        .deny(RegExp(r'\s')),
-                                  ],
-                                  errorText: state.emailErrorText,
-                                  textInputAction:
-                                  TextInputAction.done,
-                                  onSubmit: () {
-                                    _loginBloc.add(
-                                      EmailValidateEvent(),
-                                    );
-                                  },
-                                  onChange: (value) {
-                                    context.read<LoginBloc>().add(
-                                      EmailChangeEvent(
-                                        emailText:
-                                        value ?? '',
-                                      ),
-                                    );
-                                  },
-                                ),
-                                SizedBox(
-                                    height: context.sh * 0.02),
-                                BorderedTextField(
-                                  label: 'Enter your password',
-                                  hintText: '',
-                                  controller: _pswdController,
-                                  enabled: true,
-                                  allowPasting: true,
-                                  obscureText: true,
-                                  onChange: (value) =>
-                                      _loginBloc.add(
-                                        PasswordChangeEvent(
-                                          pswdText: value ?? '',
-                                        ),
-                                      ),
-                                ),
-                                SizedBox(
-                                    height: context.sh * 0.04),
-                                Row(
-                                  children: [
-                                    BorderedIconButton(
-                                      icon: Icons
-                                          .arrow_back_rounded,
-                                      onTap: () => _loginBloc.add(
-                                        BackButtonClick(),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                        width: context.sw * 0.02),
-                                    GradientButton(
-                                      buttonText: 'Submit',
-                                      width: 0.6,
-                                      enabled:
-                                      (state.emailErrorText ==
-                                          null ||
-                                          state.emailErrorText ==
-                                              '') &&
-                                          state.pswd != null,
-                                      onTap: () {
-                                        _loginBloc.add(
-                                          SignUpEvent(
-                                            email:
-                                            state.email ?? '',
-                                            pswd:
-                                            state.pswd ?? '',
-                                          ),
-                                        );
-                                      },
-                                    )
-                                  ],
-                                ),
-                              ],
+                          ),
+                        ),
+                        SizedBox(height: context.sh * 0.04),
+
+                        // Mobile Number Input Field
+                        TextFormField(
+                          controller: _phoneController,
+                          keyboardType: TextInputType.phone,
+                          style: GoogleFonts.montserrat(
+                            fontSize: 16,
+                            color: const Color(0xFF111827),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(10),
+                          ],
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter mobile number';
+                            }
+                            if (value.length < 10) {
+                              return 'Enter a valid 10-digit mobile number';
+                            }
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                            hintText: 'Mobile Number',
+                            hintStyle: GoogleFonts.montserrat(
+                              color: const Color(0xFF9CA3AF),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
                             ),
-                          )
-                              : state.userLoginType == UserLogin.signIn
-                              ?
-                          // sign in action widget
-                          Column(
-                            children: [
-                              SizedBox(
-                                  height: context.sh * 0.12),
-                              BorderedButton(
-                                buttonText:
-                                'Sign in with Google',
-                                trailingIcon:
-                                FontAwesomeIcons.google,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 20,
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFE5E7EB),
+                                width: 1.5,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: const BorderSide(
+                                color: ThemeColours.darkGreen,
+                                width: 1.5,
+                              ),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: const BorderSide(
+                                color: ThemeColours.errorRed,
+                                width: 1.5,
+                              ),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: const BorderSide(
+                                color: ThemeColours.errorRed,
+                                width: 1.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: context.sh * 0.03),
+
+                        // Divider text: "Or Continue With"
+                        Row(
+                          children: [
+                            const Expanded(
+                              child: Divider(
+                                color: Color(0xFFE5E7EB),
+                                thickness: 1.5,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                              child: Text(
+                                'Or Continue With',
+                                style: GoogleFonts.montserrat(
+                                  color: const Color(0xFF9CA3AF),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            const Expanded(
+                              child: Divider(
+                                color: Color(0xFFE5E7EB),
+                                thickness: 1.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: context.sh * 0.03),
+
+                        // Social Buttons Row
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildSocialButton(
+                                icon: FontAwesomeIcons.facebookF,
+                                label: 'Facebook',
+                                iconColor: const Color(0xFF1877F2),
                                 onTap: () {
+                                  // Mock login
                                   context.go('/home_screen');
                                 },
                               ),
-                              SizedBox(
-                                  height: context.sh * 0.02),
-                              BorderedButton(
-                                buttonText:
-                                'Sign in with Apple',
-                                trailingIcon:
-                                Icons.apple_rounded,
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: _buildSocialButton(
+                                icon: FontAwesomeIcons.google,
+                                label: 'Google',
+                                iconColor: const Color(0xFFEA4335),
                                 onTap: () {
+                                  // Mock login
                                   context.go('/home_screen');
                                 },
                               ),
-                              SizedBox(
-                                  height: context.sh * 0.04),
-                              Row(
-                                mainAxisAlignment:
-                                MainAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                      width:
-                                      context.sw * 0.08),
-                                  BorderedIconButton(
-                                    icon: Icons
-                                        .arrow_back_rounded,
-                                    onTap: () =>
-                                        _loginBloc.add(
-                                          BackButtonClick(),
-                                        ),
-                                  ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: context.sh * 0.04),
+
+                        // Forgot password green link
+                        GestureDetector(
+                          onTap: () {
+                            // Mock placeholder action
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Reset password link sent (Mock)'),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            'Forgot Your Password?',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.montserrat(
+                              color: ThemeColours.darkGreen,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+
+                        // Primary Login Button
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 24.0),
+                          child: GestureDetector(
+                            onTap: _onLogin,
+                            child: Container(
+                              height: 60,
+                              decoration: BoxDecoration(
+                                color: ThemeColours.darkGreen,
+                                borderRadius: BorderRadius.circular(30),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: ThemeColours.darkGreen.withValues(alpha: 0.3),
+                                    offset: const Offset(0, 8),
+                                    blurRadius: 15,
+                                  )
                                 ],
                               ),
-                            ],
-                          )
-                              : const SizedBox.shrink(),
-                        ],
-                      ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                'Login',
+                                style: GoogleFonts.montserrat(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              );
-            },
+              ],
+            ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSocialButton({
+    required IconData icon,
+    required String label,
+    required Color iconColor,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 56,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: const Color(0xFFE5E7EB),
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 20, color: iconColor),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: GoogleFonts.montserrat(
+                color: const Color(0xFF111827),
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
       ),
     );

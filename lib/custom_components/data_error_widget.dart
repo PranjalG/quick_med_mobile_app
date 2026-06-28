@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:quick_med/services/strings.dart';
 import 'package:quick_med/services/theme_colours.dart';
 import 'package:quick_med/utils/screen_size.dart';
