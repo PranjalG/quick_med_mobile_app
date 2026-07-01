@@ -1,7 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:quick_med/services/theme_colours.dart';
+
+class ProductMock {
+  final String name;
+  final String salt;
+  final double mrp;
+  final double price;
+  final String discount;
+  final String deliveryTime;
+  final bool rxRequired;
+  bool isFavorite;
+
+  ProductMock({
+    required this.name,
+    required this.salt,
+    required this.mrp,
+    required this.price,
+    required this.discount,
+    required this.deliveryTime,
+    this.rxRequired = false,
+    this.isFavorite = false,
+  });
+}
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -11,10 +32,10 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController(text: 'Paracetamol');
   List<ProductMock> _allProducts = [];
   List<ProductMock> _searchResults = [];
-  bool _hasSearched = false;
+  bool _hasSearched = true;
 
   @override
   void initState() {
@@ -48,6 +69,7 @@ class _SearchScreenState extends State<SearchScreen> {
         rxRequired: false,
       ),
     ];
+    _searchResults = List.from(_allProducts);
   }
 
   @override
@@ -67,8 +89,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
     final query = value.trim().toLowerCase();
     
-    // Check if the query contains generic paracetamol terms to show matches,
-    // otherwise if it's some unknown query, it will result in empty state
     if (query.contains('para') || query.contains('dolo') || query.contains('calpol')) {
       setState(() {
         _searchResults = _allProducts;
@@ -89,37 +109,35 @@ class _SearchScreenState extends State<SearchScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Top Bar
+            // 1. Search Header Row
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
               child: Row(
                 children: [
-                  // Back Button
+                  // Back Arrow Button
                   IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Color(0xFF111827)),
+                    icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF111827), size: 24),
                     onPressed: () => context.pop(),
                   ),
-                  const SizedBox(width: 8),
-                  // Search Input Box
+                  const SizedBox(width: 4),
+                  // Search TextField Pill
                   Expanded(
                     child: Container(
                       height: 48,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF3F4F6),
                         borderRadius: BorderRadius.circular(24),
                       ),
                       child: Row(
                         children: [
-                          const SizedBox(width: 16),
-                          const Icon(Icons.search, color: Color(0xFF9CA3AF), size: 20),
-                          const SizedBox(width: 8),
                           Expanded(
                             child: TextField(
                               controller: _searchController,
                               style: GoogleFonts.montserrat(
                                 fontSize: 15,
                                 color: const Color(0xFF111827),
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w600,
                               ),
                               onChanged: _onSearchChanged,
                               decoration: InputDecoration(
@@ -135,33 +153,33 @@ class _SearchScreenState extends State<SearchScreen> {
                             ),
                           ),
                           if (_searchController.text.isNotEmpty)
-                            IconButton(
-                              icon: const Icon(Icons.close, color: Color(0xFF9CA3AF), size: 18),
-                              onPressed: () {
+                            GestureDetector(
+                              onTap: () {
                                 _searchController.clear();
                                 _onSearchChanged('');
                               },
+                              child: const Icon(Icons.close_rounded, color: Color(0xFF9CA3AF), size: 20),
                             ),
-                          const SizedBox(width: 8),
                         ],
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  // Filter Slider Button
+                  // Sliders / Filter Button
                   Container(
                     height: 40,
                     width: 40,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF3F4F6),
-                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.tune_rounded, color: ThemeColours.darkGreen, size: 20),
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(Icons.tune_rounded, color: Color(0xFF111827), size: 20),
                       onPressed: () {
-                        // Mock filter action
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Filter settings clicked (Mock)')),
+                          const SnackBar(content: Text('Filter settings clicked')),
                         );
                       },
                     ),
@@ -170,7 +188,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
 
-            // Content Area
+            // 2. Main Content Area
             Expanded(
               child: _buildContent(),
             ),
@@ -182,7 +200,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _buildContent() {
     if (!_hasSearched) {
-      // Default / Welcome state showing helper tips
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -216,7 +233,6 @@ class _SearchScreenState extends State<SearchScreen> {
     }
 
     if (_searchResults.isEmpty) {
-      // Empty State
       return SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 48.0),
@@ -224,86 +240,38 @@ class _SearchScreenState extends State<SearchScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Empty state illustration
               Center(
                 child: Container(
-                  height: 180,
-                  width: 180,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF3F4F6),
+                  height: 140,
+                  width: 140,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF3F4F6),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.inventory_2_outlined,
-                    size: 80,
+                    size: 64,
                     color: Color(0xFF9CA3AF),
                   ),
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               Text(
                 'No Results Found',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.montserrat(
-                  fontSize: 22,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: const Color(0xFF111827),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               Text(
-                'Try searching by salt name, generic name, or check your spelling.',
+                'We couldn\'t find any matching medicine for "${_searchController.text}".',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
-                  color: const Color(0xFF9CA3AF),
-                  fontWeight: FontWeight.w500,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 48),
-              // Search by Salt button
-              GestureDetector(
-                onTap: () {
-                  _searchController.text = 'Paracetamol';
-                  _onSearchChanged('Paracetamol');
-                },
-                child: Container(
-                  height: 52,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(26),
-                    border: Border.all(
-                      color: ThemeColours.darkGreen,
-                      width: 1.5,
-                    ),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Search by Salt Name (Paracetamol)',
-                    style: GoogleFonts.montserrat(
-                      color: ThemeColours.darkGreen,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              // Browse all categories text
-              Center(
-                child: TextButton(
-                  onPressed: () {
-                    context.pop(); // Go back to Home / Categories
-                  },
-                  child: Text(
-                    'Browse All Categories',
-                    style: GoogleFonts.montserrat(
-                      color: ThemeColours.darkGreen,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  color: const Color(0xFF64748B),
                 ),
               ),
             ],
@@ -312,70 +280,66 @@ class _SearchScreenState extends State<SearchScreen> {
       );
     }
 
-    // Results State
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return ListView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       children: [
-        // Results Count Header
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+          padding: const EdgeInsets.only(bottom: 16.0),
           child: Text(
-            '${_searchResults.length} results found',
+            '24 results found',
             style: GoogleFonts.montserrat(
               fontSize: 14,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
               color: const Color(0xFF64748B),
             ),
           ),
         ),
-        // Product List
-        Expanded(
-          child: ListView.builder(
-            itemCount: _searchResults.length,
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            itemBuilder: (context, index) {
-              final product = _searchResults[index];
-              return _buildProductCard(product);
-            },
-          ),
-        ),
+        ..._searchResults.map((product) => _buildProductCard(product)),
+        const SizedBox(height: 24),
       ],
     );
   }
 
   Widget _buildProductCard(ProductMock product) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16.0),
-      padding: const EdgeInsets.all(16.0),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFE5E7EB),
-          width: 1.5,
-        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            offset: const Offset(0, 4),
+            blurRadius: 10,
+          )
+        ],
       ),
       child: Column(
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Product image placeholder
+              // Product Image Mock Box
               Container(
                 height: 80,
                 width: 80,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF3F4F6),
-                  borderRadius: BorderRadius.circular(12),
+                  color: const Color(0xFFF9FAFB),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
                 ),
-                child: const Icon(
-                  Icons.medication_liquid_rounded,
-                  size: 40,
-                  color: ThemeColours.darkGreen,
+                child: const Center(
+                  child: Icon(
+                    Icons.medication_rounded,
+                    size: 40,
+                    color: Color(0xFF4CAF50),
+                  ),
                 ),
               ),
-              const SizedBox(width: 16),
-              // Product details
+              const SizedBox(width: 12),
+              // Product Details
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -392,14 +356,16 @@ class _SearchScreenState extends State<SearchScreen> {
                     Text(
                       product.salt,
                       style: GoogleFonts.montserrat(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
                         color: const Color(0xFF64748B),
                       ),
                     ),
                     const SizedBox(height: 8),
-                    // Price row
+                    // Price & Discount Row
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
                       children: [
                         Text(
                           'MRP ₹${product.mrp.toStringAsFixed(2)}',
@@ -416,23 +382,22 @@ class _SearchScreenState extends State<SearchScreen> {
                           style: GoogleFonts.montserrat(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF111827),
+                            color: const Color(0xFF4CAF50),
                           ),
                         ),
                         const SizedBox(width: 8),
-                        // Discount Badge
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF53E88B).withValues(alpha: 0.15),
+                            color: const Color(0xFF4CAF50).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
                             product.discount,
                             style: GoogleFonts.montserrat(
                               fontSize: 10,
-                              fontWeight: FontWeight.w800,
-                              color: const Color(0xFF15BE77),
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF4CAF50),
                             ),
                           ),
                         ),
@@ -441,74 +406,81 @@ class _SearchScreenState extends State<SearchScreen> {
                   ],
                 ),
               ),
-              // Heart icon button
-              IconButton(
-                icon: const Icon(Icons.favorite_border_rounded, color: Color(0xFF9CA3AF), size: 20),
-                onPressed: () {},
+              // Favorite Heart Icon
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    product.isFavorite = !product.isFavorite;
+                  });
+                },
+                child: Icon(
+                  product.isFavorite ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
+                  color: product.isFavorite ? const Color(0xFFFF6B4A) : const Color(0xFF9CA3AF),
+                  size: 22,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          const Divider(color: Color(0xFFE5E7EB), thickness: 1.0),
-          const SizedBox(height: 8),
-          // Delivery Speed and Add to Cart Button row
+          const SizedBox(height: 16),
+          // Delivery & Add to Cart Row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
-                  const Icon(Icons.flash_on_rounded, color: Color(0xFFFF6B4A), size: 16),
+                  const Icon(Icons.bolt_rounded, size: 18, color: Color(0xFFFF7B5A)),
                   const SizedBox(width: 4),
                   Text(
                     product.deliveryTime,
                     style: GoogleFonts.montserrat(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF64748B),
+                      color: const Color(0xFFFF7B5A),
                     ),
                   ),
+                  if (product.rxRequired) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEFF6FF),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: const Color(0xFFBFDBFE), width: 1),
+                      ),
+                      child: Text(
+                        'Rx Required',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF1D4ED8),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
-              // Rx Required badge if applicable
-              if (product.rxRequired)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFF6B4A).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    'Rx Required',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFFFF6B4A),
-                    ),
-                  ),
-                ),
               // Add to Cart Button
-              GestureDetector(
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('${product.name} added to cart (Mock)')),
-                  );
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(
-                      color: ThemeColours.darkGreen,
-                      width: 1.5,
-                    ),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
+              Container(
+                height: 36,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4CAF50),
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF4CAF50).withValues(alpha: 0.2),
+                      offset: const Offset(0, 3),
+                      blurRadius: 6,
+                    )
+                  ],
+                ),
+                child: Center(
                   child: Text(
                     'Add to Cart',
                     style: GoogleFonts.montserrat(
-                      color: ThemeColours.darkGreen,
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -519,24 +491,4 @@ class _SearchScreenState extends State<SearchScreen> {
       ),
     );
   }
-}
-
-class ProductMock {
-  final String name;
-  final String salt;
-  final double mrp;
-  final double price;
-  final String discount;
-  final String deliveryTime;
-  final bool rxRequired;
-
-  ProductMock({
-    required this.name,
-    required this.salt,
-    required this.mrp,
-    required this.price,
-    required this.discount,
-    required this.deliveryTime,
-    required this.rxRequired,
-  });
 }

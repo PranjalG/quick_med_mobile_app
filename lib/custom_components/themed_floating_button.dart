@@ -35,7 +35,7 @@ class ThemedFloatingButton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.green.withOpacity(0.4),
+                    color: Colors.green.withValues(alpha: 0.4),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),

@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "QuickMed (Debug Mode)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "flutterMode": "debug"
+    },
+    {
+      "name": "QuickMed (Profile Mode)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "flutterMode": "profile"
+    },
+    {
+      "name": "QuickMed (Release Mode)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "flutterMode": "release"
+    }
+  ]
+}

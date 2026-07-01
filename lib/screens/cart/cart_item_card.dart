@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:quick_med/screens/cart/quantity_selector.dart';
 
 class CartItemCard extends StatelessWidget {
@@ -25,8 +26,9 @@ class CartItemCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -38,28 +40,31 @@ class CartItemCard extends StatelessWidget {
               children: [
                 Text(
                   item.name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
+                  style: GoogleFonts.montserrat(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: const Color(0xFF111827),
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Text(
-                  "₹${item.price}",
-                  style: const TextStyle(color: Colors.grey),
+                  "₹${item.price.toStringAsFixed(2)}",
+                  style: GoogleFonts.montserrat(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF4CAF50),
+                  ),
                 ),
               ],
             ),
           ),
-
           QuantitySelector(
             quantity: item.quantity,
             onAdd: onIncrement,
             onRemove: onDecrement,
           ),
-
           IconButton(
-            icon: const Icon(Icons.delete_outline, color: Colors.red),
+            icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFFF6B4A), size: 22),
             onPressed: onDelete,
           ),
         ],

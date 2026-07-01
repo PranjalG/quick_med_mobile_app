@@ -1,105 +1,90 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:quick_med/blocs/splash_cubit/splash_cubit.dart';
+import 'package:quick_med/blocs/splash_cubit/splash_state.dart';
+import 'package:quick_med/services/app_colors.dart';
+import 'package:quick_med/services/app_text_styles.dart';
 import 'package:quick_med/utils/screen_size.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => SplashCubit(),
+      child: const SplashView(),
+    );
+  }
 }
 
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _navigateToLanding();
-  }
-
-  void _navigateToLanding() async {
-    await Future.delayed(const Duration(seconds: 3));
-    if (mounted) {
-      context.go('/onboarding');
-    }
-  }
+class SplashView extends StatelessWidget {
+  const SplashView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          Stack(
-            children: [
-              SizedBox(
+    return BlocListener<SplashCubit, SplashState>(
+      listener: (context, state) {
+        if (state is SplashNavigateToOnboarding) {
+          context.go('/onboarding');
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.white,
+        body: Column(
+          children: [
+            // 1. Top curved pattern header image using extracted PNG and custom clipper
+            ClipPath(
+              clipper: BottomCurveClipper(),
+              child: SizedBox(
                 height: context.sh * 0.45,
                 width: double.infinity,
                 child: Image.asset(
-                  'assets/images/Gradient.png',
+                  'assets/images/pattern-header.png',
                   fit: BoxFit.cover,
                 ),
               ),
-              Positioned.fill(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    height: context.sh * 0.12,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.white.withValues(alpha: 0.9),
-                          Colors.white,
-                        ],
-                      ),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(100),
-                        topRight: Radius.circular(100),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Container(
-            margin: EdgeInsets.only(top: context.sh * 0.02),
-            decoration: const BoxDecoration(
-              color: Colors.white,
             ),
-            child: Column(
+            const Spacer(),
+            // 2. Content area with logo text and tagline
+            Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   'QuickMedD',
-                  style: GoogleFonts.palanquinDark(
-                    fontSize: 42,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF4CAF50),
-                  ),
+                  style: AppTextStyles.splashTitle(context),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 16),
                 Text(
                   'Swift Medicine Delivery',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFF444444),
-                  ),
+                  style: AppTextStyles.splashSubtitle(context),
                 ),
               ],
             ),
-          ),
-          SizedBox(height: context.sh * 0.2),
-        ],
+            const Spacer(flex: 2),
+          ],
+        ),
       ),
     );
   }
+}
+
+class BottomCurveClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.lineTo(0, size.height);
+    // Control point in the center is higher to create the curved dome arch
+    final controlPoint = Offset(size.width / 2, size.height - 90);
+    final endPoint = Offset(size.width, size.height);
+    
+    path.quadraticBezierTo(controlPoint.dx, controlPoint.dy, endPoint.dx, endPoint.dy);
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }

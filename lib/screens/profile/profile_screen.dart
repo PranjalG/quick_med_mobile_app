@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:quick_med/utils/screen_size.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -12,101 +12,120 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: SafeArea(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: context.sw * 0.05),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 30),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+      backgroundColor: const Color(0xFFF9FAFB),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Header User Info Area
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0x0A000000),
+                    offset: Offset(0, 4),
+                    blurRadius: 12,
+                  )
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    height: 64,
+                    width: 64,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF4CAF50).withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.person_rounded,
+                      size: 36,
+                      color: Color(0xFF4CAF50),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _userQuickInfo(),
-                        const SizedBox(width: 12),
-                        Image.asset(
-                          'assets/images/profile_woman.png',
-                          height: context.sh * 0.16,
+                        Text(
+                          "Priya Rajguru",
+                          style: GoogleFonts.montserrat(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF111827),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(Icons.location_on_outlined, size: 14, color: Color(0xFF64748B)),
+                            const SizedBox(width: 4),
+                            Text(
+                              "Nayapura, Kota (324001)",
+                              style: GoogleFonts.montserrat(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: const Color(0xFF64748B),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            const Icon(Icons.phone_outlined, size: 14, color: Color(0xFF64748B)),
+                            const SizedBox(width: 4),
+                            Text(
+                              "+91 98XXXXXX21",
+                              style: GoogleFonts.montserrat(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: const Color(0xFF64748B),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Order History Title
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Order History",
+                  style: GoogleFonts.montserrat(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF111827),
+                  ),
                 ),
               ),
             ),
-          ),
-          Positioned.fill(
-            child: DraggableScrollableSheet(
-              initialChildSize: 0.8,
-              minChildSize: 0.6,
-              maxChildSize: 0.9,
-              builder: (context, scrollController) {
-                return Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(20)),
-                  ),
-                  child: ListView(
-                    controller: scrollController,
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      _sectionTitle("Order History"),
-                      const SizedBox(height: 12),
-                      ...List.generate(5, (index) => _orderCard(index)),
-                    ],
-                  ),
-                );
-              },
+
+            // Orders List
+            Expanded(
+              child: ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                itemCount: 4,
+                itemBuilder: (context, index) {
+                  return _orderCard(index);
+                },
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _userQuickInfo() {
-    return Container(
-      margin: EdgeInsets.symmetric(
-          vertical: context.sh * 0.02, horizontal: context.sw * 0.04),
-      padding: EdgeInsets.symmetric(
-          vertical: context.sh * 0.02, horizontal: context.sw * 0.03),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(width: 1, color: Colors.grey.shade300),
-      ),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Anastasiya Rajguru",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
-          SizedBox(height: 4),
-          Text(
-            "📍 Nayapura, Kota",
-            style: TextStyle(color: Colors.grey),
-          ),
-          SizedBox(height: 4),
-          Text(
-            "📞 +91 98XXXXXX21",
-            style: TextStyle(color: Colors.grey),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _sectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
+          ],
+        ),
       ),
     );
   }
@@ -114,13 +133,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _orderCard(int index) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -129,51 +148,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Order ID & Status
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "#QM10$index",
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                "#QM102${index + 1}",
+                style: GoogleFonts.montserrat(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF111827),
+                ),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.green.shade100,
+                  color: const Color(0xFF4CAF50).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Text(
+                child: Text(
                   "Delivered",
-                  style: TextStyle(
-                    color: Colors.green,
+                  style: GoogleFonts.montserrat(
+                    color: const Color(0xFF4CAF50),
                     fontSize: 12,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ],
           ),
-
           const SizedBox(height: 8),
-
-          const Text(
-            "Paracetamol, Vitamin C, Zinc Tablets",
-            style: TextStyle(color: Colors.grey),
+          Text(
+            "Paracetamol 650mg, Vitamin C, Zinc Syrup",
+            style: GoogleFonts.montserrat(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFF64748B),
+            ),
           ),
-
-          const SizedBox(height: 8),
-
-          const Row(
+          const SizedBox(height: 12),
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "₹349",
-                style: TextStyle(fontWeight: FontWeight.bold),
+                "₹349.00",
+                style: GoogleFonts.montserrat(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF4CAF50),
+                ),
               ),
               Text(
-                "12 Jan 2026",
-                style: TextStyle(color: Colors.grey),
+                "28 Jun 2026",
+                style: GoogleFonts.montserrat(
+                  fontSize: 12,
+                  color: const Color(0xFF9CA3AF),
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),
