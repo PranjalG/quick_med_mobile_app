@@ -1,28 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-class ProductMock {
-  final String name;
-  final String salt;
-  final double mrp;
-  final double price;
-  final String discount;
-  final String deliveryTime;
-  final bool rxRequired;
-  bool isFavorite;
-
-  ProductMock({
-    required this.name,
-    required this.salt,
-    required this.mrp,
-    required this.price,
-    required this.discount,
-    required this.deliveryTime,
-    this.rxRequired = false,
-    this.isFavorite = false,
-  });
-}
+import 'package:quick_med/models/medicine_model.dart';
+import 'package:quick_med/services/medicine_service.dart';
+import 'package:quick_med/custom_components/custom_shimmer.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -33,73 +15,53 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController(text: 'Paracetamol');
-  List<ProductMock> _allProducts = [];
-  List<ProductMock> _searchResults = [];
+  final MedicineService _medicineService = MedicineService();
+  
+  List<Medicine> _searchResults = [];
   bool _hasSearched = true;
+  bool _isLoading = false;
+  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
-    _allProducts = [
-      ProductMock(
-        name: 'Dolo 650 mg Tablet',
-        salt: 'Paracetamol 650mg',
-        mrp: 35.62,
-        price: 25.64,
-        discount: '28% OFF',
-        deliveryTime: '30 min delivery',
-        rxRequired: false,
-      ),
-      ProductMock(
-        name: 'Calpol 500 mg Tablet',
-        salt: 'Paracetamol 500mg',
-        mrp: 42.00,
-        price: 30.24,
-        discount: '28% OFF',
-        deliveryTime: '45 min delivery',
-        rxRequired: true,
-      ),
-      ProductMock(
-        name: 'Paracetamol 650 mg Tablet',
-        salt: 'Paracetamol 650mg',
-        mrp: 38.50,
-        price: 26.95,
-        discount: '30% OFF',
-        deliveryTime: '30 min delivery',
-        rxRequired: false,
-      ),
-    ];
-    _searchResults = List.from(_allProducts);
+    // Fetch initial results for 'Paracetamol'
+    _search('Paracetamol');
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 
-  void _onSearchChanged(String value) {
-    if (value.trim().isEmpty) {
-      setState(() {
-        _searchResults = [];
-        _hasSearched = false;
-      });
-      return;
-    }
+  Future<void> _search(String query) async {
+    setState(() {
+      _isLoading = true;
+    });
 
-    final query = value.trim().toLowerCase();
-    
-    if (query.contains('para') || query.contains('dolo') || query.contains('calpol')) {
+    try {
+      final results = await _medicineService.fetchMedicines(query);
       setState(() {
-        _searchResults = _allProducts;
-        _hasSearched = true;
+        _searchResults = results;
+        _hasSearched = query.isNotEmpty;
+        _isLoading = false;
       });
-    } else {
+    } catch (_) {
       setState(() {
         _searchResults = [];
-        _hasSearched = true;
+        _hasSearched = query.isNotEmpty;
+        _isLoading = false;
       });
     }
+  }
+
+  void _onSearchChanged(String value) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 400), () {
+      _search(value);
+    });
   }
 
   @override
@@ -199,7 +161,11 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildContent() {
-    if (!_hasSearched) {
+    if (_isLoading) {
+      return _buildShimmerLoader();
+    }
+
+    if (!_hasSearched && _searchController.text.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -287,7 +253,7 @@ class _SearchScreenState extends State<SearchScreen> {
         Padding(
           padding: const EdgeInsets.only(bottom: 16.0),
           child: Text(
-            '24 results found',
+            '${_searchResults.length} results found',
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -301,7 +267,60 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildProductCard(ProductMock product) {
+  Widget _buildShimmerLoader() {
+    return ListView.separated(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      itemCount: 3,
+      separatorBuilder: (context, index) => const SizedBox(height: 16),
+      itemBuilder: (context, index) => Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFF3F4F6), width: 1.5),
+        ),
+        child: const Column(
+          children: [
+            Row(
+              children: [
+                CustomShimmer(width: 80, height: 80, borderRadius: BorderRadius.all(Radius.circular(10))),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CustomShimmer(width: 150, height: 16),
+                      SizedBox(height: 6),
+                      CustomShimmer(width: 100, height: 12),
+                      SizedBox(height: 12),
+                      Row(
+                        children: [
+                          CustomShimmer(width: 60, height: 12),
+                          SizedBox(width: 8),
+                          CustomShimmer(width: 40, height: 16),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                CustomShimmer(width: 120, height: 14),
+                CustomShimmer(width: 100, height: 36, borderRadius: BorderRadius.all(Radius.circular(18))),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProductCard(Medicine product) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
