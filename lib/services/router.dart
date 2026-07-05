@@ -5,6 +5,7 @@ import 'package:quick_med/screens/splash_screen.dart';
 import 'package:quick_med/screens/onboarding_screen.dart';
 import 'package:quick_med/screens/login/profile_setup_screen.dart';
 import 'package:quick_med/screens/search_screen.dart';
+import 'package:quick_med/screens/tracking/live_tracking_screen.dart';
 
 final GoRouter router = GoRouter(
   routes: [
@@ -31,6 +32,13 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/search',
       builder: (context, state) => const SearchScreen(),
+    ),
+    GoRoute(
+      path: '/tracking',
+      builder: (context, state) {
+        final orderId = state.uri.queryParameters['orderId'] ?? 'mock_order_123';
+        return LiveTrackingScreen(orderId: orderId);
+      },
     ),
   ],
 );
