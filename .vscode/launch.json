@@ -2,25 +2,31 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "QuickMed (Debug Mode)",
+      "name": "QuickMed (Debug)",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
       "flutterMode": "debug"
     },
     {
-      "name": "QuickMed (Profile Mode)",
+      "name": "QuickMed (Profile)",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
       "flutterMode": "profile"
     },
     {
-      "name": "QuickMed (Release Mode)",
+      "name": "QuickMed (Release)",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
       "flutterMode": "release"
+    },
+    {
+      "name": "QuickMed Widget Tests (Debug)",
+      "request": "launch",
+      "type": "dart",
+      "program": "test/widget_test.dart"
     }
   ]
 }

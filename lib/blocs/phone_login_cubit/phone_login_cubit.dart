@@ -1,25 +1,49 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:quick_med/services/auth_repository.dart';
+import 'package:quick_med/services/profile_service.dart';
 import 'phone_login_state.dart';
 
 class PhoneLoginCubit extends Cubit<PhoneLoginState> {
+  final AuthRepository _authRepository = AuthRepository();
+  final ProfileService _profileService = ProfileService();
+
   PhoneLoginCubit() : super(PhoneLoginInitial());
 
   Future<void> sendOtp(String phoneNumber) async {
     emit(PhoneLoginLoading());
     try {
-      // Rule 3: Every Supabase query must include error handling (try/catch)
-      // Standardize Indian phone number format if needed (e.g. +91)
-      final formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : '+91$phoneNumber';
-      
-      await Supabase.instance.client.auth.signInWithOtp(
-        phone: formattedPhone,
-      );
+      await _authRepository.sendOtp(phoneNumber);
       emit(PhoneLoginSuccess());
-    } on AuthException catch (e) {
+    } on CustomAuthException catch (e) {
       emit(PhoneLoginFailure(error: e.message));
     } catch (e) {
       emit(PhoneLoginFailure(error: e.toString()));
+    }
+  }
+
+  Future<void> verifyOtp(String phoneNumber, String token) async {
+    emit(PhoneOtpVerifying());
+    try {
+      final response = await _authRepository.verifyOtp(phoneNumber, token);
+
+      if (response.user != null) {
+        bool hasProfile = false;
+        try {
+          final profile = await _profileService.fetchProfile(response.user!.id);
+          if (profile != null && profile.name.isNotEmpty) {
+            hasProfile = true;
+          }
+        } catch (e) {
+          hasProfile = false;
+        }
+        emit(PhoneOtpVerifySuccess(hasProfile: hasProfile));
+      } else {
+        emit(const PhoneOtpVerifyFailure(error: 'Verification failed. Please try again.'));
+      }
+    } on CustomAuthException catch (e) {
+      emit(PhoneOtpVerifyFailure(error: e.message));
+    } catch (e) {
+      emit(PhoneOtpVerifyFailure(error: e.toString()));
     }
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:quick_med/blocs/home_bloc/home_bloc.dart';
+import 'package:quick_med/blocs/profile_cubit/profile_cubit.dart';
 import 'package:quick_med/custom_components/floating_navbar.dart';
 import 'package:quick_med/screens/cart/cart_screen.dart';
 import 'package:quick_med/screens/landing_screen.dart';
@@ -36,8 +38,20 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => _homeBloc,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => _homeBloc),
+        BlocProvider(
+          create: (context) {
+            final cubit = ProfileCubit();
+            final user = Supabase.instance.client.auth.currentUser;
+            if (user != null) {
+              cubit.loadProfile(user.id);
+            }
+            return cubit;
+          },
+        ),
+      ],
       child: BlocConsumer<HomeBloc, HomeState>(
         bloc: _homeBloc,
         listener: (context, state) {

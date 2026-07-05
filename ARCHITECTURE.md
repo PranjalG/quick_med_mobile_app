@@ -1,325 +1,219 @@
-# quick_med — Architecture & Specification
+# 🏛️ QuickMed — Technical Architecture & Specification
 
-> On-demand medicine delivery app (Flutter). This document is reverse-engineered
-> from the source as of the current state of the repo. It captures the actual
-> architecture, the inferred product specification, and the known gaps between
-> the two.
+This document details the software architecture, technical decisions, directory layout, design tokens, and state flow patterns of the QuickMed mobile application. It outlines the current hybrid backend integrations and a technical plan for transitioning mocked screens to live production API endpoints.
 
 ---
 
-## 1. Overview
+## 1. Architectural Overview
 
-**quick_med** is a Flutter mobile app for ordering medicines and having them
-delivered "in a whoosh" through a local-area delivery network. The current build
-is **UI-complete but data-mocked**: screens, navigation, theming, and state
-management are wired end-to-end, but the medicine catalog, cart, order history,
-and live tracking are all driven by hard-coded / randomly-generated data rather
-than a real backend. The only live integration is **Firebase Auth** (email/password).
+QuickMed follows a structured **BLoC/Cubit Presentation Architecture** built with the Flutter SDK. The system separates the user interface, business logic, and API/data client interactions into distinct modules.
 
-- **Package name:** `quick_med`
-- **Version:** `1.0.0+1`
-- **Dart SDK:** `>=3.4.3 <4.0.0` (built on Flutter 3.22.2 per README)
-- **Design base width:** 375pt (iPhone standard) — used for responsive scaling.
+```mermaid
+graph TD
+    UI[UI Screens & Custom Widgets] -->|Dispatch Event / Call Method| BLoC[Cubit / BLoC Layer]
+    BLoC -->|State Updates| UI
+    BLoC -->|Request Transact| Services[Service Layer: Firebase & Supabase Clients]
+    Services -->|Database / Auth Payload| Database[(Backend Engines)]
+```
+
+* **Target SDK Version:** Flutter `3.22.x` / Dart `3.4.x`
+* **Base Resolution Reference:** Design scales proportionally based on a **375pt** screen width (iPhone standard).
 
 ---
 
 ## 2. Tech Stack
 
-| Concern | Choice |
-|---|---|
-| UI | Flutter, Material 3 (`useMaterial3: true`), seed color `lightGreenAccent` |
-| State management | `bloc` / `flutter_bloc` (v9) + `equatable` |
-| Navigation | `go_router` (v15) — declarative routing |
-| Auth | `firebase_core` + `firebase_auth` (email/password) |
-| Maps | `google_maps_flutter` (live delivery tracking UI) |
-| Fonts / Icons | `google_fonts`, `font_awesome_flutter`, `cupertino_icons` |
-| Persistence | `hydrated_bloc` — **declared in README but commented out** in `main.dart` |
-| Lints | `flutter_lints` ^3.0.0 |
+| Operational Area | Technical Implementation | Purpose / Context |
+|---|---|---|
+| **Core Framework** | Flutter (`useMaterial3: true`) | Cross-platform UI compilation. |
+| **State Management** | `bloc` & `flutter_bloc` | Decouples business rules from widgets. |
+| **Routing & Navigation** | `go_router` | Declarative page-to-page navigation. |
+| **Dual Authentication** | Firebase Auth + Supabase Auth | Hybrid authentication: Supabase handles OTP Mobile Auth, while Firebase Core runs Email/Password flows. |
+| **Geolocation / Maps** | `google_maps_flutter` | Interactive route polyline and delivery driver tracking. |
+| **Styling & Assets** | Custom tokens + `flutter_svg` | Theme uniformity and vector graphics rendering. |
+| **Storage / Persistence** | `hydrated_bloc` *(Placeholder)* | Ready to cache screen state locally. |
 
 ---
 
-## 3. Directory Structure
+## 3. Directory Layout
 
-```
+```text
 lib/
-├── main.dart                     # App entry, Firebase init, MaterialApp.router
-├── firebase_options.dart         # FlutterFire generated config (all platforms)
+├── main.dart                      # App initialization & execution hub
+├── firebase_options.dart          # Firebase configuration (generated)
 │
-├── blocs/                        # BLoC layer (3 feature blocs)
-│   ├── login_bloc/               # Auth state, sign-in/up toggle, validation
-│   ├── home_bloc/                # Bottom-nav tab index
-│   └── landing_screen_bloc/      # Medicine list load + search (+ Medicine model)
+├── blocs/                         # Business Logic Controllers (Cubit / BLoC)
+│   ├── home_bloc/                 # Manages active bottom-navigation indices
+│   ├── landing_screen_bloc/       # Medicine inventory loading and search logic
+│   ├── login_bloc/                # Controls standard email-based sign-in/up
+│   ├── onboarding_cubit/          # Page slide transitions on onboarding screen
+│   ├── phone_login_cubit/         # Handles Supabase OTP request cycles
+│   └── splash_cubit/              # Automated delay and redirection routing
 │
-├── screens/                      # Feature screens (UI)
-│   ├── splash_screen.dart        # 3s branded splash → /login
-│   ├── login/                    # login_screen, logo_widget
-│   ├── home_screen.dart          # TabBarView shell (Landing/Profile/Cart)
-│   ├── landing_screen.dart       # Medicine grid + search (the "store" tab)
-│   ├── cart/                     # cart_screen, cart_item_card, quantity_selector
-│   └── profile/                  # profile_screen (user info + order history)
+├── custom_components/             # Shared, themed widgets
+│   ├── alert_message_box.dart     # Action-bound banner messages
+│   ├── bordered_button.dart       # Secondary outlined button action
+│   ├── bordered_icon_button.dart  # Icon-only outline wrapper
+│   ├── bordered_textfield.dart    # Outline text input
+│   ├── data_error_widget.dart     # Error/failure visual state
+│   ├── floating_navbar.dart       # Pill-shaped persistent nav bottom bar
+│   ├── floating_text_box.dart     # Small tags and headers
+│   ├── gradient_button.dart       # Primary CTA button with brand gradients
+│   ├── loading_indicator.dart     # Loading spinners
+│   ├── suffix_action_text_field.dart # Search bar with custom action trigger
+│   ├── themed_card.dart           # Grid card representation of medicines
+│   ├── themed_floating_button.dart # Custom FAB styles
+│   └── themed_text_field.dart     # Material-filled inputs
 │
-├── custom_components/            # 13 reusable themed widgets
-│   ├── gradient_button.dart      bordered_button.dart   bordered_icon_button.dart
-│   ├── bordered_textfield.dart   themed_text_field.dart suffix_action_text_field.dart
-│   ├── floating_text_box.dart    floating_navbar.dart   themed_card.dart
-│   ├── themed_floating_button.dart loading_indicator.dart data_error_widget.dart
-│   └── alert_message_box.dart
+├── screens/                       # User interfaces
+│   ├── splash_screen.dart         # Intro logo screen
+│   ├── onboarding_screen.dart     # Features slides screen
+│   ├── home_screen.dart           # Navigation container shell
+│   ├── landing_screen.dart        # Store, categories, and main grids
+│   ├── search_screen.dart         # Salt-level product search screen
+│   ├── cart/                      # Cart checkout screen & custom selectors
+│   ├── login/                     # Phone login inputs & OTP verification pages
+│   └── profile/                   # User profile stats and past orders sheet
 │
-├── services/                     # Cross-cutting helpers (no real "service" layer)
-│   ├── auth.dart                 # Firebase Auth wrapper
-│   ├── router.dart               # GoRouter route table
-│   ├── enum.dart                 # Status, UserLogin enums
-│   ├── strings.dart              # Static UI strings
-│   ├── text_styles.dart          # Responsive TextStyle factory
-│   └── theme_colours.dart        # Color palette constants
+├── services/                      # API wrappers and tokens
+│   ├── app_colors.dart            # Theme color definitions (Standard)
+│   ├── app_text_styles.dart       # Font parameters and weights (Standard)
+│   ├── auth.dart                  # Firebase Authentication helper client
+│   ├── enum.dart                  # Global Status enumeration
+│   ├── router.dart                # Declarative routes list mapping
+│   ├── strings.dart               # Consolidated UI display copy strings
+│   ├── supabase_config.dart       # Supabase URL and anon credentials
+│   ├── supabase_service.dart      # Client instantiation for Supabase
+│   ├── text_styles.dart           # Sizing-aware TextStyle wrapper (Legacy)
+│   └── theme_colours.dart         # Custom RGB brand colors (Legacy)
 │
 └── utils/
-    └── screen_size.dart          # BuildContext extension: sw, sh, fs(size)
-
-assets/
-├── images/   (Logo.png, Gradient.png, paracetamol.png, levocitrizine.jpg,
-│              profile_woman.png, …)
-└── icons/    (home.png, profile_icon.png, cart.png)
+    └── screen_size.dart           # Context scaling extensions for fonts & spacing
 ```
 
 ---
 
-## 4. Architectural Pattern
+## 4. Application Flow & Routing
 
-The app follows a **BLoC (Business Logic Component) presentation architecture**:
+Navigation is configured via GoRouter inside [router.dart](file:///Users/pranjalgaur/development/Flutter_projects/quick_med_mobile_app-main/lib/services/router.dart). The core execution pathway flows as follows:
 
-```
-   Widget (Screen)  --dispatch event-->  Bloc  --emit state-->  Widget rebuilds
-                                           |
-                                           └── calls Auth() / generates mock data
-```
-
-- **Events** are immutable `Equatable` classes (`part of` the bloc file).
-- **States** are immutable `Equatable` classes with `copyWith`.
-- Each screen creates its bloc locally via `BlocProvider(create: ...)` and reads
-  it with `BlocConsumer` (builder + listener). Blocs are **not** provided at the
-  app root — they are screen-scoped and short-lived.
-- There is **no repository / data-provider layer** in use. `main.dart` has a
-  commented-out `LandingScreenRepository(LandingScreenDataProvider())`, signaling
-  the intended-but-unbuilt data layer. Mock data is generated inside the bloc.
-
-### Status enum (shared async convention)
-`services/enum.dart` defines a 4-state machine reused across blocs:
-`Status { initial, loading, success, failure }` — screens switch UI on this
-(loading spinner / grid / error widget).
-
----
-
-## 5. Navigation & Routing
-
-Routing is centralized in `services/router.dart` (`GoRouter`):
-
-| Path | Screen | Notes |
-|---|---|---|
-| `/` | `SplashScreen` | Initial route |
-| `/login` | `LoginScreen` | |
-| `/home_screen` | `HomeScreen` | Tab shell |
-
-**Flow:**
-
-```
-SplashScreen (3s delay)
-      │ context.go('/login')
-      ▼
-LoginScreen  ──(Status.success │ Google/Apple tap)──►  /home_screen
-      ▲                                                     │
-      └── BackButtonClick resets sign-in/up panel           ▼
-                                            HomeScreen (TabBarView + FloatingNavbar)
-                                            ├─ tab 0: LandingScreen  (store / search)
-                                            ├─ tab 1: ProfileScreen  (profile + history)
-                                            └─ tab 2: CartScreen      (map + cart + bill)
+```mermaid
+graph TD
+    Splash[SplashScreen /] -->|After 3 Seconds| Onboard[OnboardingScreen /onboarding]
+    Onboard -->|Get Started| Login[LoginScreen /login]
+    Login -->|Standard Auth Success| Home[HomeScreen /home_screen]
+    Login -->|Tap Mobile Option| PhoneOtp[OtpVerificationScreen /otp_verification]
+    PhoneOtp -->|OTP Verified| Home
+    Home -->|Switch Tab 0| LandingScreen[Landing Tab]
+    Home -->|Switch Tab 1| ProfileScreen[Profile Tab]
+    Home -->|Switch Tab 2| CartScreen[Cart Tab]
 ```
 
-> Note: `LandingScreen`, `ProfileScreen`, and `CartScreen` are **tabs inside
-> `HomeScreen`**, not GoRouter routes. Tab switching is driven by `HomeBloc`,
-> synced bidirectionally with a `TabController` and the custom `FloatingNavbar`.
+*Note: Tabs inside the `HomeScreen` are run within a `TabBarView` bound directly to a `HomeBloc` rather than sub-GoRoutes.*
 
 ---
 
-## 6. State Management (per-bloc spec)
+## 5. Detailed State Management Specifications
 
-### 6.1 LoginBloc  (`blocs/login_bloc/`)
-Drives the auth screen — a single screen that morphs between a landing panel, a
-sign-up form, and a social-login panel.
+### 5.1 LoginBloc (`blocs/login_bloc/`)
+* **Purpose:** Handles email/password sign-in and sign-up states.
+* **Fields:** `email`, `pswd`, `loginResponseStatus (Status)`, `errorMsg`, `userLogin (bool)`, `userLoginType (UserLogin)`, `loginSuccess`.
+* **State Updates:** Dispatches `SignUpEvent` calling the Firebase auth client. Switches panel types based on validation callbacks.
 
-**State fields:** `email`, `pswd`, `loginResponseStatus (Status)`, `errorMsg`,
-`userLogin (bool — has the user entered the auth panel)`,
-`userLoginType (UserLogin.signIn|signUp)`, `loginSuccess`, `emailErrorText`.
+### 5.2 PhoneLoginCubit (`blocs/phone_login_cubit/`)
+* **Purpose:** Triggers mobile phone OTP requests using Supabase Auth.
+* **Fields:** `PhoneLoginInitial`, `PhoneLoginLoading`, `PhoneLoginSuccess`, `PhoneLoginFailure(error)`.
+* **Operations:** Standardizes the local phone string (e.g. appends `+91` prefix if missing) and submits `auth.signInWithOtp`.
 
-**Events & behavior:**
-- `SignInClickEvent` / `SignUpClickEvent` — flip `userLogin` and set login type.
-- `BackButtonClick` — return to the landing panel.
-- `EmailChangeEvent` / `PasswordChangeEvent` — capture field input.
-- `EmailValidateEvent` — regex validate `^[\w.-]+@[\w.-]+\.\w+$`, set `emailErrorText`.
-- `SignUpEvent` — calls `Auth.createUserWithEmailAndPassword`; on a new user emits
-  `Status.success` + `loginSuccess`, on error emits `Status.failure` + `errorMsg`.
+### 5.3 LandingScreenBloc (`blocs/landing_screen_bloc/`)
+* **Purpose:** Fetches the medicine inventory catalog and performs inline filtering.
+* **Fields:** `medicineDataResponseStatus (Status)`, `medicineList`, `filteredList`, `error`.
+* **Details:** Currently models 30 randomly compiled medicines upon loading, cycling through common medications (Azithromycin, Paracetamol, Levocetirizine).
 
-**Gap:** `SignInWithEmailEvent` and `SignInWithGoogleEvent` events are declared
-but **not registered** in the bloc. `Auth.signInWithEmailAndPassword` exists but is
-**never invoked** — the only real auth path is *sign-up*. Google/Apple buttons
-bypass auth entirely and `context.go('/home_screen')` directly.
-
-### 6.2 HomeBloc  (`blocs/home_bloc/`)
-Trivial bloc holding the active bottom-nav tab.
-- **State:** `tabIndex (int, default 0)`.
-- **Event:** `TabIndexChangeEvent(index)` — emitted by both the `TabController`
-  listener and the `FloatingNavbar.onTap`, keeping them in sync.
-
-### 6.3 LandingScreenBloc  (`blocs/landing_screen_bloc/`)
-Owns the medicine catalog for the store tab.
-- **State:** `medicineDataResponseStatus (Status)`, `error`, `medicineList`,
-  `filteredList`.
-- **Events:**
-  - `LoadMedicinesEvent` — emits `loading`, **waits 4s (simulated network)**, then
-    generates **30 random `Medicine` objects** (name cycles
-    Levocitrizine/Azithromicine/Paracetamol; price = `Random().nextInt(41)`),
-    emits `success`.
-  - `SearchMedicinesEvent(query)` — case-insensitive `contains` filter into
-    `filteredList`.
-- **Embedded model:** `Medicine { String medicineName; num price; }` — defined
-  inside the state file (no shared domain model).
+### 5.4 OnboardingCubit (`blocs/onboarding_cubit/`)
+* **Purpose:** Keeps track of the active slide index during onboarding.
+* **Fields:** `OnboardingState` containing `currentPage (int)`.
 
 ---
 
-## 7. Screen Specifications
+## 6. Sizing Scaling & Design Tokens
 
-### Splash (`splash_screen.dart`)
-Branded launch screen: a `Gradient.png` hero (45% height) with a rounded white
-overlay and centered `Logo.png`. Auto-navigates to `/login` after 3 seconds.
+### Responsive Layout Sizing
+QuickMed enforces responsive text scaling and screen dimension margins to preserve the layout regardless of the user's screen size. This is handled by [screen_size.dart](file:///Users/pranjalgaur/development/Flutter_projects/quick_med_mobile_app-main/lib/utils/screen_size.dart):
+* `14.fs` or `context.fs(14)` adjusts the raw design font size based on the ratio of screen width to the 375pt mockup width.
+* `context.sw` and `context.sh` allow sizing container heights/widths relative to the screen width and height.
 
-### Login (`login/login_screen.dart`, `logo_widget.dart`)
-Single scrollable screen over a gradient background, state-driven into 3 modes:
-1. **Landing panel** — tagline + "Sign in" (gradient) and "Sign up" (bordered).
-2. **Sign-up form** — email/password fields with inline validation, submits `SignUpEvent`.
-3. **Social panel** — "Sign in with Google" / "Sign in with Apple" + back button.
-On `Status.success`, listener routes to `/home_screen`. Shows `LoadingIndicator`
-while `Status.loading`.
-
-### Home (`home_screen.dart`)
-Stateful shell with a `TabController(length: 3)` + `HomeBloc`. Body is a
-`TabBarView` of `[LandingScreen, ProfileScreen, CartScreen]`; bottom bar is the
-custom `FloatingNavbar`. Tab index is kept in sync through the bloc.
-
-### Landing / Store (`landing_screen.dart`)
-- Title (`Strings.landingScreenTitle`) + notification icon.
-- Search bar (`SuffixActionTextField`) → dispatches `SearchMedicinesEvent`.
-- Body switches on `Status`: `LoadingIndicator` / 3-column `GridView` of
-  `ThemedCard` (medicine image + name + ₹price) / `DataErrorWidget`.
-
-### Cart (`cart/`)  — *most feature-rich screen, fully mocked*
-- **Top half:** `GoogleMap` with delivery-partner & customer markers and a
-  connecting green `Polyline`. Hard-coded Kota coordinates
-  (`25.2138,75.8648` partner / `25.2155,75.8700` customer). `simulateLiveTracking()`
-  moves the partner marker and animates the camera. Header chips show
-  `Order #QM1021` and `₹349`.
-- **Bottom half:** delivery-partner card (Ramesh Kumar, call button), editable
-  cart list (`CartItemCard` + `QuantitySelector`, increment/decrement/delete via
-  `setState`), bill summary (Item Total + ₹20 delivery + ₹5 platform fee → "To Pay"),
-  and a hard-coded delivery address.
-- **Local model:** `CartItem { String name; int quantity; double price; }` with
-  a seeded list of 3 items. This screen uses **plain `setState`, not a bloc.**
-
-### Profile (`profile/profile_screen.dart`)
-- Static user card (Anastasiya Rajguru, Nayapura Kota, masked phone) +
-  `profile_woman.png`.
-- `DraggableScrollableSheet` (0.6–0.9) listing **5 mock order cards** (id `#QM10n`,
-  "Delivered" chip, item summary, ₹349, `12 Jan 2026`). Purely presentational.
+### Color Tokens
+* **Standard Colors:** [app_colors.dart](file:///Users/pranjalgaur/development/Flutter_projects/quick_med_mobile_app-main/lib/services/app_colors.dart) provides high-level color tokens like `AppColors.primary`, `AppColors.textPrimary`, `AppColors.error`, etc.
+* **Specific Theme Colors:** [theme_colours.dart](file:///Users/pranjalgaur/development/Flutter_projects/quick_med_mobile_app-main/lib/services/theme_colours.dart) provides raw brand colors like `ThemeColours.lightGreen`, `ThemeColours.darkGreen`, `ThemeColours.lightOrange`, etc.
 
 ---
 
-## 8. Reusable Components (`custom_components/`)
+## 7. Migration Plan: Mock State to Production Backend
 
-| Component | Purpose |
-|---|---|
-| `gradient_button` | Primary CTA with gradient fill |
-| `bordered_button` | Secondary/outline CTA, optional trailing icon |
-| `bordered_icon_button` | Icon-only outline button (e.g. back) |
-| `bordered_textfield` / `themed_text_field` / `suffix_action_text_field` | Themed inputs; the suffix variant fires an `onSearchPressed` callback |
-| `floating_text_box` | Rounded info/tagline box |
-| `floating_navbar` | Custom 3-item bottom nav (home/profile/cart PNG icons, pill highlight) |
-| `themed_card` | Medicine card (random local image, title, ₹price) |
-| `themed_floating_button` | FAB-style action |
-| `loading_indicator` | Centered progress indicator |
-| `data_error_widget` | Error/empty state for failed loads |
-| `alert_message_box` | Inline alert/message |
+To move from the current UI-mocked state to a production backend, the following steps are required:
 
----
+### Step 1: Centralize Cart State (`CartCubit`)
+* **Problem:** Currently, the cart uses local `setState` within the [cart/](file:///Users/pranjalgaur/development/Flutter_projects/quick_med_mobile_app-main/lib/screens/cart) directory. "Add to Cart" buttons on the landing screen do not sync with this state.
+* **Solution:** 
+  1. Create a `CartCubit` that keeps track of added items.
+  2. Provide the `CartCubit` at the root of `MyApp` so it is accessible from both `LandingScreen` and `CartScreen`.
+  3. Wire the "Add to Cart" callbacks on the landing screen to emit add actions to the `CartCubit`.
 
-## 9. Services, Theming & Utilities
+### Step 2: Database Schema (Supabase)
+To support live data, we need the following tables in the Supabase database:
 
-- **`services/auth.dart`** — thin wrapper over `FirebaseAuth`:
-  `currentUser`, `authStateChanges`, `signInWithEmailAndPassword`,
-  `createUserWithEmailAndPassword`, `signOut`.
-- **`services/theme_colours.dart`** — palette: greens (`lightGreen 53,232,139`,
-  `darkGreen 21,190,119`), oranges, greys, plus error/warning/success.
-- **`services/text_styles.dart`** — responsive `TextStyle` factory
-  (`body`→`headline`) sized via `context.fs(...)`.
-- **`services/strings.dart`** — static copy (rupee symbol, landing title, search
-  hint, generic error).
-- **`utils/screen_size.dart`** — `BuildContext` extension: `sw` (width), `sh`
-  (height), `fs(size)` = `size * sw/375` for proportional scaling. **This is the
-  backbone of the app's responsive layout** — most paddings/sizes are expressed
-  as fractions of `sh`/`sw`.
-
----
-
-## 10. Firebase
-
-`firebase_options.dart` is FlutterFire-generated with configs for web, Android,
-iOS, macOS, Windows (Linux unsupported). `main.dart` calls
-`Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)` before
-`runApp`. Only **Auth** is used; no Firestore/Storage/Functions.
-
----
-
-## 11. Inferred Product Specification
-
-Reconstructed from the UI and data shapes, the app *intends* to support:
-
-1. **Onboarding** — branded splash → authentication.
-2. **Authentication** — email/password sign-up & sign-in, plus Google & Apple
-   social login. (Currently: sign-up live; sign-in & social are stubs.)
-3. **Medicine discovery** — browse a catalog grid and search medicines by name.
-4. **Cart management** — add items, adjust quantities, remove items, view an
-   itemized bill (item total + delivery fee + platform fee).
-5. **Live order tracking** — map view of the delivery partner moving toward the
-   customer, with partner contact and ETA.
-6. **Profile & history** — user details and a list of past orders with status.
-7. **Locale** — INR pricing (₹), targeted at Kota, Rajasthan (map coords + address).
-
----
-
-## 12. Known Gaps / TODO (spec vs. implementation)
-
-| Area | Current state |
-|---|---|
-| Catalog data | Randomly generated in `LandingScreenBloc`; no API/repository |
-| Cart ↔ Catalog | Disconnected — "Add to cart" from the store does nothing; cart has its own seeded list |
-| Cart state | Uses `setState`, not a bloc (inconsistent with the rest of the app) |
-| Order history | Static 5-card mock in `ProfileScreen` |
-| Live tracking | Mocked: hard-coded coords, manual `simulateLiveTracking()`, no real GPS/stream |
-| Sign-in (email) | `Auth.signInWithEmailAndPassword` defined but never called; only sign-up works |
-| Social login | Google/Apple buttons skip auth and route straight to home |
-| Persistence | `hydrated_bloc` referenced in README but commented out in `main.dart` |
-| Data layer | `LandingScreenRepository`/`DataProvider` scaffolded (commented) but unbuilt |
-| Maps API key | Requires a Google Maps API key configured per-platform to render |
-| Domain model | `Medicine` and `CartItem` are duplicated, screen-local models (no shared domain) |
-
----
-
-## 13. Build & Run
-
-```bash
-flutter pub get
-# Ensure Firebase config (firebase_options.dart) and a Google Maps API key are set
-flutter run
+```mermaid
+erDiagram
+    users {
+        uuid id PK
+        string phone
+        string name
+        string address_text
+    }
+    medicines {
+        int id PK
+        string name
+        string salt_composition
+        string category
+        decimal price
+        string image_url
+        boolean is_rx_required
+    }
+    cart_items {
+        int id PK
+        uuid user_id FK
+        int medicine_id FK
+        int quantity
+    }
+    orders {
+        int id PK
+        uuid user_id FK
+        timestamp order_date
+        string status
+        decimal item_total
+        decimal delivery_fee
+        decimal platform_fee
+        decimal amount_paid
+        string address_text
+    }
+    rider_locations {
+        uuid rider_id PK
+        decimal lat
+        decimal lng
+        timestamp last_updated
+    }
 ```
 
-Requires the Firebase project referenced by `firebase_options.dart` and a valid
-Google Maps API key (Android `AndroidManifest.xml` / iOS `AppDelegate`) for the
-Cart tab's map to render.
+### Step 3: Stream Live GPS Coordinates for Tracking
+* Replace the local simulation timer in `CartScreen` with a query mapping to `rider_locations`.
+* Set up a real-time listener subscription (using Supabase Realtime or Firestore Streams):
+  ```dart
+  Supabase.instance.client
+      .from('rider_locations')
+      .stream(primaryKey: ['rider_id'])
+      .eq('rider_id', activeRiderId)
+      .listen((data) {
+        // Update marker position and animate Google Map camera.
+      });
+  ```

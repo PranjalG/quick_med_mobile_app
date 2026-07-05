@@ -1,29 +1,36 @@
 # 💊 QuickMed — On-Demand Medicine Delivery App
 
-QuickMed is a high-fidelity, production-grade Flutter mobile application designed for on-demand medicine delivery targeting Indian users (initially optimized for Kota City, Rajasthan). The app features pixel-perfect UI designs matched directly to Figma mockups and communicates with a Supabase backend for secure authentication, user profiles, and order management.
+QuickMed is a high-fidelity, production-grade Flutter mobile application designed for on-demand medicine delivery targeting Indian users (initially optimized for Kota City, Rajasthan). The app features pixel-perfect UI designs matched directly to Figma mockups and communicates with a hybrid Firebase and Supabase backend for secure authentication, user profiles, and order management.
+
+---
+
+## 📖 Project Documentation Index
+Before contributing or building, please review our specialized documentation:
+* **[PRODUCT.md](file:///Users/pranjalgaur/development/Flutter_projects/quick_med_mobile_app-main/PRODUCT.md):** Detailed product vision, target user personas, core customer journeys, and feature roadmaps.
+* **[ARCHITECTURE.md](file:///Users/pranjalgaur/development/Flutter_projects/quick_med_mobile_app-main/ARCHITECTURE.md):** Code patterns, state management specs (Cubit/BLoC), GoRouter navigation flows, and database schemas.
+* **[CONTRIBUTING.md](file:///Users/pranjalgaur/development/Flutter_projects/quick_med_mobile_app-main/CONTRIBUTING.md):** Step-by-step dev setup instructions, styling token rules, responsive scaling (`context.fs`), and PR checklists.
 
 ---
 
 ## ✨ Features
 
-- **🚀 Smart Splash & Transitions:** Guided by `SplashCubit` delay states.
-- **📱 Fully Interactive Onboarding:** Multi-slide product feature show-off using native cached image assets.
-- **🔒 OTP Mobile Authentication:** Clean authentication flow powered by Supabase Phone Auth.
-- **🏠 High-Fidelity Home Dashboard:** Includes active promo banners, categorization grid, and real-time live discount tags.
-- **🔍 Quick Salt & Brand Search:** Instant, local filtering and result sorting.
-- **🛒 Persistent Cart Management:** Seamless add-to-cart operations with automated cost calculations.
-- **🗺️ Live Map Tracking:** Location selectors and delivery routing via Google Maps integration.
+* **🚀 Smart Splash & Transitions:** Seamless branded animation sequence guided by `SplashCubit`.
+* **📱 Fully Interactive Onboarding:** Multi-slide product feature carousel showing value propositions.
+* **🔒 Dual Authentication Flows:** Support for secure traditional Email/Password Auth (Firebase) and Mobile OTP Verification (Supabase).
+* **🏠 High-Fidelity Home Dashboard:** Includes promotional scroll banners, categorizations, and live discount cards.
+* **🔍 Salt & Brand Search:** Search for medications by brand names or active generic salt compositions.
+* **🛒 Persistent Cart Management:** Quantity adjustments and real-time total bill calculations (items + platform fee + rider fee).
+* **🗺️ Live Map Tracking:** Realistic GPS marker tracking of delivery partners moving towards customers on Google Maps.
 
 ---
 
-## 🛠️ Tech Stack & Architecture
+## 🛠️ Tech Stack
 
-- **Framework:** Flutter (target version `3.22.x` / Dart `3.4.x`)
-- **Backend-as-a-Service:** Supabase (Database, Auth, Storage)
-- **State Management:** Flutter BLoC (Cubit) to strictly separate business logic from UI representation.
-- **Navigation:** GoRouter (declarative routing system)
-- **Assets Support:** Optimised vector structures and cached raster image layers.
-- **Styling Tokens:** Unified styling constants mapping (`AppColors` & `AppTextStyles` tokens) with context-based font size scaling (`context.fs`).
+* **Framework:** Flutter (Target version `3.22.x` / Dart `3.4.x`)
+* **State Management:** Flutter BLoC & Cubits (Strict separation of concern layers)
+* **Backend Engines:** Firebase Auth (Email Sign-ups) + Supabase Flutter (OTP and general database client)
+* **Routing:** GoRouter (Declarative navigation)
+* **Styling Tokens:** Responsive context scaling (`context.fs`) mapped with `AppColors` and `ThemeColours` design tokens.
 
 ---
 
@@ -35,14 +42,18 @@ Ensure you have the Flutter SDK configured on your system:
 flutter --version
 ```
 
-### 2. Configure Supabase Credentials
-Create a configuration file at `lib/services/supabase_config.dart` containing your Supabase URL and anon credentials:
-```dart
-class SupabaseConfig {
-  static const String url = 'https://your-project-id.supabase.co';
-  static const String anonKey = 'your-anon-publishable-key';
-}
-```
+### 2. Configure Backend Credentials
+1. **Supabase Setup:** Create a configuration file at `lib/services/supabase_config.dart` containing your database URL and anon publishable key:
+   ```dart
+   class SupabaseConfig {
+     static const String url = 'https://your-project-id.supabase.co';
+     static const String publishableKey = 'your-anon-publishable-key';
+   }
+   ```
+2. **Firebase Setup:** Register your application platforms inside the Firebase console and generate `lib/firebase_options.dart` via the FlutterFire CLI:
+   ```bash
+   flutterfire configure
+   ```
 
 ### 3. Fetch Dependencies
 Install package references:
@@ -62,36 +73,9 @@ flutter run --release
 
 ---
 
-## 📁 Directory Structure
-
-```text
-lib/
-├── blocs/               # Cubit state controllers
-│   ├── onboarding_cubit/
-│   ├── phone_login_cubit/
-│   └── splash_cubit/
-├── custom_components/   # Common reusable UI widgets
-├── screens/             # Screen UI layers
-│   ├── cart/
-│   ├── login/
-│   ├── profile/
-│   ├── landing_screen.dart
-│   ├── search_screen.dart
-│   └── splash_screen.dart
-├── services/            # Supabase config, API clients, and theme tokens
-│   ├── app_colors.dart
-│   ├── app_text_styles.dart
-│   ├── supabase_config.dart
-│   └── supabase_service.dart
-└── utils/               # App utilities and context helpers
-```
-
----
-
 ## 🎨 Figma Alignment Rules
-This repository strictly enforces the following design and architecture guidelines:
-1. **Figma Fidelity:** Pixel-perfect matching to the Figma design mockups.
-2. **Design Tokens:** Zero raw hex codes. Every color uses `AppColors.xxx`.
-3. **Typography:** Zero hardcoded font sizes. Every text element uses `AppTextStyles.xxx` styled with screen-relative context scaling (`context.fs`).
-4. **BLoC Separation:** Zero `StatefulWidgets` where state can instead be managed through a BLoC/Cubit.
-5. **Supabase Integrity:** Strict try-catch error handling around every Supabase client transaction.
+This repository strictly enforces the following UI/UX guidelines:
+1. **Figma Fidelity:** Layout elements must match the Figma design margins exactly.
+2. **Zero Raw Hex Colors:** All colors must refer to `AppColors` or `ThemeColours` tokens.
+3. **No Hardcoded Font Sizes:** All text components must scale with the screen width using context-relative scaling (`context.fs`).
+4. **BLoC Separation:** Avoid using stateful widgets where state can instead be managed within a Cubit.

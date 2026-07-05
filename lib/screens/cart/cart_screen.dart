@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:quick_med/blocs/profile_cubit/profile_cubit.dart';
+import 'package:quick_med/blocs/profile_cubit/profile_state.dart';
 
 import 'cart_item_card.dart';
 
@@ -194,26 +197,37 @@ class _CartScreenState extends State<CartScreen> {
   // ================= DELIVERY ADDRESS =================
 
   Widget _deliveryAddress() {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Delivery Address",
-            style: TextStyle(fontWeight: FontWeight.w600),
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      builder: (context, state) {
+        String address = "Nayapura, Kota";
+        if (state is ProfileLoaded) {
+          address = state.profile.addressDetail.isEmpty
+              ? '${state.profile.kotaArea}, Kota'
+              : '${state.profile.addressDetail}\n${state.profile.kotaArea}, Kota';
+        }
+
+        return Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(12),
           ),
-          SizedBox(height: 6),
-          Text(
-            "Flat 302, Shanti Apartments\nNayapura, Kota",
-            style: TextStyle(color: Colors.grey),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Delivery Address",
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                address,
+                style: const TextStyle(color: Colors.grey),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 

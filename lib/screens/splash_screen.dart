@@ -28,6 +28,10 @@ class SplashView extends StatelessWidget {
       listener: (context, state) {
         if (state is SplashNavigateToOnboarding) {
           context.go('/onboarding');
+        } else if (state is SplashNavigateToHome) {
+          context.go('/home_screen');
+        } else if (state is SplashNavigateToProfileSetup) {
+          context.go('/profile_setup');
         }
       },
       child: Scaffold(

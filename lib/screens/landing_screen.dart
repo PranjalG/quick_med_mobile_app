@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:quick_med/blocs/profile_cubit/profile_cubit.dart';
+import 'package:quick_med/blocs/profile_cubit/profile_state.dart';
 import 'package:quick_med/services/app_colors.dart';
 import 'package:quick_med/services/app_text_styles.dart';
 import 'package:quick_med/utils/screen_size.dart';
@@ -38,52 +41,62 @@ class LandingScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'QuickMedD',
-                              style: AppTextStyles.homeTitle(context),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Hi, Priya 👋',
-                              style: AppTextStyles.homeHeading(context),
-                            ),
-                            const SizedBox(height: 8),
-                            // Location chip
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF3F4F6),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.location_on_outlined,
-                                    size: 16,
-                                    color: AppColors.grey,
+                        BlocBuilder<ProfileCubit, ProfileState>(
+                          builder: (context, state) {
+                            String displayName = 'Guest';
+                            String displayArea = 'Kota';
+                            if (state is ProfileLoaded) {
+                              displayName = state.profile.name.split(' ').first;
+                              displayArea = state.profile.kotaArea;
+                            }
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'QuickMedD',
+                                  style: AppTextStyles.homeTitle(context),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Hi, $displayName 👋',
+                                  style: AppTextStyles.homeHeading(context),
+                                ),
+                                const SizedBox(height: 8),
+                                // Location chip
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF3F4F6),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Kota, 324001',
-                                    style: AppTextStyles.skipText(context).copyWith(
-                                      color: AppColors.grey,
-                                      fontSize: context.fs(13),
-                                    ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.location_on_outlined,
+                                        size: 16,
+                                        color: AppColors.grey,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        '$displayArea, Kota',
+                                        style: AppTextStyles.skipText(context).copyWith(
+                                          color: AppColors.grey,
+                                          fontSize: context.fs(13),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      const Icon(
+                                        Icons.keyboard_arrow_down_rounded,
+                                        size: 16,
+                                        color: AppColors.grey,
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 4),
-                                  const Icon(
-                                    Icons.keyboard_arrow_down_rounded,
-                                    size: 16,
-                                    color: AppColors.grey,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                                ),
+                              ],
+                            );
+                          },
                         ),
                         // Notification Bell with Badge
                         Stack(
