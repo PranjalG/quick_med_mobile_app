@@ -9,6 +9,7 @@ import 'package:quick_med/services/profile_service.dart';
 import 'package:quick_med/services/app_colors.dart';
 import 'package:quick_med/services/app_text_styles.dart';
 import 'package:quick_med/utils/screen_size.dart';
+import 'package:quick_med/custom_components/custom_text_field.dart';
 
 class ProfileSetupScreen extends StatelessWidget {
   const ProfileSetupScreen({super.key});
@@ -40,10 +41,10 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
   
   String? _selectedKotaArea;
-  String _phone = '';
 
   final List<String> _kotaAreas = [
     'Nayapura',
@@ -63,7 +64,8 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
     super.initState();
     final user = Supabase.instance.client.auth.currentUser;
     if (user != null) {
-      _phone = user.phone ?? '';
+      _emailController.text = user.email ?? '';
+      _phoneController.text = user.phone ?? '';
     }
   }
 
@@ -71,6 +73,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _phoneController.dispose();
     _addressController.dispose();
     super.dispose();
   }
@@ -89,7 +92,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
       final profile = UserProfile(
         id: user.id,
         name: _nameController.text.trim(),
-        phone: _phone,
+        phone: _phoneController.text.trim(),
         email: _emailController.text.trim(),
         kotaArea: _selectedKotaArea ?? '',
         addressDetail: _addressController.text.trim(),
@@ -109,7 +112,14 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
             _nameController.text = state.profile.name;
           }
           if (_emailController.text.isEmpty) {
-            _emailController.text = state.profile.email;
+            _emailController.text = state.profile.email.isNotEmpty 
+                ? state.profile.email 
+                : (Supabase.instance.client.auth.currentUser?.email ?? '');
+          }
+          if (_phoneController.text.isEmpty) {
+            _phoneController.text = state.profile.phone.isNotEmpty 
+                ? state.profile.phone 
+                : (Supabase.instance.client.auth.currentUser?.phone ?? '');
           }
           if (_addressController.text.isEmpty) {
             _addressController.text = state.profile.addressDetail;
@@ -204,33 +214,22 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                         ),
                         SizedBox(height: context.sh * 0.04),
 
-                        // Read-only Phone Number
-                        TextFormField(
-                          initialValue: _phone.isNotEmpty ? _phone : 'Phone Number',
-                          key: ValueKey(_phone),
+                        // Email Input (Disabled/Read-only from active session)
+                        CustomTextField(
+                          controller: _emailController,
+                          labelText: 'Email Address',
+                          hintText: 'Email address',
                           enabled: false,
-                          style: AppTextStyles.inputText(context).copyWith(
-                            color: const Color(0xFF9CA3AF),
-                          ),
-                          decoration: InputDecoration(
-                            labelText: 'Phone Number',
-                            labelStyle: TextStyle(color: AppColors.primary.withValues(alpha: 0.7)),
-                            prefixIcon: const Icon(Icons.phone, color: Color(0xFF9CA3AF)),
-                            filled: true,
-                            fillColor: const Color(0xFFF3F4F6),
-                            disabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
-                            ),
-                          ),
+                          prefixIcon: const Icon(Icons.mail_outline, color: Color(0xFF9CA3AF)),
                         ),
                         SizedBox(height: context.sh * 0.02),
 
                         // Full Name Input
-                        TextFormField(
+                        CustomTextField(
                           controller: _nameController,
-                          keyboardType: TextInputType.name,
-                          style: AppTextStyles.inputText(context),
+                          labelText: 'Full Name',
+                          hintText: 'Enter your full name',
+                          prefixIcon: const Icon(Icons.person_outline, color: Color(0xFF6B7280)),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return 'Please enter your full name';
@@ -240,25 +239,25 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                             }
                             return null;
                           },
-                          decoration: _buildInputDecoration('Full Name', Icons.person_outline),
                         ),
                         SizedBox(height: context.sh * 0.02),
 
-                        // Email Input
-                        TextFormField(
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          style: AppTextStyles.inputText(context),
+                        // Phone Number Input (Editable)
+                        CustomTextField(
+                          controller: _phoneController,
+                          labelText: 'Phone Number',
+                          hintText: 'Enter your 10-digit phone number',
+                          keyboardType: TextInputType.phone,
+                          prefixIcon: const Icon(Icons.phone_outlined, color: Color(0xFF6B7280)),
                           validator: (value) {
-                            if (value != null && value.isNotEmpty) {
-                              final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-                              if (!emailRegex.hasMatch(value)) {
-                                return 'Enter a valid email address';
-                              }
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Please enter your phone number';
+                            }
+                            if (value.trim().length < 10) {
+                              return 'Enter a valid 10-digit phone number';
                             }
                             return null;
                           },
-                          decoration: _buildInputDecoration('Email Address (Optional)', Icons.mail_outline),
                         ),
                         SizedBox(height: context.sh * 0.02),
 
@@ -272,7 +271,49 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                             }
                             return null;
                           },
-                          decoration: _buildInputDecoration('Kota Area', Icons.location_city_outlined),
+                          decoration: InputDecoration(
+                            labelText: 'Kota Area',
+                            labelStyle: TextStyle(
+                              color: const Color(0xFF6B7280),
+                              fontSize: context.fs(14),
+                            ),
+                            floatingLabelStyle: const TextStyle(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            prefixIcon: const Icon(Icons.location_city_outlined, color: Color(0xFF6B7280)),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                            filled: true,
+                            fillColor: AppColors.white,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFE5E7EB),
+                                width: 1.5,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: const BorderSide(
+                                color: AppColors.primary,
+                                width: 1.5,
+                              ),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: const BorderSide(
+                                color: AppColors.error,
+                                width: 1.5,
+                              ),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: const BorderSide(
+                                color: AppColors.error,
+                                width: 1.5,
+                              ),
+                            ),
+                          ),
                           items: _kotaAreas.map((area) {
                             return DropdownMenuItem<String>(
                               value: area,
@@ -293,11 +334,12 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                         SizedBox(height: context.sh * 0.02),
 
                         // Address Detail Input
-                        TextFormField(
+                        CustomTextField(
                           controller: _addressController,
-                          keyboardType: TextInputType.streetAddress,
-                          style: AppTextStyles.inputText(context),
+                          labelText: 'Delivery Address Detail',
+                          hintText: 'Flat/Street/Landmark',
                           maxLines: 3,
+                          prefixIcon: const Icon(Icons.home_outlined, color: Color(0xFF6B7280)),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return 'Please enter your detailed delivery address';
@@ -307,12 +349,6 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                             }
                             return null;
                           },
-                          decoration: _buildInputDecoration(
-                            'Delivery Address Detail (Flat/Street/Landmark)',
-                            Icons.home_outlined,
-                          ).copyWith(
-                            alignLabelWithHint: true,
-                          ),
                         ),
                         SizedBox(height: context.sh * 0.05),
 
@@ -358,52 +394,6 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
           ),
         );
       },
-    );
-  }
-
-  InputDecoration _buildInputDecoration(String hintText, IconData icon) {
-    return InputDecoration(
-      labelText: hintText,
-      labelStyle: TextStyle(
-        color: const Color(0xFF6B7280),
-        fontSize: context.fs(14),
-      ),
-      floatingLabelStyle: const TextStyle(
-        color: AppColors.primary,
-        fontWeight: FontWeight.w600,
-      ),
-      prefixIcon: Icon(icon, color: const Color(0xFF6B7280)),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-      filled: true,
-      fillColor: AppColors.white,
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
-        borderSide: const BorderSide(
-          color: Color(0xFFE5E7EB),
-          width: 1.5,
-        ),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
-        borderSide: const BorderSide(
-          color: AppColors.primary,
-          width: 1.5,
-        ),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
-        borderSide: const BorderSide(
-          color: AppColors.error,
-          width: 1.5,
-        ),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
-        borderSide: const BorderSide(
-          color: AppColors.error,
-          width: 1.5,
-        ),
-      ),
     );
   }
 }
