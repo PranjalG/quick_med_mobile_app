@@ -41,6 +41,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   String area = 'Kota';
                   String address = 'Kota, Rajasthan';
                   String phone = '';
+                  String email = '';
                   
                   if (state is ProfileLoaded) {
                     name = state.profile.name;
@@ -49,6 +50,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ? '$area, Kota' 
                         : '${state.profile.addressDetail}, $area';
                     phone = state.profile.phone;
+                    email = state.profile.email;
                   }
 
                   return Row(
@@ -98,6 +100,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ],
                             ),
+                            if (email.isNotEmpty) ...[
+                              const SizedBox(height: 2),
+                              Row(
+                                children: [
+                                  const Icon(Icons.mail_outline, size: 14, color: Color(0xFF64748B)),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    email,
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: const Color(0xFF64748B),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                             if (phone.isNotEmpty) ...[
                               const SizedBox(height: 2),
                               Row(

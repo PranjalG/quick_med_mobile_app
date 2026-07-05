@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:quick_med/blocs/phone_login_cubit/phone_login_cubit.dart';
-import 'package:quick_med/blocs/phone_login_cubit/phone_login_state.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:quick_med/blocs/email_auth_cubit/email_auth_cubit.dart';
+import 'package:quick_med/blocs/email_auth_cubit/email_auth_state.dart';
 import 'package:quick_med/screens/login/logo_widget.dart';
 import 'package:quick_med/services/app_colors.dart';
 import 'package:quick_med/services/app_text_styles.dart';
 import 'package:quick_med/utils/screen_size.dart';
 import 'package:quick_med/custom_components/custom_shimmer.dart';
+import 'package:quick_med/custom_components/custom_text_field.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -17,26 +18,67 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => PhoneLoginCubit(),
+      create: (context) => EmailAuthCubit(),
       child: const LoginView(),
     );
   }
 }
 
-class LoginView extends StatelessWidget {
+class LoginView extends StatefulWidget {
   const LoginView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final TextEditingController phoneController = TextEditingController();
-    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  State<LoginView> createState() => _LoginViewState();
+}
 
-    return BlocConsumer<PhoneLoginCubit, PhoneLoginState>(
+class _LoginViewState extends State<LoginView> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  
+  bool _isLoginMode = true;
+  bool _obscurePassword = true;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _toggleMode() {
+    setState(() {
+      _isLoginMode = !_isLoginMode;
+      _formKey.currentState?.reset();
+      _emailController.clear();
+      _passwordController.clear();
+    });
+  }
+
+  void _onSubmit(BuildContext context) {
+    if (_formKey.currentState!.validate()) {
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
+      
+      if (_isLoginMode) {
+        context.read<EmailAuthCubit>().signIn(email, password);
+      } else {
+        context.read<EmailAuthCubit>().signUp(email, password);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<EmailAuthCubit, EmailAuthState>(
       listener: (context, state) {
-        if (state is PhoneLoginSuccess) {
-          final phone = phoneController.text.trim();
-          context.go('/otp_verification?phone=$phone');
-        } else if (state is PhoneLoginFailure) {
+        if (state is EmailAuthSuccess) {
+          if (state.hasProfile) {
+            context.go('/home_screen');
+          } else {
+            context.go('/profile_setup');
+          }
+        } else if (state is EmailAuthFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.error),
@@ -46,7 +88,7 @@ class LoginView extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        final isLoading = state is PhoneLoginLoading;
+        final isLoading = state is EmailAuthLoading;
 
         return Scaffold(
           backgroundColor: AppColors.white,
@@ -66,7 +108,7 @@ class LoginView extends StatelessWidget {
               // 2. Main Scroll Content
               SafeArea(
                 child: Form(
-                  key: formKey,
+                  key: _formKey,
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -77,17 +119,23 @@ class LoginView extends StatelessWidget {
                         children: [
                           const LogoWidget(),
                           
-                          // Title: Login
+                          // Title (Login / Sign Up)
                           Center(
                             child: Text(
-                              'Login',
+                              _isLoginMode ? 'Login' : 'Sign Up',
                               style: AppTextStyles.onboardingTitle(context),
                             ),
                           ),
                           SizedBox(height: context.sh * 0.04),
 
                           if (isLoading) ...[
-                            // Green shimmer skeleton for the phone number input box
+                            // Green shimmer skeleton for form fields
+                            CustomShimmer(
+                              width: double.infinity,
+                              height: 60,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            SizedBox(height: context.sh * 0.02),
                             CustomShimmer(
                               width: double.infinity,
                               height: 60,
@@ -98,30 +146,17 @@ class LoginView extends StatelessWidget {
                             // Shimmer for Divider line
                             Row(
                               children: [
-                                const Expanded(
-                                  child: Divider(
-                                    color: Color(0xFFE5E7EB),
-                                    thickness: 1.5,
-                                  ),
-                                ),
+                                const Expanded(child: Divider(color: Color(0xFFE5E7EB), thickness: 1.5)),
                                 Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                                  child: Text(
-                                    'Or Continue With',
-                                    style: AppTextStyles.skipText(context),
-                                  ),
+                                  child: Text('Or Continue With', style: AppTextStyles.skipText(context)),
                                 ),
-                                const Expanded(
-                                  child: Divider(
-                                    color: Color(0xFFE5E7EB),
-                                    thickness: 1.5,
-                                  ),
-                                ),
+                                const Expanded(child: Divider(color: Color(0xFFE5E7EB), thickness: 1.5)),
                               ],
                             ),
                             SizedBox(height: context.sh * 0.03),
 
-                            // Shimmer for Social Buttons Row
+                            // Shimmer for Social Buttons
                             Row(
                               children: [
                                 Expanded(
@@ -141,77 +176,58 @@ class LoginView extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            SizedBox(height: context.sh * 0.04),
-
-                            // Shimmer for Reset Password link
-                            Center(
-                              child: CustomShimmer(
-                                width: 180,
-                                height: 18,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                            ),
                           ] else ...[
-                            // Mobile Number Input Box
-                            TextFormField(
-                              controller: phoneController,
-                              keyboardType: TextInputType.phone,
-                              style: AppTextStyles.inputText(context),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(10),
-                              ],
+                            // Reusable Custom Email Field
+                            CustomTextField(
+                              controller: _emailController,
+                              labelText: 'Email Address',
+                              hintText: 'Enter your email',
+                              keyboardType: TextInputType.emailAddress,
+                              prefixIcon: const Icon(Icons.mail_outline, color: Color(0xFF6B7280)),
                               validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter mobile number';
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Please enter your email';
                                 }
-                                if (value.length < 10) {
-                                  return 'Enter a valid 10-digit mobile number';
+                                final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                                if (!emailRegex.hasMatch(value)) {
+                                  return 'Enter a valid email address';
                                 }
                                 return null;
                               },
-                              decoration: InputDecoration(
-                                hintText: 'Mobile Number',
-                                hintStyle: AppTextStyles.hintText(context),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
-                                  vertical: 20,
+                            ),
+                            SizedBox(height: context.sh * 0.02),
+
+                            // Reusable Custom Password Field
+                            CustomTextField(
+                              controller: _passwordController,
+                              labelText: 'Password',
+                              hintText: 'Enter your password',
+                              obscureText: _obscurePassword,
+                              prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF6B7280)),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                  color: const Color(0xFF6B7280),
                                 ),
-                                filled: true,
-                                fillColor: AppColors.white,
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  borderSide: const BorderSide(
-                                    color: Color(0xFFE5E7EB),
-                                    width: 1.5,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  borderSide: const BorderSide(
-                                    color: AppColors.primary,
-                                    width: 1.5,
-                                  ),
-                                ),
-                                errorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  borderSide: const BorderSide(
-                                    color: AppColors.error,
-                                    width: 1.5,
-                                  ),
-                                ),
-                                focusedErrorBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  borderSide: const BorderSide(
-                                    color: AppColors.error,
-                                    width: 1.5,
-                                  ),
-                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
                               ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your password';
+                                }
+                                if (value.length < 6) {
+                                  return 'Password must be at least 6 characters';
+                                }
+                                return null;
+                              },
                             ),
                             SizedBox(height: context.sh * 0.03),
 
-                            // Divider Line: "Or Continue With"
+                            // Divider Line
                             Row(
                               children: [
                                 const Expanded(
@@ -237,7 +253,7 @@ class LoginView extends StatelessWidget {
                             ),
                             SizedBox(height: context.sh * 0.03),
 
-                            // Social Buttons Row
+                            // Social Buttons
                             Row(
                               children: [
                                 Expanded(
@@ -265,38 +281,35 @@ class LoginView extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            SizedBox(height: context.sh * 0.04),
-
-                            // Forgot password link
-                            GestureDetector(
-                              onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Reset password functionality (Mock)'),
-                                  ),
-                                );
-                              },
-                              child: Text(
-                                'Forgot Your Password?',
-                                textAlign: TextAlign.center,
-                                style: AppTextStyles.forgotPasswordText(context),
-                              ),
-                            ),
                           ],
 
                           const Spacer(),
 
-                          // Primary Action Button (Login)
+                          // Mode Switcher (Login <-> Sign Up Link)
+                          if (!isLoading)
+                            GestureDetector(
+                              onTap: _toggleMode,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                                child: Text(
+                                  _isLoginMode
+                                      ? "Don't have an account? Sign Up"
+                                      : "Already have an account? Log In",
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 14,
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                          // Primary Action Button (Login / Sign Up)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 24.0),
                             child: GestureDetector(
-                              onTap: isLoading
-                                  ? null
-                                  : () {
-                                      if (formKey.currentState!.validate()) {
-                                        context.read<PhoneLoginCubit>().sendOtp(phoneController.text);
-                                      }
-                                    },
+                              onTap: isLoading ? null : () => _onSubmit(context),
                               child: Container(
                                 height: 60,
                                 decoration: BoxDecoration(
@@ -318,7 +331,7 @@ class LoginView extends StatelessWidget {
                                         borderRadius: BorderRadius.all(Radius.circular(4)),
                                       )
                                     : Text(
-                                        'Login',
+                                        _isLoginMode ? 'Login' : 'Sign Up',
                                         style: AppTextStyles.buttonText(context),
                                       ),
                               ),
