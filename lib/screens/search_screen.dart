@@ -373,7 +373,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      product.salt,
+                      product.manufacturer,
                       style: GoogleFonts.montserrat(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,

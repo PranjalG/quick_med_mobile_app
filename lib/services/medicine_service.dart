@@ -4,94 +4,69 @@ import 'package:quick_med/models/medicine_model.dart';
 class MedicineService {
   final SupabaseClient _client = Supabase.instance.client;
 
-  // Local simulated fallback data representing standard drugstore inventory in Kota
+  // Local simulated fallback data matching your exact database records
   static final List<Medicine> _localFallbackMedicines = [
     Medicine(
-      id: 'sim_1',
-      name: 'Dolo 650 mg Tablet',
-      salt: 'Paracetamol 650mg',
-      mrp: 35.62,
-      price: 25.64,
-      discount: '28% OFF',
+      id: 'c6e1de97-9dcd-42e3-b859-cb03aa2a0469',
+      name: 'Dolo 650',
+      saltId: '240eef85-dd97-440d-891d-88b8b4aab5f5',
+      manufacturer: 'Micro Labs',
+      mrp: 36.00,
+      price: 32.00,
+      discount: '11% OFF',
       deliveryTime: '30 min delivery',
       rxRequired: false,
     ),
     Medicine(
-      id: 'sim_2',
-      name: 'Calpol 500 mg Tablet',
-      salt: 'Paracetamol 500mg',
-      mrp: 42.00,
-      price: 30.24,
-      discount: '28% OFF',
-      deliveryTime: '45 min delivery',
-      rxRequired: true,
-    ),
-    Medicine(
-      id: 'sim_3',
-      name: 'Allegra 120 mg Tablet',
-      salt: 'Fexofenadine Hydrochloride 120mg',
-      mrp: 215.00,
-      price: 161.25,
-      discount: '25% OFF',
+      id: 'b9cff14d-9161-4044-a12c-3e814e0a57fb',
+      name: 'Calpol 650',
+      saltId: '240eef85-dd97-440d-891d-88b8b4aab5f5',
+      manufacturer: 'GSK',
+      mrp: 30.00,
+      price: 27.00,
+      discount: '10% OFF',
       deliveryTime: '30 min delivery',
       rxRequired: false,
     ),
     Medicine(
-      id: 'sim_4',
-      name: 'Pan-D Capsule',
-      salt: 'Pantoprazole 40mg + Domperidone 30mg',
-      mrp: 198.50,
-      price: 148.87,
-      discount: '25% OFF',
-      deliveryTime: '40 min delivery',
-      rxRequired: true,
-    ),
-    Medicine(
-      id: 'sim_5',
-      name: 'Cetirizine 10 mg Tablet',
-      salt: 'Cetirizine Dihydrochloride 10mg',
-      mrp: 18.20,
-      price: 12.74,
-      discount: '30% OFF',
+      id: 'bb490884-6a68-493c-9a74-81851207a184',
+      name: 'Cetrizine Generic',
+      saltId: '0d07351a-7fe8-4645-a536-11075e091309',
+      manufacturer: 'Local Pharma',
+      mrp: 15.00,
+      price: 12.00,
+      discount: '20% OFF',
       deliveryTime: '30 min delivery',
       rxRequired: false,
     ),
     Medicine(
-      id: 'sim_6',
-      name: 'Okacet Tablet',
-      salt: 'Cetirizine 10mg',
-      mrp: 22.00,
-      price: 16.50,
-      discount: '25% OFF',
+      id: '483852cf-2962-4b6e-b800-bad280b86571',
+      name: 'Pantocid 40',
+      saltId: 'cf7c25c7-1897-477a-bab1-07d5379cdd53',
+      manufacturer: 'Sun Pharma',
+      mrp: 85.00,
+      price: 78.00,
+      discount: '8% OFF',
       deliveryTime: '30 min delivery',
-      rxRequired: false,
-    ),
-    Medicine(
-      id: 'sim_7',
-      name: 'Amoxyclav 625 Tablet',
-      salt: 'Amoxicillin 500mg + Clavulanic Acid 125mg',
-      mrp: 223.50,
-      price: 167.62,
-      discount: '25% OFF',
-      deliveryTime: '45 min delivery',
       rxRequired: true,
     ),
   ];
 
-  /// Queries the Supabase 'medicines' table.
-  /// Falls back to local database lists in case of exceptions or absent tables.
+  /// Queries the Supabase 'medicines' table using your schema columns.
+  /// Falls back to your local mock records in case of exceptions.
   Future<List<Medicine>> fetchMedicines(String query) async {
     try {
       var supabaseQuery = _client.from('medicines').select();
 
       if (query.trim().isNotEmpty) {
-        supabaseQuery = supabaseQuery.or('name.ilike.%$query%,salt.ilike.%$query%');
+        // Query by product name or manufacturer name case-insensitively
+        supabaseQuery = supabaseQuery.or('name.ilike.%$query%,manufacturer.ilike.%$query%');
       }
 
       final List<dynamic> data = await supabaseQuery;
       return data.map((json) => Medicine.fromJson(json as Map<String, dynamic>)).toList();
     } catch (_) {
-      // Fallback in case table doesn't exist yet
+      // Fallback matching logic
       if (query.trim().isEmpty) {
         return _localFallbackMedicines;
       }
@@ -99,7 +74,7 @@ class MedicineService {
       return _localFallbackMedicines
           .where((med) =>
               med.name.toLowerCase().contains(lowerQuery) ||
-              med.salt.toLowerCase().contains(lowerQuery))
+              med.manufacturer.toLowerCase().contains(lowerQuery))
           .toList();
     }
   }

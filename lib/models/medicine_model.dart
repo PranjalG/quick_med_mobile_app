@@ -1,7 +1,8 @@
 class Medicine {
   final String id;
   final String name;
-  final String salt;
+  final String saltId;
+  final String manufacturer;
   final double mrp;
   final double price;
   final String discount;
@@ -12,7 +13,8 @@ class Medicine {
   Medicine({
     required this.id,
     required this.name,
-    required this.salt,
+    required this.saltId,
+    required this.manufacturer,
     required this.mrp,
     required this.price,
     required this.discount,
@@ -22,15 +24,26 @@ class Medicine {
   });
 
   factory Medicine.fromJson(Map<String, dynamic> json) {
+    final double mrpVal = (json['mrp'] as num?)?.toDouble() ?? 0.0;
+    final double priceVal = (json['discounted_price'] as num?)?.toDouble() ?? 0.0;
+    
+    // Calculate discount percentage dynamically based on MRP and discounted price
+    int discountPct = 0;
+    if (mrpVal > 0 && mrpVal > priceVal) {
+      discountPct = (((mrpVal - priceVal) / mrpVal) * 100).round();
+    }
+    final discountStr = discountPct > 0 ? '$discountPct% OFF' : '0% OFF';
+
     return Medicine(
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
-      salt: json['salt'] as String? ?? '',
-      mrp: (json['mrp'] as num?)?.toDouble() ?? 0.0,
-      price: (json['price'] as num?)?.toDouble() ?? 0.0,
-      discount: json['discount'] as String? ?? '0% OFF',
-      deliveryTime: json['delivery_time'] as String? ?? '30 min delivery',
-      rxRequired: json['rx_required'] as bool? ?? false,
+      saltId: json['salt_id'] as String? ?? '',
+      manufacturer: json['manufacturer'] as String? ?? '',
+      mrp: mrpVal,
+      price: priceVal,
+      discount: discountStr,
+      deliveryTime: '30 min delivery',
+      rxRequired: json['prescription_required'] as bool? ?? false,
       isFavorite: false,
     );
   }
@@ -39,12 +52,11 @@ class Medicine {
     return {
       'id': id,
       'name': name,
-      'salt': salt,
+      'salt_id': saltId,
+      'manufacturer': manufacturer,
       'mrp': mrp,
-      'price': price,
-      'discount': discount,
-      'delivery_time': deliveryTime,
-      'rx_required': rxRequired,
+      'discounted_price': price,
+      'prescription_required': rxRequired,
     };
   }
 }
