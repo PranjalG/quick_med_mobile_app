@@ -31,8 +31,15 @@ class EmailAuthCubit extends Cubit<EmailAuthState> {
     try {
       final response = await _authRepository.signUpWithEmail(email, password);
       if (response.user != null) {
-        // Newly registered users won't have a profile yet
-        emit(const EmailAuthSuccess(hasProfile: false));
+        if (response.session == null) {
+          // Email confirmation is required by Supabase project settings
+          emit(const EmailAuthFailure(
+            error: 'Registration successful! Please check your email for a verification link to activate your account.',
+          ));
+        } else {
+          // Auto-login (Email confirmation is disabled in Supabase dashboard)
+          emit(const EmailAuthSuccess(hasProfile: false));
+        }
       } else {
         emit(const EmailAuthFailure(error: 'Failed to sign up. User not created.'));
       }
