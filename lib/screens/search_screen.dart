@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:quick_med/models/medicine_model.dart';
 import 'package:quick_med/services/medicine_service.dart';
 import 'package:quick_med/custom_components/custom_shimmer.dart';
+import 'package:quick_med/services/app_colors.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -14,9 +15,10 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final TextEditingController _searchController = TextEditingController(text: 'Paracetamol');
+  final TextEditingController _searchController =
+      TextEditingController(text: 'Paracetamol');
   final MedicineService _medicineService = MedicineService();
-  
+
   List<Medicine> _searchResults = [];
   bool _hasSearched = true;
   bool _isLoading = false;
@@ -73,12 +75,14 @@ class _SearchScreenState extends State<SearchScreen> {
           children: [
             // 1. Search Header Row
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
               child: Row(
                 children: [
                   // Back Arrow Button
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF111827), size: 24),
+                    icon: const Icon(Icons.arrow_back_rounded,
+                        color: Color(0xFF111827), size: 24),
                     onPressed: () => context.pop(),
                   ),
                   const SizedBox(width: 4),
@@ -120,7 +124,8 @@ class _SearchScreenState extends State<SearchScreen> {
                                 _searchController.clear();
                                 _onSearchChanged('');
                               },
-                              child: const Icon(Icons.close_rounded, color: Color(0xFF9CA3AF), size: 20),
+                              child: const Icon(Icons.close_rounded,
+                                  color: Color(0xFF9CA3AF), size: 20),
                             ),
                         ],
                       ),
@@ -134,14 +139,17 @@ class _SearchScreenState extends State<SearchScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+                      border:
+                          Border.all(color: const Color(0xFFE5E7EB), width: 1),
                     ),
                     child: IconButton(
                       padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.tune_rounded, color: Color(0xFF111827), size: 20),
+                      icon: const Icon(Icons.tune_rounded,
+                          color: Color(0xFF111827), size: 20),
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Filter settings clicked')),
+                          const SnackBar(
+                              content: Text('Filter settings clicked')),
                         );
                       },
                     ),
@@ -284,7 +292,10 @@ class _SearchScreenState extends State<SearchScreen> {
           children: [
             Row(
               children: [
-                CustomShimmer(width: 80, height: 80, borderRadius: BorderRadius.all(Radius.circular(10))),
+                CustomShimmer(
+                    width: 80,
+                    height: 80,
+                    borderRadius: BorderRadius.all(Radius.circular(10))),
                 SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -311,7 +322,10 @@ class _SearchScreenState extends State<SearchScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 CustomShimmer(width: 120, height: 14),
-                CustomShimmer(width: 100, height: 36, borderRadius: BorderRadius.all(Radius.circular(18))),
+                CustomShimmer(
+                    width: 100,
+                    height: 36,
+                    borderRadius: BorderRadius.all(Radius.circular(18))),
               ],
             ),
           ],
@@ -401,14 +415,16 @@ class _SearchScreenState extends State<SearchScreen> {
                           style: GoogleFonts.montserrat(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF4CAF50),
+                            color: AppColors.primaryDark,
                           ),
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF4CAF50).withValues(alpha: 0.1),
+                            color:
+                                AppColors.primaryDark.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
@@ -416,7 +432,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             style: GoogleFonts.montserrat(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
-                              color: const Color(0xFF4CAF50),
+                              color: AppColors.primaryDark,
                             ),
                           ),
                         ),
@@ -433,8 +449,12 @@ class _SearchScreenState extends State<SearchScreen> {
                   });
                 },
                 child: Icon(
-                  product.isFavorite ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
-                  color: product.isFavorite ? const Color(0xFFFF6B4A) : const Color(0xFF9CA3AF),
+                  product.isFavorite
+                      ? Icons.favorite_rounded
+                      : Icons.favorite_outline_rounded,
+                  color: product.isFavorite
+                      ? const Color(0xFFFF6B4A)
+                      : const Color(0xFF9CA3AF),
                   size: 22,
                 ),
               ),
@@ -447,7 +467,8 @@ class _SearchScreenState extends State<SearchScreen> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.bolt_rounded, size: 18, color: Color(0xFFFF7B5A)),
+                  const Icon(Icons.bolt_rounded,
+                      size: 18, color: Color(0xFFFF7B5A)),
                   const SizedBox(width: 4),
                   Text(
                     product.deliveryTime,
@@ -460,11 +481,13 @@ class _SearchScreenState extends State<SearchScreen> {
                   if (product.rxRequired) ...[
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: const Color(0xFFEFF6FF),
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: const Color(0xFFBFDBFE), width: 1),
+                        border: Border.all(
+                            color: const Color(0xFFBFDBFE), width: 1),
                       ),
                       child: Text(
                         'Rx Required',
@@ -483,11 +506,11 @@ class _SearchScreenState extends State<SearchScreen> {
                 height: 36,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF4CAF50),
+                  color: AppColors.primaryDark,
                   borderRadius: BorderRadius.circular(18),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF4CAF50).withValues(alpha: 0.2),
+                      color: AppColors.primaryDark.withValues(alpha: 0.2),
                       offset: const Offset(0, 3),
                       blurRadius: 6,
                     )

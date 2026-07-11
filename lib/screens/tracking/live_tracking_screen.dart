@@ -241,7 +241,7 @@ class _LiveTrackingViewState extends State<LiveTrackingView> {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE8F5E9),
+                              color: AppColors.primary,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -249,7 +249,7 @@ class _LiveTrackingViewState extends State<LiveTrackingView> {
                               style: GoogleFonts.montserrat(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: const Color(0xFF2E7D32),
+                                color: AppColors.primaryDark,
                               ),
                             ),
                           ),
@@ -266,13 +266,13 @@ class _LiveTrackingViewState extends State<LiveTrackingView> {
                             height: 48,
                             width: 48,
                             decoration: const BoxDecoration(
-                              color: Color(0xFFE0F2F1),
+                              color: AppColors.primary,
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
                               Icons.delivery_dining_rounded,
                               size: 28,
-                              color: Color(0xFF00796B),
+                              color: AppColors.primaryDark,
                             ),
                           ),
                           const SizedBox(width: 16),

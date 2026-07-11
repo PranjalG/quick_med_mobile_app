@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:quick_med/blocs/profile_cubit/profile_cubit.dart';
 import 'package:quick_med/blocs/profile_cubit/profile_state.dart';
+import 'package:quick_med/services/app_colors.dart';
 
 import 'cart_item_card.dart';
 
@@ -165,7 +166,7 @@ class _CartScreenState extends State<CartScreen> {
         children: [
           const CircleAvatar(
             radius: 24,
-            backgroundColor: Colors.green,
+            backgroundColor: AppColors.primaryDark,
             child: Icon(Icons.delivery_dining, color: Colors.white),
           ),
           const SizedBox(width: 12),
@@ -186,7 +187,7 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.call, color: Colors.green),
+            icon: const Icon(Icons.call, color: AppColors.primaryDark),
             onPressed: () {},
           ),
         ],

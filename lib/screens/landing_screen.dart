@@ -214,14 +214,14 @@ class LandingScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFF0A7B6C), Color(0xFF1B5E20)],
+                          colors: [AppColors.secondaryTeal, AppColors.primaryDark],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF0A7B6C).withValues(alpha: 0.25),
+                            color: AppColors.secondaryTeal.withValues(alpha: 0.25),
                             offset: const Offset(0, 8),
                             blurRadius: 16,
                           )
@@ -411,8 +411,8 @@ class LandingScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF0D5C3A), Color(0xFF1B5E20)],
+                             gradient: const LinearGradient(
+                              colors: [AppColors.secondaryTeal, AppColors.primaryDark],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),

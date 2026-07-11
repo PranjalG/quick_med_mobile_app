@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:quick_med/services/app_colors.dart';
 import 'package:quick_med/utils/screen_size.dart';
 
 class LogoWidget extends StatelessWidget {
@@ -21,7 +22,7 @@ class LogoWidget extends StatelessWidget {
                   style: GoogleFonts.palanquinDark(
                     fontSize: 42,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF4CAF50),
+                    color: AppColors.secondaryTeal,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -30,7 +31,7 @@ class LogoWidget extends StatelessWidget {
                   style: GoogleFonts.montserrat(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: const Color(0xFF444444),
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ],

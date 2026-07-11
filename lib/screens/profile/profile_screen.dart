@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:quick_med/blocs/profile_cubit/profile_cubit.dart';
 import 'package:quick_med/blocs/profile_cubit/profile_state.dart';
+import 'package:quick_med/services/app_colors.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -59,13 +60,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         height: 64,
                         width: 64,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF4CAF50).withValues(alpha: 0.15),
+                          color: AppColors.primaryDark.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
                           Icons.person_rounded,
                           size: 36,
-                          color: Color(0xFF4CAF50),
+                          color: AppColors.primaryDark,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -242,13 +243,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF4CAF50).withValues(alpha: 0.1),
+                  color: AppColors.success.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   "Delivered",
                   style: GoogleFonts.montserrat(
-                    color: const Color(0xFF4CAF50),
+                    color: AppColors.success,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                   ),
@@ -274,7 +275,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF4CAF50),
+                  color: AppColors.primaryDark,
                 ),
               ),
               Text(

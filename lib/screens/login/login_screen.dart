@@ -101,6 +101,8 @@ class _LoginViewState extends State<LoginView> {
                   child: Image.asset(
                     'assets/images/watermark-pattern.png',
                     fit: BoxFit.cover,
+                    color: AppColors.primaryDark,
+                    colorBlendMode: BlendMode.srcIn,
                   ),
                 ),
               ),
@@ -298,7 +300,7 @@ class _LoginViewState extends State<LoginView> {
                                   textAlign: TextAlign.center,
                                   style: GoogleFonts.montserrat(
                                     fontSize: 14,
-                                    color: AppColors.primary,
+                                    color: AppColors.primaryDark,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -317,7 +319,7 @@ class _LoginViewState extends State<LoginView> {
                                   borderRadius: BorderRadius.circular(30),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: AppColors.primary.withValues(alpha: 0.3),
+                                      color: AppColors.primaryDark.withValues(alpha: 0.3),
                                       offset: const Offset(0, 8),
                                       blurRadius: 15,
                                     )

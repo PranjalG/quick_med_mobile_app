@@ -158,6 +158,8 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                   child: Image.asset(
                     'assets/images/watermark-pattern.png',
                     fit: BoxFit.cover,
+                    color: AppColors.primaryDark,
+                    colorBlendMode: BlendMode.srcIn,
                   ),
                 ),
               ),
@@ -180,13 +182,13 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                             height: 80,
                             width: 80,
                             decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.1),
+                              color: AppColors.primaryDark.withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
                               Icons.person_add_alt_1_outlined,
                               size: 40,
-                              color: AppColors.primary,
+                              color: AppColors.primaryDark,
                             ),
                           ),
                         ),
@@ -278,7 +280,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                               fontSize: context.fs(14),
                             ),
                             floatingLabelStyle: const TextStyle(
-                              color: AppColors.primary,
+                              color: AppColors.primaryDark,
                               fontWeight: FontWeight.w600,
                             ),
                             prefixIcon: const Icon(Icons.location_city_outlined, color: Color(0xFF6B7280)),
@@ -295,7 +297,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
                               borderSide: const BorderSide(
-                                color: AppColors.primary,
+                                color: AppColors.primaryDark,
                                 width: 1.5,
                               ),
                             ),
@@ -362,7 +364,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                               borderRadius: BorderRadius.circular(30),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.primary.withValues(alpha: 0.3),
+                                  color: AppColors.primaryDark.withValues(alpha: 0.3),
                                   offset: const Offset(0, 8),
                                   blurRadius: 15,
                                 )
