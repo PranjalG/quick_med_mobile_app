@@ -41,22 +41,30 @@ class _LoginViewState extends State<LoginView> {
   bool _obscurePassword = true;
 
   Future<void> _launchWhatsApp() async {
-    final url = Uri.parse('https://wa.me/917297815848?text=Hello%20QuickMed,%20I%20would%20like%20to%20order%20medicines.');
+    final whatsappAppUrl = Uri.parse('whatsapp://send?phone=917297815848&text=Hello%20QuickMed,%20I%20would%20like%20to%20order%20medicines.');
+    final whatsappWebUrl = Uri.parse('https://wa.me/917297815848?text=Hello%20QuickMed,%20I%20would%20like%20to%20order%20medicines.');
     try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Could not launch WhatsApp.')),
-          );
-        }
+      // 1. Try launching the native app scheme directly
+      bool launched = await launchUrl(whatsappAppUrl, mode: LaunchMode.externalNonBrowserApplication);
+      if (!launched) {
+        // 2. Fallback to web link if app launcher fails
+        launched = await launchUrl(whatsappWebUrl, mode: LaunchMode.externalApplication);
+      }
+      if (!launched && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not launch WhatsApp.')),
+        );
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error launching WhatsApp: $e')),
-        );
+      // 3. Fallback to web link if native scheme throws an exception (e.g. app not installed)
+      try {
+        await launchUrl(whatsappWebUrl, mode: LaunchMode.externalApplication);
+      } catch (innerError) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error opening WhatsApp: $innerError')),
+          );
+        }
       }
     }
   }
@@ -64,14 +72,11 @@ class _LoginViewState extends State<LoginView> {
   Future<void> _launchCall() async {
     final url = Uri.parse('tel:+917297815848');
     try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url);
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Could not launch Phone dialer.')),
-          );
-        }
+      final launched = await launchUrl(url);
+      if (!launched && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not launch Phone dialer.')),
+        );
       }
     } catch (e) {
       if (mounted) {
