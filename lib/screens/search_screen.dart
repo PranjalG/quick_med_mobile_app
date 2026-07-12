@@ -69,7 +69,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.scaffoldBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -82,7 +82,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   // Back Arrow Button
                   IconButton(
                     icon: const Icon(Icons.arrow_back_rounded,
-                        color: Color(0xFF111827), size: 24),
+                        color: AppColors.primary, size: 24),
                     onPressed: () => context.pop(),
                   ),
                   const SizedBox(width: 4),
@@ -92,8 +92,12 @@ class _SearchScreenState extends State<SearchScreen> {
                       height: 48,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F6),
+                        color: AppColors.inputFill,
                         borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: const Color(0xFF264052),
+                          width: 1.5,
+                        ),
                       ),
                       child: Row(
                         children: [
@@ -102,14 +106,14 @@ class _SearchScreenState extends State<SearchScreen> {
                               controller: _searchController,
                               style: GoogleFonts.montserrat(
                                 fontSize: 15,
-                                color: const Color(0xFF111827),
+                                color: Colors.white,
                                 fontWeight: FontWeight.w600,
                               ),
                               onChanged: _onSearchChanged,
                               decoration: InputDecoration(
                                 hintText: 'Search medicines, salt or brand',
                                 hintStyle: GoogleFonts.montserrat(
-                                  color: const Color(0xFF9CA3AF),
+                                  color: AppColors.textSecondary,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -125,7 +129,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                 _onSearchChanged('');
                               },
                               child: const Icon(Icons.close_rounded,
-                                  color: Color(0xFF9CA3AF), size: 20),
+                                  color: AppColors.textSecondary, size: 20),
                             ),
                         ],
                       ),
@@ -133,19 +137,19 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                   const SizedBox(width: 8),
                   // Sliders / Filter Button
-                  Container(
+                   Container(
                     height: 40,
                     width: 40,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.cardBackground,
                       borderRadius: BorderRadius.circular(20),
                       border:
-                          Border.all(color: const Color(0xFFE5E7EB), width: 1),
+                          Border.all(color: const Color(0xFF264052), width: 1.5),
                     ),
                     child: IconButton(
                       padding: EdgeInsets.zero,
                       icon: const Icon(Icons.tune_rounded,
-                          color: Color(0xFF111827), size: 20),
+                          color: AppColors.primary, size: 20),
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -219,13 +223,13 @@ class _SearchScreenState extends State<SearchScreen> {
                   height: 140,
                   width: 140,
                   decoration: const BoxDecoration(
-                    color: Color(0xFFF3F4F6),
+                    color: AppColors.cardBackground,
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.inventory_2_outlined,
                     size: 64,
-                    color: Color(0xFF9CA3AF),
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ),
@@ -236,7 +240,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 style: GoogleFonts.montserrat(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF111827),
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(height: 8),
@@ -245,7 +249,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 textAlign: TextAlign.center,
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
-                  color: const Color(0xFF64748B),
+                  color: AppColors.textSecondary,
                 ),
               ),
             ],
@@ -260,12 +264,12 @@ class _SearchScreenState extends State<SearchScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 16.0),
-          child: Text(
+            child: Text(
             '${_searchResults.length} results found',
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF64748B),
+              color: AppColors.textSecondary,
             ),
           ),
         ),
@@ -284,9 +288,9 @@ class _SearchScreenState extends State<SearchScreen> {
       itemBuilder: (context, index) => Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.cardBackground,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFF3F4F6), width: 1.5),
+          border: Border.all(color: const Color(0xFF264052), width: 1.5),
         ),
         child: const Column(
           children: [
@@ -339,15 +343,9 @@ class _SearchScreenState extends State<SearchScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            offset: const Offset(0, 4),
-            blurRadius: 10,
-          )
-        ],
+        border: Border.all(color: const Color(0xFF264052), width: 1.0),
       ),
       child: Column(
         children: [
@@ -359,15 +357,15 @@ class _SearchScreenState extends State<SearchScreen> {
                 height: 80,
                 width: 80,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF9FAFB),
+                  color: const Color(0xFF1F3647),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+                  border: Border.all(color: const Color(0xFF264052), width: 1),
                 ),
                 child: const Center(
                   child: Icon(
                     Icons.medication_rounded,
                     size: 40,
-                    color: Color(0xFF4CAF50),
+                    color: AppColors.primary,
                   ),
                 ),
               ),
@@ -382,7 +380,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       style: GoogleFonts.montserrat(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFF111827),
+                        color: Colors.white,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -391,7 +389,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       style: GoogleFonts.montserrat(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: const Color(0xFF64748B),
+                        color: AppColors.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 8),

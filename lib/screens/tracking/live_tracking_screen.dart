@@ -159,9 +159,14 @@ class _LiveTrackingViewState extends State<LiveTrackingView> {
                 left: 16,
                 child: FloatingActionButton(
                   mini: true,
-                  backgroundColor: AppColors.white,
-                  foregroundColor: AppColors.textPrimary,
-                  shape: const CircleBorder(),
+                  backgroundColor: AppColors.cardBackground,
+                  foregroundColor: AppColors.primary,
+                  shape: const CircleBorder(
+                    side: BorderSide(
+                      color: Color(0xFF264052),
+                      width: 1.5,
+                    ),
+                  ),
                   onPressed: () {
                     if (context.canPop()) {
                       context.pop();
@@ -181,15 +186,14 @@ class _LiveTrackingViewState extends State<LiveTrackingView> {
                 child: Container(
                   padding: const EdgeInsets.all(24.0),
                   decoration: const BoxDecoration(
-                    color: AppColors.white,
+                    color: AppColors.scaffoldBackground,
                     borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0x1F000000),
-                        offset: Offset(0, -4),
-                        blurRadius: 16,
-                      )
-                    ],
+                    border: Border(
+                      top: BorderSide(
+                        color: Color(0xFF264052),
+                        width: 1.5,
+                      ),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -201,7 +205,7 @@ class _LiveTrackingViewState extends State<LiveTrackingView> {
                           width: 40,
                           height: 4,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE5E7EB),
+                            color: const Color(0xFF264052),
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -230,7 +234,7 @@ class _LiveTrackingViewState extends State<LiveTrackingView> {
                                 style: GoogleFonts.montserrat(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.textPrimary,
+                                  color: Colors.white,
                                 ),
                               ),
                             ],
@@ -247,16 +251,16 @@ class _LiveTrackingViewState extends State<LiveTrackingView> {
                             child: Text(
                               'In Transit',
                               style: GoogleFonts.montserrat(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primaryDark,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.secondaryNavy,
                               ),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 20),
-                      const Divider(color: Color(0xFFF3F4F6)),
+                      const Divider(color: Color(0xFF264052)),
                       const SizedBox(height: 16),
 
                       // Delivery Agent Profile details
@@ -272,7 +276,7 @@ class _LiveTrackingViewState extends State<LiveTrackingView> {
                             child: const Icon(
                               Icons.delivery_dining_rounded,
                               size: 28,
-                              color: AppColors.primaryDark,
+                              color: AppColors.secondaryNavy,
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -285,7 +289,7 @@ class _LiveTrackingViewState extends State<LiveTrackingView> {
                                   style: GoogleFonts.montserrat(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: AppColors.textPrimary,
+                                    color: Colors.white,
                                   ),
                                 ),
                                 const SizedBox(height: 2),
@@ -293,7 +297,7 @@ class _LiveTrackingViewState extends State<LiveTrackingView> {
                                   'Hero Splendor Plus (RJ-20-DE-1234)',
                                   style: GoogleFonts.montserrat(
                                     fontSize: 12,
-                                    color: const Color(0xFF6B7280),
+                                    color: AppColors.textSecondary,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -303,7 +307,11 @@ class _LiveTrackingViewState extends State<LiveTrackingView> {
                           // Action buttons (Call / Support)
                           IconButton(
                             style: IconButton.styleFrom(
-                              backgroundColor: const Color(0xFFF3F4F6),
+                              backgroundColor: AppColors.cardBackground,
+                              side: const BorderSide(
+                                color: Color(0xFF264052),
+                                width: 1.5,
+                              ),
                             ),
                             onPressed: () {
                               ScaffoldMessenger.of(context).showSnackBar(

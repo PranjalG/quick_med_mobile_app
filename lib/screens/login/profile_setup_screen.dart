@@ -148,13 +148,13 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
       },
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: AppColors.white,
+          backgroundColor: AppColors.scaffoldBackground,
           body: Stack(
             children: [
               // 1. Watermark Background Pattern
               Positioned.fill(
                 child: Opacity(
-                  opacity: 0.08,
+                  opacity: 0.12,
                   child: Image.asset(
                     'assets/images/watermark-pattern.png',
                     fit: BoxFit.cover,
@@ -182,13 +182,13 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                             height: 80,
                             width: 80,
                             decoration: BoxDecoration(
-                              color: AppColors.primaryDark.withValues(alpha: 0.1),
+                              color: AppColors.primary.withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
                               Icons.person_add_alt_1_outlined,
                               size: 40,
-                              color: AppColors.primaryDark,
+                              color: AppColors.primary,
                             ),
                           ),
                         ),
@@ -250,7 +250,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                           labelText: 'Phone Number',
                           hintText: 'Enter your 10-digit phone number',
                           keyboardType: TextInputType.phone,
-                          prefixIcon: const Icon(Icons.phone_outlined, color: Color(0xFF6B7280)),
+                          prefixIcon: const Icon(Icons.phone_outlined, color: AppColors.textSecondary),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return 'Please enter your phone number';
@@ -276,28 +276,28 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                           decoration: InputDecoration(
                             labelText: 'Kota Area',
                             labelStyle: TextStyle(
-                              color: const Color(0xFF6B7280),
+                              color: AppColors.textSecondary,
                               fontSize: context.fs(14),
                             ),
                             floatingLabelStyle: const TextStyle(
-                              color: AppColors.primaryDark,
+                              color: AppColors.primary,
                               fontWeight: FontWeight.w600,
                             ),
-                            prefixIcon: const Icon(Icons.location_city_outlined, color: Color(0xFF6B7280)),
+                            prefixIcon: const Icon(Icons.location_city_outlined, color: AppColors.textSecondary),
                             contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                             filled: true,
-                            fillColor: AppColors.white,
+                            fillColor: AppColors.inputFill,
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
                               borderSide: const BorderSide(
-                                color: Color(0xFFE5E7EB),
+                                color: AppColors.inputBorder,
                                 width: 1.5,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
                               borderSide: const BorderSide(
-                                color: AppColors.primaryDark,
+                                color: AppColors.primary,
                                 width: 1.5,
                               ),
                             ),
@@ -330,7 +330,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                               _selectedKotaArea = value;
                             });
                           },
-                          dropdownColor: AppColors.white,
+                          dropdownColor: AppColors.cardBackground,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         SizedBox(height: context.sh * 0.02),
@@ -341,7 +341,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                           labelText: 'Delivery Address Detail',
                           hintText: 'Flat/Street/Landmark',
                           maxLines: 3,
-                          prefixIcon: const Icon(Icons.home_outlined, color: Color(0xFF6B7280)),
+                          prefixIcon: const Icon(Icons.home_outlined, color: AppColors.textSecondary),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return 'Please enter your detailed delivery address';
@@ -360,11 +360,11 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                           child: Container(
                             height: 60,
                             decoration: BoxDecoration(
-                              color: AppColors.primary,
+                              color: AppColors.secondaryBlue,
                               borderRadius: BorderRadius.circular(30),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.primaryDark.withValues(alpha: 0.3),
+                                  color: AppColors.secondaryBlue.withValues(alpha: 0.3),
                                   offset: const Offset(0, 8),
                                   blurRadius: 15,
                                 )
@@ -377,7 +377,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                                     width: 24,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2.5,
-                                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
+                                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
                                     ),
                                   )
                                 : Text(

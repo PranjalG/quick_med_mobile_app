@@ -45,16 +45,18 @@ class OnboardingView extends StatelessWidget {
     final PageController pageController = PageController();
 
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: AppColors.scaffoldBackground,
       body: Stack(
         children: [
           // 1. Watermark Background Image
           Positioned.fill(
             child: Opacity(
-              opacity: 0.08,
+              opacity: 0.12,
               child: Image.asset(
                 'assets/images/watermark-pattern.png',
                 fit: BoxFit.cover,
+                color: AppColors.primaryDark,
+                colorBlendMode: BlendMode.srcIn,
               ),
             ),
           ),
@@ -77,9 +79,7 @@ class OnboardingView extends StatelessWidget {
                               onTap: () => context.go('/login'),
                               child: Text(
                                 'Skip',
-                                style: AppTextStyles.skipText(context).copyWith(
-                                  color: AppColors.primary,
-                                ),
+                                style: AppTextStyles.skipText(context),
                               ),
                             )
                           : const SizedBox.shrink(),
@@ -151,7 +151,7 @@ class OnboardingView extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(4),
                                   color: currentPage == index
                                       ? AppColors.primary
-                                      : AppColors.grey.withValues(alpha: 0.3),
+                                      : AppColors.textSecondary.withValues(alpha: 0.3),
                                 ),
                               ),
                             ),
@@ -173,11 +173,11 @@ class OnboardingView extends StatelessWidget {
                               height: 60,
                               width: double.infinity,
                               decoration: BoxDecoration(
-                                color: AppColors.primary,
+                                color: AppColors.secondaryBlue,
                                 borderRadius: BorderRadius.circular(30),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppColors.primary.withValues(alpha: 0.3),
+                                    color: AppColors.secondaryBlue.withValues(alpha: 0.3),
                                     offset: const Offset(0, 8),
                                     blurRadius: 15,
                                   )

@@ -23,15 +23,9 @@ class CartItemCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        border: Border.all(color: const Color(0xFF264052), width: 1.0),
       ),
       child: Row(
         children: [
@@ -44,7 +38,7 @@ class CartItemCard extends StatelessWidget {
                   style: GoogleFonts.montserrat(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
-                    color: const Color(0xFF111827),
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -53,7 +47,7 @@ class CartItemCard extends StatelessWidget {
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.primaryDark,
+                    color: AppColors.primary,
                   ),
                 ),
               ],

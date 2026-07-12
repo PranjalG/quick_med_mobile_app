@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quick_med/services/app_colors.dart';
 
 class QuantitySelector extends StatelessWidget {
   final int quantity;
@@ -21,7 +22,7 @@ class QuantitySelector extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Text(
             "$quantity",
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),
         _button(Icons.add, onAdd),
@@ -37,13 +38,13 @@ class QuantitySelector extends StatelessWidget {
         height: 28,
         width: 28,
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
+          border: Border.all(color: const Color(0xFF264052)),
           borderRadius: BorderRadius.circular(6),
         ),
         child: Icon(
           icon,
           size: 16,
-          color: disabled ? Colors.grey : Colors.black,
+          color: disabled ? Colors.grey : AppColors.primary,
         ),
       ),
     );

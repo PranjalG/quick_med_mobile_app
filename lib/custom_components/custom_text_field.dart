@@ -57,13 +57,13 @@ class CustomTextField extends StatelessWidget {
       focusNode: focusNode,
       style: GoogleFonts.montserrat(
         fontSize: 16,
-        color: const Color(0xFF111827),
+        color: Colors.white,
         fontWeight: FontWeight.w500,
       ),
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: GoogleFonts.montserrat(
-          color: const Color(0xFF6B7280),
+          color: AppColors.textSecondary,
           fontSize: 14,
         ),
         floatingLabelStyle: GoogleFonts.montserrat(
@@ -72,7 +72,7 @@ class CustomTextField extends StatelessWidget {
         ),
         hintText: hintText,
         hintStyle: GoogleFonts.montserrat(
-          color: const Color(0xFF9CA3AF),
+          color: AppColors.textSecondary,
           fontSize: 14,
         ),
         errorText: errorText,
@@ -80,11 +80,11 @@ class CustomTextField extends StatelessWidget {
         suffixIcon: suffixIcon,
         contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppColors.inputFill,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
           borderSide: const BorderSide(
-            color: Color(0xFFE5E7EB),
+            color: AppColors.inputBorder,
             width: 1.5,
           ),
         ),
@@ -112,7 +112,7 @@ class CustomTextField extends StatelessWidget {
         disabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
           borderSide: const BorderSide(
-            color: Color(0xFFF3F4F6),
+            color: AppColors.inputBorder,
             width: 1.5,
           ),
         ),

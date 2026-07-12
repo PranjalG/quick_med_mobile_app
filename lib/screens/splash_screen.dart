@@ -35,7 +35,7 @@ class SplashView extends StatelessWidget {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.white,
+        backgroundColor: AppColors.scaffoldBackground,
         body: Column(
           children: [
             // 1. Top curved pattern header image using extracted PNG and custom clipper
@@ -47,7 +47,7 @@ class SplashView extends StatelessWidget {
                 child: Image.asset(
                   'assets/images/pattern-header.png',
                   fit: BoxFit.cover,
-                  color: AppColors.primaryDark,
+                  color: AppColors.secondaryTeal,
                   colorBlendMode: BlendMode.srcIn,
                 ),
               ),

@@ -11,6 +11,7 @@ import 'package:quick_med/services/app_text_styles.dart';
 import 'package:quick_med/utils/screen_size.dart';
 import 'package:quick_med/custom_components/custom_shimmer.dart';
 import 'package:quick_med/custom_components/custom_text_field.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -38,6 +39,48 @@ class _LoginViewState extends State<LoginView> {
   
   bool _isLoginMode = true;
   bool _obscurePassword = true;
+
+  Future<void> _launchWhatsApp() async {
+    final url = Uri.parse('https://wa.me/917297815848?text=Hello%20QuickMed,%20I%20would%20like%20to%20order%20medicines.');
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Could not launch WhatsApp.')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error launching WhatsApp: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _launchCall() async {
+    final url = Uri.parse('tel:+917297815848');
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Could not launch Phone dialer.')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error launching phone dialer: $e')),
+        );
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -91,13 +134,13 @@ class _LoginViewState extends State<LoginView> {
         final isLoading = state is EmailAuthLoading;
 
         return Scaffold(
-          backgroundColor: AppColors.white,
+          backgroundColor: AppColors.scaffoldBackground,
           body: Stack(
             children: [
               // 1. Watermark Background Image
               Positioned.fill(
                 child: Opacity(
-                  opacity: 0.08,
+                  opacity: 0.12,
                   child: Image.asset(
                     'assets/images/watermark-pattern.png',
                     fit: BoxFit.cover,
@@ -114,11 +157,14 @@ class _LoginViewState extends State<LoginView> {
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: SizedBox(
-                      height: context.sh - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: context.sh - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom,
+                      ),
+                      child: IntrinsicHeight(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
                           const LogoWidget(),
                           
                           // Title (Login / Sign Up)
@@ -142,6 +188,18 @@ class _LoginViewState extends State<LoginView> {
                               width: double.infinity,
                               height: 60,
                               borderRadius: BorderRadius.circular(20),
+                            ),
+                            SizedBox(height: context.sh * 0.02),
+                            CustomShimmer(
+                              width: double.infinity,
+                              height: 56,
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            SizedBox(height: context.sh * 0.02),
+                            CustomShimmer(
+                              width: double.infinity,
+                              height: 56,
+                              borderRadius: BorderRadius.circular(18),
                             ),
                             SizedBox(height: context.sh * 0.03),
 
@@ -180,12 +238,12 @@ class _LoginViewState extends State<LoginView> {
                             ),
                           ] else ...[
                             // Reusable Custom Email Field
-                            CustomTextField(
+                             CustomTextField(
                               controller: _emailController,
                               labelText: 'Email Address',
                               hintText: 'Enter your email',
                               keyboardType: TextInputType.emailAddress,
-                              prefixIcon: const Icon(Icons.mail_outline, color: Color(0xFF6B7280)),
+                              prefixIcon: const Icon(Icons.mail_outline, color: AppColors.textSecondary),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
                                   return 'Please enter your email';
@@ -205,11 +263,11 @@ class _LoginViewState extends State<LoginView> {
                               labelText: 'Password',
                               hintText: 'Enter your password',
                               obscureText: _obscurePassword,
-                              prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF6B7280)),
+                              prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textSecondary),
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                                  color: const Color(0xFF6B7280),
+                                  color: AppColors.textSecondary,
                                 ),
                                 onPressed: () {
                                   setState(() {
@@ -227,14 +285,78 @@ class _LoginViewState extends State<LoginView> {
                                 return null;
                               },
                             ),
+                            SizedBox(height: context.sh * 0.02),
+
+                            // WhatsApp CTA Button
+                            GestureDetector(
+                              onTap: _launchWhatsApp,
+                              child: Container(
+                                height: 56,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF25D366),
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      FontAwesomeIcons.whatsapp,
+                                      color: Colors.white,
+                                      size: 22,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      'Order via WhatsApp',
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: context.sh * 0.02),
+
+                            // Call CTA Button
+                            GestureDetector(
+                              onTap: _launchCall,
+                              child: Container(
+                                height: 56,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF2588D3),
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.phone,
+                                      color: Colors.white,
+                                      size: 22,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      'Order via Call',
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                             SizedBox(height: context.sh * 0.03),
 
                             // Divider Line
-                            Row(
+                             Row(
                               children: [
                                 const Expanded(
                                   child: Divider(
-                                    color: Color(0xFFE5E7EB),
+                                    color: AppColors.inputBorder,
                                     thickness: 1.5,
                                   ),
                                 ),
@@ -247,7 +369,7 @@ class _LoginViewState extends State<LoginView> {
                                 ),
                                 const Expanded(
                                   child: Divider(
-                                    color: Color(0xFFE5E7EB),
+                                    color: AppColors.inputBorder,
                                     thickness: 1.5,
                                   ),
                                 ),
@@ -300,7 +422,7 @@ class _LoginViewState extends State<LoginView> {
                                   textAlign: TextAlign.center,
                                   style: GoogleFonts.montserrat(
                                     fontSize: 14,
-                                    color: AppColors.primaryDark,
+                                    color: AppColors.primary,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -315,11 +437,11 @@ class _LoginViewState extends State<LoginView> {
                               child: Container(
                                 height: 60,
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary,
+                                  color: AppColors.secondaryBlue,
                                   borderRadius: BorderRadius.circular(30),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: AppColors.primaryDark.withValues(alpha: 0.3),
+                                      color: AppColors.secondaryBlue.withValues(alpha: 0.3),
                                       offset: const Offset(0, 8),
                                       blurRadius: 15,
                                     )
@@ -345,7 +467,8 @@ class _LoginViewState extends State<LoginView> {
                   ),
                 ),
               ),
-            ],
+            ),
+          ],
           ),
         );
       },
@@ -364,10 +487,10 @@ class _LoginViewState extends State<LoginView> {
       child: Container(
         height: 56,
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: AppColors.cardBackground,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: const Color(0xFFE5E7EB),
+            color: AppColors.inputBorder,
             width: 1.5,
           ),
         ),
@@ -379,7 +502,7 @@ class _LoginViewState extends State<LoginView> {
             Text(
               label,
               style: AppTextStyles.skipText(context).copyWith(
-                color: AppColors.textPrimary,
+                color: AppColors.primary,
               ),
             ),
           ],

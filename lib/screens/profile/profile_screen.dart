@@ -18,7 +18,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: AppColors.scaffoldBackground,
       body: SafeArea(
         child: Column(
           children: [
@@ -26,15 +26,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(
-                color: Colors.white,
+                color: AppColors.cardBackground,
                 borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Color(0x0A000000),
-                    offset: Offset(0, 4),
-                    blurRadius: 12,
-                  )
-                ],
               ),
               child: BlocBuilder<ProfileCubit, ProfileState>(
                 builder: (context, state) {
@@ -60,13 +53,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         height: 64,
                         width: 64,
                         decoration: BoxDecoration(
-                          color: AppColors.primaryDark.withValues(alpha: 0.15),
+                          color: AppColors.primary.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
                           Icons.person_rounded,
                           size: 36,
-                          color: AppColors.primaryDark,
+                          color: AppColors.primary,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -79,13 +72,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               style: GoogleFonts.montserrat(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: const Color(0xFF111827),
+                                color: Colors.white,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Row(
                               children: [
-                                const Icon(Icons.location_on_outlined, size: 14, color: Color(0xFF64748B)),
+                                const Icon(Icons.location_on_outlined, size: 14, color: AppColors.textSecondary),
                                 const SizedBox(width: 4),
                                 Expanded(
                                   child: Text(
@@ -95,7 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     style: GoogleFonts.montserrat(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
-                                      color: const Color(0xFF64748B),
+                                      color: AppColors.textSecondary,
                                     ),
                                   ),
                                 ),
@@ -105,14 +98,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               const SizedBox(height: 2),
                               Row(
                                 children: [
-                                  const Icon(Icons.mail_outline, size: 14, color: Color(0xFF64748B)),
+                                  const Icon(Icons.mail_outline, size: 14, color: AppColors.textSecondary),
                                   const SizedBox(width: 4),
                                   Text(
                                     email,
                                     style: GoogleFonts.montserrat(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
-                                      color: const Color(0xFF64748B),
+                                      color: AppColors.textSecondary,
                                     ),
                                   ),
                                 ],
@@ -122,14 +115,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               const SizedBox(height: 2),
                               Row(
                                 children: [
-                                  const Icon(Icons.phone_outlined, size: 14, color: Color(0xFF64748B)),
+                                  const Icon(Icons.phone_outlined, size: 14, color: AppColors.textSecondary),
                                   const SizedBox(width: 4),
                                   Text(
                                     phone,
                                     style: GoogleFonts.montserrat(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
-                                      color: const Color(0xFF64748B),
+                                      color: AppColors.textSecondary,
                                     ),
                                   ),
                                 ],
@@ -188,7 +181,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: GoogleFonts.montserrat(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF111827),
+                    color: AppColors.primary,
                   ),
                 ),
               ),
@@ -216,15 +209,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: const Color(0xFF264052), width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -237,7 +224,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF111827),
+                  color: Colors.white,
                 ),
               ),
               Container(
@@ -263,7 +250,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             style: GoogleFonts.montserrat(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: const Color(0xFF64748B),
+              color: AppColors.textSecondary,
             ),
           ),
           const SizedBox(height: 12),
@@ -275,14 +262,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.primaryDark,
+                  color: AppColors.primary,
                 ),
               ),
               Text(
                 "28 Jun 2026",
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
-                  color: const Color(0xFF9CA3AF),
+                  color: AppColors.textSecondary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
