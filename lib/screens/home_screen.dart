@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:quick_med/services/auth_service.dart';
 import 'package:quick_med/blocs/home_bloc/home_bloc.dart';
 import 'package:quick_med/blocs/profile_cubit/profile_cubit.dart';
 import 'package:quick_med/custom_components/floating_navbar.dart';
@@ -44,9 +44,9 @@ class _HomeScreenState extends State<HomeScreen>
         BlocProvider(
           create: (context) {
             final cubit = ProfileCubit();
-            final user = Supabase.instance.client.auth.currentUser;
-            if (user != null) {
-              cubit.loadProfile(user.id);
+            final userId = AuthService.currentUserId;
+            if (userId != null) {
+              cubit.loadProfile(userId);
             }
             return cubit;
           },

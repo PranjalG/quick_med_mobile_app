@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:quick_med/services/auth_service.dart';
 import 'package:quick_med/services/profile_service.dart';
 import 'splash_state.dart';
 
@@ -12,10 +12,10 @@ class SplashCubit extends Cubit<SplashState> {
 
   void checkAuthStatus() async {
     await Future.delayed(const Duration(seconds: 2));
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user != null) {
+    final userId = AuthService.currentUserId;
+    if (userId != null) {
       try {
-        final profile = await _profileService.fetchProfile(user.id);
+        final profile = await _profileService.fetchProfile(userId);
         if (profile != null && profile.name.isNotEmpty) {
           emit(SplashNavigateToHome());
         } else {

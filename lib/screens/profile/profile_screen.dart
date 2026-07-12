@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:quick_med/services/auth_service.dart';
 import 'package:quick_med/blocs/profile_cubit/profile_cubit.dart';
 import 'package:quick_med/blocs/profile_cubit/profile_state.dart';
 import 'package:quick_med/services/app_colors.dart';
@@ -155,7 +155,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           );
 
                           if (confirm == true && context.mounted) {
-                            await Supabase.instance.client.auth.signOut();
+                            await AuthService.signOut();
                             if (context.mounted) {
                               context.read<ProfileCubit>().clearProfile();
                               context.go('/login');

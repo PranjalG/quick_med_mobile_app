@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:quick_med/services/auth_service.dart';
 import 'package:quick_med/blocs/profile_cubit/profile_cubit.dart';
 import 'package:quick_med/blocs/profile_cubit/profile_state.dart';
 import 'package:quick_med/services/profile_service.dart';
@@ -19,9 +19,9 @@ class ProfileSetupScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) {
         final cubit = ProfileCubit();
-        final user = Supabase.instance.client.auth.currentUser;
-        if (user != null) {
-          cubit.loadProfile(user.id);
+        final userId = AuthService.currentUserId;
+        if (userId != null) {
+          cubit.loadProfile(userId);
         }
         return cubit;
       },
@@ -62,11 +62,8 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
   @override
   void initState() {
     super.initState();
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user != null) {
-      _emailController.text = user.email ?? '';
-      _phoneController.text = user.phone ?? '';
-    }
+    _emailController.text = AuthService.currentUserEmail ?? '';
+    _phoneController.text = AuthService.currentUserPhone ?? '';
   }
 
   @override
@@ -80,8 +77,8 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
 
   void _onSave(BuildContext context) {
     if (_formKey.currentState!.validate()) {
-      final user = Supabase.instance.client.auth.currentUser;
-      if (user == null) {
+      final userId = AuthService.currentUserId;
+      if (userId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Session expired. Please log in again.')),
         );
@@ -90,7 +87,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
       }
 
       final profile = UserProfile(
-        id: user.id,
+        id: userId,
         name: _nameController.text.trim(),
         phone: _phoneController.text.trim(),
         email: _emailController.text.trim(),
@@ -114,12 +111,12 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
           if (_emailController.text.isEmpty) {
             _emailController.text = state.profile.email.isNotEmpty 
                 ? state.profile.email 
-                : (Supabase.instance.client.auth.currentUser?.email ?? '');
+                : (AuthService.currentUserEmail ?? '');
           }
           if (_phoneController.text.isEmpty) {
             _phoneController.text = state.profile.phone.isNotEmpty 
                 ? state.profile.phone 
-                : (Supabase.instance.client.auth.currentUser?.phone ?? '');
+                : (AuthService.currentUserPhone ?? '');
           }
           if (_addressController.text.isEmpty) {
             _addressController.text = state.profile.addressDetail;
