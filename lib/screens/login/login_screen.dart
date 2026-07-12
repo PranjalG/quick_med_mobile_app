@@ -203,38 +203,11 @@ class _LoginViewState extends State<LoginView> {
                             ),
                             SizedBox(height: context.sh * 0.03),
 
-                            // Shimmer for Divider line
-                            Row(
-                              children: [
-                                const Expanded(child: Divider(color: Color(0xFFE5E7EB), thickness: 1.5)),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                                  child: Text('Or Continue With', style: AppTextStyles.skipText(context)),
-                                ),
-                                const Expanded(child: Divider(color: Color(0xFFE5E7EB), thickness: 1.5)),
-                              ],
-                            ),
-                            SizedBox(height: context.sh * 0.03),
-
-                            // Shimmer for Social Buttons
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: CustomShimmer(
-                                    width: double.infinity,
-                                    height: 56,
-                                    borderRadius: BorderRadius.circular(18),
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: CustomShimmer(
-                                    width: double.infinity,
-                                    height: 56,
-                                    borderRadius: BorderRadius.circular(18),
-                                  ),
-                                ),
-                              ],
+                            // Shimmer for Google Button
+                            CustomShimmer(
+                              width: double.infinity,
+                              height: 56,
+                              borderRadius: BorderRadius.circular(18),
                             ),
                           ] else ...[
                             // Reusable Custom Email Field
@@ -351,59 +324,15 @@ class _LoginViewState extends State<LoginView> {
                             ),
                             SizedBox(height: context.sh * 0.03),
 
-                            // Divider Line
-                             Row(
-                              children: [
-                                const Expanded(
-                                  child: Divider(
-                                    color: AppColors.inputBorder,
-                                    thickness: 1.5,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                                  child: Text(
-                                    'Or Continue With',
-                                    style: AppTextStyles.skipText(context),
-                                  ),
-                                ),
-                                const Expanded(
-                                  child: Divider(
-                                    color: AppColors.inputBorder,
-                                    thickness: 1.5,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: context.sh * 0.03),
-
-                            // Social Buttons
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _buildSocialButton(
-                                    context: context,
-                                    icon: FontAwesomeIcons.facebookF,
-                                    label: 'Facebook',
-                                    iconColor: const Color(0xFF1877F2),
-                                    onTap: () {
-                                      context.go('/home_screen');
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: _buildSocialButton(
-                                    context: context,
-                                    icon: FontAwesomeIcons.google,
-                                    label: 'Google',
-                                    iconColor: const Color(0xFFEA4335),
-                                    onTap: () {
-                                      context.go('/home_screen');
-                                    },
-                                  ),
-                                ),
-                              ],
+                            // Active Google Login Button
+                            _buildSocialButton(
+                              context: context,
+                              icon: FontAwesomeIcons.google,
+                              label: 'Google',
+                              iconColor: const Color(0xFFEA4335),
+                              onTap: () {
+                                context.go('/home_screen');
+                              },
                             ),
                           ],
 
