@@ -234,7 +234,7 @@ class _LoginViewState extends State<LoginView> {
             // 1. Watermark Background Image
             Positioned.fill(
               child: Opacity(
-                opacity: 0.12,
+                opacity: 0.08,
                 child: Image.asset(
                   'assets/images/watermark-pattern.png',
                   fit: BoxFit.cover,
@@ -378,7 +378,7 @@ class _LoginViewState extends State<LoginView> {
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
                                             color: !_usePhoneAuth
-                                                ? Colors.white
+                                                ? AppColors.textPrimary
                                                 : AppColors.textSecondary,
                                           ),
                                         ),
@@ -411,7 +411,7 @@ class _LoginViewState extends State<LoginView> {
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
                                             color: _usePhoneAuth
-                                                ? Colors.white
+                                                ? AppColors.textPrimary
                                                 : AppColors.textSecondary,
                                           ),
                                         ),

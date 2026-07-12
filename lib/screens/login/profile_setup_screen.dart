@@ -151,7 +151,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
               // 1. Watermark Background Pattern
               Positioned.fill(
                 child: Opacity(
-                  opacity: 0.12,
+                  opacity: 0.08,
                   child: Image.asset(
                     'assets/images/watermark-pattern.png',
                     fit: BoxFit.cover,

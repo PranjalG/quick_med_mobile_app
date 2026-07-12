@@ -25,7 +25,7 @@ class CartItemCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF264052), width: 1.0),
+        border: Border.all(color: AppColors.inputBorder, width: 1.0),
       ),
       child: Row(
         children: [
@@ -38,7 +38,7 @@ class CartItemCard extends StatelessWidget {
                   style: GoogleFonts.montserrat(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
-                    color: Colors.white,
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -47,7 +47,7 @@ class CartItemCard extends StatelessWidget {
                   style: GoogleFonts.montserrat(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
+                    color: AppColors.secondaryBlue,
                   ),
                 ),
               ],

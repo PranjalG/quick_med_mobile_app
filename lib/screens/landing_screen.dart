@@ -66,10 +66,10 @@ class LandingScreen extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF1F3647),
+                                    color: AppColors.cardBackground,
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: const Color(0xFF264052),
+                                      color: AppColors.inputBorder,
                                       width: 1.0,
                                     ),
                                   ),
@@ -79,13 +79,13 @@ class LandingScreen extends StatelessWidget {
                                       const Icon(
                                         Icons.location_on_outlined,
                                         size: 16,
-                                        color: Color(0xFFB2D6DB),
+                                        color: AppColors.primaryDark,
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
                                         '$displayArea, Kota',
                                         style: AppTextStyles.skipText(context).copyWith(
-                                          color: const Color(0xFFB2D6DB),
+                                          color: AppColors.primaryDark,
                                           fontSize: context.fs(13),
                                         ),
                                       ),
@@ -93,7 +93,7 @@ class LandingScreen extends StatelessWidget {
                                       const Icon(
                                         Icons.keyboard_arrow_down_rounded,
                                         size: 16,
-                                        color: Color(0xFFB2D6DB),
+                                        color: AppColors.primaryDark,
                                       ),
                                     ],
                                   ),
@@ -148,7 +148,7 @@ class LandingScreen extends StatelessWidget {
                               color: AppColors.inputFill,
                               borderRadius: BorderRadius.circular(25),
                               border: Border.all(
-                                color: const Color(0xFF264052),
+                                color: AppColors.inputBorder,
                                 width: 1.5,
                               ),
                             ),
@@ -517,7 +517,7 @@ class LandingScreen extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: AppTextStyles.categoryLabel(context).copyWith(
-            color: const Color(0xFFB2D6DB),
+            color: AppColors.textPrimary,
           ),
         ),
       ],
@@ -535,7 +535,7 @@ class LandingScreen extends StatelessWidget {
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: const Color(0xFF264052),
+          color: AppColors.inputBorder,
           width: 1.0,
         ),
       ),
@@ -545,7 +545,7 @@ class LandingScreen extends StatelessWidget {
           Text(
             title,
             style: AppTextStyles.chipTitle(context).copyWith(
-              color: AppColors.primary,
+              color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 2),

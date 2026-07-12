@@ -150,7 +150,7 @@ class OnboardingView extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(4),
                                   color: currentPage == index
-                                      ? AppColors.primary
+                                      ? AppColors.secondaryBlue
                                       : AppColors.textSecondary.withValues(alpha: 0.3),
                                 ),
                               ),

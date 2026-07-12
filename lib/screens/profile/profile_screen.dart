@@ -53,13 +53,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         height: 64,
                         width: 64,
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.15),
+                          color: AppColors.secondaryBlue.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
                           Icons.person_rounded,
                           size: 36,
-                          color: AppColors.primary,
+                          color: AppColors.secondaryBlue,
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -72,7 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               style: GoogleFonts.montserrat(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: AppColors.textPrimary,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -211,7 +211,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF264052), width: 1.0),
+        border: Border.all(color: AppColors.inputBorder, width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,7 +224,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                 ),
               ),
               Container(
@@ -262,7 +262,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: GoogleFonts.montserrat(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
+                  color: AppColors.textPrimary,
                 ),
               ),
               Text(

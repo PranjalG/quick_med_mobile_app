@@ -9,13 +9,13 @@ class AppColors {
   static const Color secondaryTeal = Color(0xFF004346); // Dark Teal
   static const Color secondaryNavy = Color(0xFF172A3A); // Midnight Navy
 
-  // Semantic Dark Mode Colors
-  static const Color scaffoldBackground = Color(0xFF172A3A); // Midnight Navy
-  static const Color cardBackground = Color(0xFF1C3042); // Dark Slate Blue
-  static const Color inputFill = Color(0xFF1C3042); // Dark Input Field
-  static const Color inputBorder = Color(0xFF264052); // Border color
+  // Semantic Light Mode Colors
+  static const Color scaffoldBackground = Color(0xFFFFFFFF); // White background
+  static const Color cardBackground = Color(0xFFF3F8F9); // Soft Mint/Ice Blue Card Background
+  static const Color inputFill = Color(0xFFFFFFFF); // White Input Field
+  static const Color inputBorder = Color(0xFFD1E3E5); // Soft Mint/Teal Gray Border
 
-  static const Color textPrimary = Color(0xFFD6F3F4); // Light Mint/Aqua Text
+  static const Color textPrimary = Color(0xFF172A3A); // Midnight Navy Text
   static const Color textSecondary = Color(0xFF508991); // Dusty Slate Blue Text
   static const Color grey = Color(0xFF74B3CE); // Medium Blue / Grey
   static const Color white = Colors.white;

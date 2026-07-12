@@ -20,13 +20,13 @@ class AppTextStyles {
   static TextStyle body(BuildContext context) => GoogleFonts.montserrat(
         fontSize: context.fs(14),
         fontWeight: FontWeight.w400,
-        color: Colors.white,
+        color: AppColors.textPrimary,
       );
   
   static TextStyle bodyLarge(BuildContext context) => GoogleFonts.montserrat(
         fontSize: context.fs(16),
         fontWeight: FontWeight.w400,
-        color: Colors.white,
+        color: AppColors.textPrimary,
       );
   
   static TextStyle title(BuildContext context) => GoogleFonts.montserrat(
@@ -69,7 +69,7 @@ class AppTextStyles {
   static TextStyle inputText(BuildContext context) => GoogleFonts.montserrat(
         fontSize: context.fs(16),
         fontWeight: FontWeight.w500,
-        color: Colors.white,
+        color: AppColors.textPrimary,
       );
   
   static TextStyle hintText(BuildContext context) => GoogleFonts.montserrat(

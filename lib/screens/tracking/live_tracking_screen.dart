@@ -205,7 +205,7 @@ class _LiveTrackingViewState extends State<LiveTrackingView> {
                           width: 40,
                           height: 4,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF264052),
+                            color: AppColors.inputBorder,
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -224,7 +224,7 @@ class _LiveTrackingViewState extends State<LiveTrackingView> {
                                 style: GoogleFonts.montserrat(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.primary,
+                                  color: AppColors.textSecondary,
                                   letterSpacing: 0.5,
                                 ),
                               ),
@@ -234,7 +234,7 @@ class _LiveTrackingViewState extends State<LiveTrackingView> {
                                 style: GoogleFonts.montserrat(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
                             ],
@@ -260,7 +260,7 @@ class _LiveTrackingViewState extends State<LiveTrackingView> {
                         ],
                       ),
                       const SizedBox(height: 20),
-                      const Divider(color: Color(0xFF264052)),
+                      const Divider(color: AppColors.inputBorder),
                       const SizedBox(height: 16),
 
                       // Delivery Agent Profile details
@@ -289,7 +289,7 @@ class _LiveTrackingViewState extends State<LiveTrackingView> {
                                   style: GoogleFonts.montserrat(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    color: AppColors.textPrimary,
                                   ),
                                 ),
                                 const SizedBox(height: 2),
@@ -309,7 +309,7 @@ class _LiveTrackingViewState extends State<LiveTrackingView> {
                             style: IconButton.styleFrom(
                               backgroundColor: AppColors.cardBackground,
                               side: const BorderSide(
-                                color: Color(0xFF264052),
+                                color: AppColors.inputBorder,
                                 width: 1.5,
                               ),
                             ),
@@ -320,7 +320,7 @@ class _LiveTrackingViewState extends State<LiveTrackingView> {
                                 ),
                               );
                             },
-                            icon: const Icon(Icons.call_rounded, color: AppColors.primary),
+                            icon: const Icon(Icons.call_rounded, color: AppColors.secondaryBlue),
                           ),
                         ],
                       ),

@@ -22,7 +22,7 @@ class QuantitySelector extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Text(
             "$quantity",
-            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+            style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary),
           ),
         ),
         _button(Icons.add, onAdd),
@@ -38,13 +38,13 @@ class QuantitySelector extends StatelessWidget {
         height: 28,
         width: 28,
         decoration: BoxDecoration(
-          border: Border.all(color: const Color(0xFF264052)),
+          border: Border.all(color: AppColors.inputBorder),
           borderRadius: BorderRadius.circular(6),
         ),
         child: Icon(
           icon,
           size: 16,
-          color: disabled ? Colors.grey : AppColors.primary,
+          color: disabled ? Colors.grey : AppColors.secondaryBlue,
         ),
       ),
     );

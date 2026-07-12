@@ -47,7 +47,7 @@ class SplashView extends StatelessWidget {
                 child: Image.asset(
                   'assets/images/pattern-header.png',
                   fit: BoxFit.cover,
-                  color: AppColors.secondaryTeal,
+                  color: AppColors.primary,
                   colorBlendMode: BlendMode.srcIn,
                 ),
               ),
