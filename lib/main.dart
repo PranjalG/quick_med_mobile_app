@@ -9,22 +9,18 @@ import 'package:quick_med/services/router.dart';
 // late HydratedStorage hydratedStorage;
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:quick_med/services/supabase_config.dart';
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize Supabase
-  await Supabase.initialize(
-    url: SupabaseConfig.url,
-    publishableKey: SupabaseConfig.publishableKey,
-  );
-
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Supabase data client — Firebase ID token wired for Third-Party Auth / RLS.
+  await SupabaseConfig.initialize();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]).then((value) {

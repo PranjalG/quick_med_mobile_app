@@ -1,6 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:quick_med/screens/home_screen.dart';
-import 'package:quick_med/screens/login/login_screen.dart';
+import 'package:quick_med/features/auth/view/auth_screen.dart';
 import 'package:quick_med/screens/splash_screen.dart';
 import 'package:quick_med/screens/onboarding_screen.dart';
 import 'package:quick_med/screens/login/profile_setup_screen.dart';
@@ -23,7 +23,7 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       path: '/login',
-      builder: (context, state) => const LoginScreen(),
+      builder: (context, state) => const AuthScreen(),
     ),
     GoRoute(
       path: '/profile_setup',
