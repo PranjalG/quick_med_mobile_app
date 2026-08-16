@@ -8,8 +8,8 @@ alwaysApply: true
 ## Stack
 - Flutter (Dart), MaterialApp.router with go_router
 - State management: flutter_bloc + hydrated_bloc (persist cart/auth across restarts)
-- Backend: Supabase (Postgres + Auth + Storage + Realtime) — single source of truth
-- Firebase: FCM push notifications ONLY. Do not use Firebase Auth or Firestore.
+- Backend: Supabase (Postgres + Storage + Realtime) — single source of truth
+- Firebase: FCM push notifications and Auth. Do not use Firebase Firestore.
 - App has TWO user roles in one app: customer and delivery rider (role-based routing)
 
 ## Architecture
@@ -29,7 +29,7 @@ alwaysApply: true
 ## Current status
 - **Legacy layout (in repo today):** `lib/blocs`, `lib/screens`, `lib/services`, `lib/models`, `lib/custom_components` — migrate toward feature-first + `lib/data/` incrementally
 - **Routing:** `go_router` routes for splash, onboarding, login, profile setup, home, search, live tracking — role-based redirects not implemented yet
-- **Auth:** Supabase initialized; `AuthRepository` with typed auth exceptions; email/phone cubits exist — some paths still use Firebase Auth (`firebase_auth` in pubspec) and should move to Supabase-only
+- **Auth:** `AuthRepository` with typed auth exceptions; use Firebase Phone Auth (`firebase_auth` in pubspec)
 - **Customer UI:** onboarding, login, home/landing, search, cart, profile, live tracking scaffolded
 - **Rider:** not started
 - **Persistence:** `hydrated_bloc` referenced in comments but not enabled in `pubspec.yaml` / `main.dart`
@@ -43,6 +43,4 @@ alwaysApply: true
 - Connect customer medicine browse/search to Supabase-backed repositories (replace or extend current services)
 
 ## Do NOT
-- Do not introduce Firebase Auth or Firestore
 - Do not add new state management approaches (stick to flutter_bloc)
-- Do not restructure existing folders without asking
