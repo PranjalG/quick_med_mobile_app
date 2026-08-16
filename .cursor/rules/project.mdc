@@ -1,0 +1,48 @@
+---
+description: Quick Med stack, architecture targets, conventions, and current status
+alwaysApply: true
+---
+
+# Quick Med — Project Context
+
+## Stack
+- Flutter (Dart), MaterialApp.router with go_router
+- State management: flutter_bloc + hydrated_bloc (persist cart/auth across restarts)
+- Backend: Supabase (Postgres + Auth + Storage + Realtime) — single source of truth
+- Firebase: FCM push notifications ONLY. Do not use Firebase Auth or Firestore.
+- App has TWO user roles in one app: customer and delivery rider (role-based routing)
+
+## Architecture
+- Feature-first folder structure under lib/features/{auth,customer,rider,shared}
+- Each feature: bloc/ + view/ + (widgets/ if needed)
+- lib/data/models — shared models (Order, Medicine, Pharmacy, RiderTask, Profile)
+- lib/data/repositories — one repository per Supabase table/domain, wraps supabase_flutter calls
+- lib/services/router.dart — go_router config with role-based redirect logic
+- lib/services/supabase_config.dart — holds Supabase url/anon key (never service_role key here)
+
+## Conventions
+- Use Equatable on Bloc states/events
+- Repositories throw typed domain exceptions (e.g. `CustomAuthException` subclasses); blocs/cubits catch and map to failure states — do not use `Either<Failure, T>` unless the project adopts dartz/fpdart
+- RLS is enabled on all Supabase tables — never bypass with service_role key in app code
+- Keep UI (view/) free of Supabase calls — always go through bloc → repository
+
+## Current status
+- **Legacy layout (in repo today):** `lib/blocs`, `lib/screens`, `lib/services`, `lib/models`, `lib/custom_components` — migrate toward feature-first + `lib/data/` incrementally
+- **Routing:** `go_router` routes for splash, onboarding, login, profile setup, home, search, live tracking — role-based redirects not implemented yet
+- **Auth:** Supabase initialized; `AuthRepository` with typed auth exceptions; email/phone cubits exist — some paths still use Firebase Auth (`firebase_auth` in pubspec) and should move to Supabase-only
+- **Customer UI:** onboarding, login, home/landing, search, cart, profile, live tracking scaffolded
+- **Rider:** not started
+- **Persistence:** `hydrated_bloc` referenced in comments but not enabled in `pubspec.yaml` / `main.dart`
+- **Firebase:** `firebase_core` initialized; target is FCM-only (not wired yet)
+
+## What's next
+- Consolidate authentication on Supabase and remove Firebase Auth usage
+- Enable `hydrated_bloc` for cart/auth persistence
+- Add role-based redirect logic in `router.dart` (customer vs delivery rider)
+- Introduce `lib/features/` and `lib/data/repositories/` while keeping existing screens working
+- Connect customer medicine browse/search to Supabase-backed repositories (replace or extend current services)
+
+## Do NOT
+- Do not introduce Firebase Auth or Firestore
+- Do not add new state management approaches (stick to flutter_bloc)
+- Do not restructure existing folders without asking
