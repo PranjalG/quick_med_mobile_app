@@ -67,15 +67,14 @@ class _OtpEntryScreenState extends State<OtpEntryScreen> {
     context.read<PhoneAuthCubit>().verifyOtp(code);
   }
 
-  void _onOtpChanged(String value) {
+  void _onOtpChanged(String? value) {
     if (_inlineError != null) {
       setState(() => _inlineError = null);
     }
-    final digits = value.replaceAll(RegExp(r'\D'), '');
+    final digits = value != null ? value.replaceAll(RegExp(r'\D'), '') : '';
     if (digits.length == 6 && digits != _otpController.text) {
       _otpController.text = digits;
-      _otpController.selection =
-          TextSelection.collapsed(offset: digits.length);
+      _otpController.selection = TextSelection.collapsed(offset: digits.length);
     }
     if (digits.length == 6) {
       _onVerify();
@@ -86,7 +85,8 @@ class _OtpEntryScreenState extends State<OtpEntryScreen> {
   Widget build(BuildContext context) {
     final state = context.watch<PhoneAuthCubit>().state;
     final isBusy = state is PhoneAuthVerifying ||
-        (state is PhoneAuthCodeSending && context.read<PhoneAuthCubit>().hasActiveVerification);
+        (state is PhoneAuthCodeSending &&
+            context.read<PhoneAuthCubit>().hasActiveVerification);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

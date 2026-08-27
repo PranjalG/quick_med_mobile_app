@@ -47,6 +47,8 @@ class AuthView extends StatelessWidget {
           PhoneAuthVerifying() => true,
           PhoneAuthCodeSending() => cubit.hasActiveVerification,
           PhoneAuthFailure() => cubit.hasActiveVerification,
+          // TODO: Handle this case.
+          PhoneAuthState() => throw UnimplementedError(),
         };
 
         final phoneDisplay = cubit.phoneDisplay.isNotEmpty
