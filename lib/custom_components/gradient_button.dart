@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:quick_med/services/app_colors.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:quick_med/services/theme_colours.dart';
 import 'package:quick_med/utils/screen_size.dart';
 
 class GradientButton extends StatelessWidget {
@@ -31,8 +31,8 @@ class GradientButton extends StatelessWidget {
           gradient: (enabled ?? true)
               ? const LinearGradient(
             colors: [
-              ThemeColours.lightGreen,
-              ThemeColours.darkGreen,
+              AppColors.gradientStart,
+              AppColors.gradientEnd,
             ],
             stops: [0.1, 0.8],
             begin: Alignment.topLeft,
@@ -40,8 +40,8 @@ class GradientButton extends StatelessWidget {
           )
               : LinearGradient(
             colors: [
-              ThemeColours.lightGreen.withValues(alpha: 0.4),
-              ThemeColours.darkGreen.withValues(alpha: 0.4),
+              AppColors.gradientStart.withValues(alpha: 0.4),
+              AppColors.gradientEnd.withValues(alpha: 0.4),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,

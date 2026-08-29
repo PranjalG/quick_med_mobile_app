@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:quick_med/services/theme_colours.dart';
+import 'package:quick_med/services/app_colors.dart';
 
 class BorderedIconButton extends StatelessWidget {
   final IconData icon;
@@ -23,13 +23,13 @@ class BorderedIconButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(35),
           border: Border.all(
             width: 2,
-            color: ThemeColours.lightGreen,
+            color: AppColors.secondaryBlue,
           ),
         ),
         alignment: Alignment.center,
         child: Icon(
           icon,
-          color: ThemeColours.lightGreen,
+          color: AppColors.secondaryTeal,
           size: 26,
         ),
       ),

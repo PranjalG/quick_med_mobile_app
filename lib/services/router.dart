@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:quick_med/screens/review/review_screen.dart';
 import 'package:quick_med/screens/home_screen.dart';
 import 'package:quick_med/features/auth/view/auth_screen.dart';
 import 'package:quick_med/screens/splash_screen.dart';
@@ -28,6 +29,10 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/profile_setup',
       builder: (context, state) => const ProfileSetupScreen(),
+    ),
+    GoRoute(
+      path: '/review',
+      builder: (context, state) => const ReviewScreen(),
     ),
     GoRoute(
       path: '/search',

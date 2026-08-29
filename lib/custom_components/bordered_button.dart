@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:quick_med/services/app_colors.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:quick_med/services/theme_colours.dart';
 
 class BorderedButton extends StatelessWidget {
   final String buttonText;
@@ -27,7 +27,7 @@ class BorderedButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
             width: 2,
-            color: ThemeColours.lightGreen,
+            color: AppColors.secondaryBlue,
           ),
         ),
         alignment: Alignment.center,
@@ -39,7 +39,7 @@ class BorderedButton extends StatelessWidget {
               buttonText,
               style: GoogleFonts.montserrat(
                 fontSize: 18,
-                color: ThemeColours.darkGreen,
+                color: AppColors.secondaryTeal,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -47,7 +47,7 @@ class BorderedButton extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Icon(
                 trailingIcon ?? Icons.arrow_forward_rounded,
-                color: ThemeColours.darkGreen,
+                color: AppColors.secondaryTeal,
                 size: 26,
               ),
             )

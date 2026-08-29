@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:quick_med/services/strings.dart';
-import 'package:quick_med/services/theme_colours.dart';
+import 'package:quick_med/services/app_colors.dart';
 import 'package:quick_med/utils/screen_size.dart';
 
 import '../services/text_styles.dart';
@@ -25,7 +25,7 @@ class DataErrorWidget extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: ThemeColours.errorRed,
+              color: AppColors.error,
               size: context.sh * 0.05,
             ),
             SizedBox(height: context.sh * 0.015),
@@ -33,7 +33,7 @@ class DataErrorWidget extends StatelessWidget {
               message ?? Strings.somethingWentWrongError,
               textAlign: TextAlign.center,
               style: TextStyles.bodyLarge(context).copyWith(
-                color: ThemeColours.errorRed,
+                color: AppColors.error,
               ),
             ),
           ],

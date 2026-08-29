@@ -4,7 +4,8 @@ import 'package:quick_med/services/auth_service.dart';
 import 'package:quick_med/blocs/home_bloc/home_bloc.dart';
 import 'package:quick_med/blocs/profile_cubit/profile_cubit.dart';
 import 'package:quick_med/custom_components/floating_navbar.dart';
-import 'package:quick_med/screens/cart/cart_screen.dart';
+import 'package:quick_med/screens/cart/cart_view.dart';
+import 'package:quick_med/blocs/catalogue_cubit/catalogue_cubit.dart';
 import 'package:quick_med/screens/landing_screen.dart';
 import 'package:quick_med/screens/profile/profile_screen.dart';
 
@@ -51,6 +52,7 @@ class _HomeScreenState extends State<HomeScreen>
             return cubit;
           },
         ),
+        BlocProvider(create: (context) => CatalogueCubit()..load()),
       ],
       child: BlocConsumer<HomeBloc, HomeState>(
         bloc: _homeBloc,
@@ -68,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen>
                 children: const [
                   LandingScreen(),
                   ProfileScreen(),
-                  CartScreen(),
+                  CartView(),
                 ],
               ),
             ),

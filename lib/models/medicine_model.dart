@@ -8,7 +8,12 @@ class Medicine {
   final String discount;
   final String deliveryTime;
   final bool rxRequired;
+  final int stockQty;
+  final String? categoryId;
   bool isFavorite;
+
+  /// Nothing left on the shelf — the UI must not allow adding this to a cart.
+  bool get isOutOfStock => stockQty <= 0;
 
   Medicine({
     required this.id,
@@ -20,6 +25,8 @@ class Medicine {
     required this.discount,
     required this.deliveryTime,
     this.rxRequired = false,
+    this.stockQty = 0,
+    this.categoryId,
     this.isFavorite = false,
   });
 
@@ -44,6 +51,8 @@ class Medicine {
       discount: discountStr,
       deliveryTime: '30 min delivery',
       rxRequired: json['prescription_required'] as bool? ?? false,
+      stockQty: (json['stock_qty'] as num?)?.toInt() ?? 0,
+      categoryId: json['category_id'] as String?,
       isFavorite: false,
     );
   }
@@ -57,6 +66,8 @@ class Medicine {
       'mrp': mrp,
       'discounted_price': price,
       'prescription_required': rxRequired,
+      'stock_qty': stockQty,
+      'category_id': categoryId,
     };
   }
 }

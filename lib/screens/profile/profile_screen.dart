@@ -5,7 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:quick_med/services/auth_service.dart';
 import 'package:quick_med/blocs/profile_cubit/profile_cubit.dart';
 import 'package:quick_med/blocs/profile_cubit/profile_state.dart';
+import 'package:quick_med/blocs/orders_cubit/orders_cubit.dart';
+import 'package:quick_med/models/order_model.dart';
 import 'package:quick_med/services/app_colors.dart';
+import 'package:quick_med/services/app_theme.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -15,6 +18,14 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  late final OrdersCubit _orders = OrdersCubit()..load();
+
+  @override
+  void dispose() {
+    _orders.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -181,7 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: GoogleFonts.montserrat(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ),
@@ -189,13 +200,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             // Orders List
             Expanded(
-              child: ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                itemCount: 4,
-                itemBuilder: (context, index) {
-                  return _orderCard(index);
-                },
+              child: BlocProvider.value(
+                value: _orders,
+                child: BlocBuilder<OrdersCubit, OrdersState>(
+                  builder: (context, state) {
+                    return switch (state) {
+                      OrdersInitial() || OrdersLoading() =>
+                        const Center(child: CircularProgressIndicator()),
+                      OrdersEmpty() => _ordersMessage(
+                          icon: Icons.receipt_long_outlined,
+                          title: 'No orders yet',
+                          body: 'Your orders will appear here once you place one.',
+                        ),
+                      OrdersFailure(:final message) => _ordersMessage(
+                          icon: Icons.cloud_off_rounded,
+                          title: 'Could not load orders',
+                          body: message,
+                          onRetry: _orders.refresh,
+                        ),
+                      OrdersLoaded(:final orders) => RefreshIndicator(
+                          onRefresh: _orders.refresh,
+                          child: ListView.builder(
+                            physics: const AlwaysScrollableScrollPhysics(
+                                parent: BouncingScrollPhysics()),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 8),
+                            itemCount: orders.length,
+                            itemBuilder: (context, i) => _orderCard(orders[i]),
+                          ),
+                        ),
+                    };
+                  },
+                ),
               ),
             ),
           ],
@@ -204,14 +240,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _orderCard(int index) {
+  Widget _ordersMessage({
+    required IconData icon,
+    required String title,
+    required String body,
+    VoidCallback? onRetry,
+  }) {
+    final text = Theme.of(context).textTheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 48, color: AppColors.secondaryBlue),
+            const SizedBox(height: AppSpacing.md),
+            Text(title, style: text.titleMedium, textAlign: TextAlign.center),
+            const SizedBox(height: AppSpacing.xs),
+            Text(body,
+                style: text.bodySmall,
+                textAlign: TextAlign.center,
+                maxLines: 4),
+            if (onRetry != null) ...[
+              const SizedBox(height: AppSpacing.md),
+              TextButton(onPressed: onRetry, child: const Text('Retry')),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Color _statusTint(String status) => switch (status) {
+        'delivered' => AppColors.success,
+        'rejected' || 'cancelled' => AppColors.error,
+        'awaiting_rx' || 'under_review' => AppColors.accent,
+        _ => AppColors.primaryDark,
+      };
+
+  Widget _orderCard(CustomerOrder order) {
+    final text = Theme.of(context).textTheme;
+    final tint = _statusTint(order.status);
+    final date = order.createdAt;
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.inputBorder, width: 1.0),
+        borderRadius: AppRadius.lgAll,
+        border: Border.all(color: AppColors.inputBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,59 +297,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "#QM102${index + 1}",
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              ),
+              Text(order.reference, style: text.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md, vertical: AppSpacing.xs),
                 decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
+                  color: tint.withValues(alpha: 0.12),
+                  borderRadius: AppRadius.pillAll,
                 ),
-                child: Text(
-                  "Delivered",
-                  style: GoogleFonts.montserrat(
-                    color: AppColors.success,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: Text(order.statusLabel,
+                    style: text.labelSmall?.copyWith(
+                        color: tint, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            "Paracetamol 650mg, Vitamin C, Zinc Syrup",
-            style: GoogleFonts.montserrat(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: AppColors.textSecondary,
+          const SizedBox(height: AppSpacing.sm),
+          Text(order.itemSummary,
+              style: text.bodyMedium?.copyWith(color: AppColors.textSecondary),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis),
+          if (order.requiresPrescription) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Row(
+              children: [
+                const Icon(Icons.assignment_outlined,
+                    size: AppIconSize.sm, color: AppColors.accent),
+                const SizedBox(width: AppSpacing.xs),
+                Text('Prescription required',
+                    style: text.labelSmall?.copyWith(color: AppColors.accent)),
+              ],
             ),
-          ),
-          const SizedBox(height: 12),
+          ],
+          const SizedBox(height: AppSpacing.md),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Text('Rs ${order.totalAmount.toStringAsFixed(2)}',
+                  style: text.titleMedium),
               Text(
-                "₹349.00",
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              Text(
-                "28 Jun 2026",
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w500,
-                ),
+                date == null
+                    ? ''
+                    : '${date.day.toString().padLeft(2, '0')}/'
+                        '${date.month.toString().padLeft(2, '0')}/${date.year}',
+                style: text.bodySmall,
               ),
             ],
           ),

@@ -277,7 +277,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                               fontSize: context.fs(14),
                             ),
                             floatingLabelStyle: const TextStyle(
-                              color: AppColors.primary,
+                              color: AppColors.textSecondary,
                               fontWeight: FontWeight.w600,
                             ),
                             prefixIcon: const Icon(Icons.location_city_outlined, color: AppColors.textSecondary),
@@ -357,11 +357,11 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                           child: Container(
                             height: 60,
                             decoration: BoxDecoration(
-                              color: AppColors.secondaryBlue,
+                              color: AppColors.secondaryTeal,
                               borderRadius: BorderRadius.circular(30),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.secondaryBlue.withValues(alpha: 0.3),
+                                  color: AppColors.secondaryTeal.withValues(alpha: 0.25),
                                   offset: const Offset(0, 8),
                                   blurRadius: 15,
                                 )
@@ -374,7 +374,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                                     width: 24,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2.5,
-                                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
                                     ),
                                   )
                                 : Text(

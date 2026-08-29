@@ -1,9 +1,10 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:quick_med/blocs/search_cubit/search_cubit.dart';
 import 'package:quick_med/models/medicine_model.dart';
-import 'package:quick_med/services/medicine_service.dart';
+import 'package:quick_med/services/app_theme.dart';
 import 'package:quick_med/custom_components/custom_shimmer.dart';
 import 'package:quick_med/services/app_colors.dart';
 
@@ -15,60 +16,26 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final TextEditingController _searchController =
-      TextEditingController(text: 'Paracetamol');
-  final MedicineService _medicineService = MedicineService();
-
-  List<Medicine> _searchResults = [];
-  bool _hasSearched = true;
-  bool _isLoading = false;
-  Timer? _debounce;
-
-  @override
-  void initState() {
-    super.initState();
-    // Fetch initial results for 'Paracetamol'
-    _search('Paracetamol');
-  }
+  final TextEditingController _searchController = TextEditingController();
+  late final SearchCubit _cubit = SearchCubit();
 
   @override
   void dispose() {
     _searchController.dispose();
-    _debounce?.cancel();
+    _cubit.close();
     super.dispose();
   }
 
-  Future<void> _search(String query) async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final results = await _medicineService.fetchMedicines(query);
-      setState(() {
-        _searchResults = results;
-        _hasSearched = query.isNotEmpty;
-        _isLoading = false;
-      });
-    } catch (_) {
-      setState(() {
-        _searchResults = [];
-        _hasSearched = query.isNotEmpty;
-        _isLoading = false;
-      });
-    }
-  }
-
   void _onSearchChanged(String value) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 400), () {
-      _search(value);
-    });
+    setState(() {}); // keep the clear-button visibility in sync
+    _cubit.queryChanged(value);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocProvider.value(
+      value: _cubit,
+      child: Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
       body: SafeArea(
         child: Column(
@@ -169,112 +136,123 @@ class _SearchScreenState extends State<SearchScreen> {
           ],
         ),
       ),
+      ),
     );
   }
 
   Widget _buildContent() {
-    if (_isLoading) {
-      return _buildShimmerLoader();
-    }
+    return BlocBuilder<SearchCubit, SearchState>(
+      builder: (context, state) {
+        return switch (state) {
+          SearchIdle() => _buildPrompt(),
+          SearchLoading() => _buildShimmerLoader(),
+          SearchNoResults(:final query) => _buildNoResults(query),
+          SearchFailure(:final query, :final message) =>
+            _buildError(query, message),
+          SearchResults(:final results) => _buildResults(results),
+        };
+      },
+    );
+  }
 
-    if (!_hasSearched && _searchController.text.isEmpty) {
-      return Center(
+  /// Nothing typed yet.
+  Widget _buildPrompt() {
+    final text = Theme.of(context).textTheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.search_rounded,
-              size: 80,
-              color: const Color(0xFF9CA3AF).withValues(alpha: 0.3),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Search for medicines or products',
-              style: GoogleFonts.montserrat(
-                color: const Color(0xFF9CA3AF),
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
+            Icon(Icons.search_rounded,
+                size: 80, color: AppColors.secondaryBlue.withValues(alpha: 0.4)),
+            const SizedBox(height: AppSpacing.lg),
+            Text('Search for medicines or products',
+                style: text.titleSmall, textAlign: TextAlign.center),
+            const SizedBox(height: AppSpacing.xs),
+            Text('Search by brand, salt or manufacturer',
+                style: text.bodySmall, textAlign: TextAlign.center),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNoResults(String query) {
+    final text = Theme.of(context).textTheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              height: 140,
+              width: 140,
+              decoration: const BoxDecoration(
+                color: AppColors.cardBackground,
+                shape: BoxShape.circle,
               ),
+              child: const Icon(Icons.inventory_2_outlined,
+                  size: 56, color: AppColors.secondaryBlue),
             ),
-            const SizedBox(height: 6),
-            Text(
-              'Try typing "Paracetamol" to test search results',
-              style: GoogleFonts.montserrat(
-                color: const Color(0xFF9CA3AF),
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
+            const SizedBox(height: AppSpacing.lg),
+            Text('No results for "$query"',
+                style: text.titleMedium, textAlign: TextAlign.center),
+            const SizedBox(height: AppSpacing.xs),
+            Text('Check the spelling, or try the salt name instead of the brand.',
+                style: text.bodySmall, textAlign: TextAlign.center),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildError(String query, String message) {
+    final text = Theme.of(context).textTheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.cloud_off_rounded,
+                size: 56, color: AppColors.secondaryBlue),
+            const SizedBox(height: AppSpacing.lg),
+            Text('Search failed', style: text.titleMedium),
+            const SizedBox(height: AppSpacing.xs),
+            Text(message,
+                style: text.bodySmall,
+                textAlign: TextAlign.center,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis),
+            const SizedBox(height: AppSpacing.md),
+            TextButton(
+              onPressed: () => _cubit.searchNow(query),
+              child: const Text('Retry'),
             ),
           ],
         ),
-      );
-    }
+      ),
+    );
+  }
 
-    if (_searchResults.isEmpty) {
-      return SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 48.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Container(
-                  height: 140,
-                  width: 140,
-                  decoration: const BoxDecoration(
-                    color: AppColors.cardBackground,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.inventory_2_outlined,
-                    size: 64,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'No Results Found',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.montserrat(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'We couldn\'t find any matching medicine for "${_searchController.text}".',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
+  Widget _buildResults(List<Medicine> results) {
+    final text = Theme.of(context).textTheme;
     return ListView(
       physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.xl, vertical: AppSpacing.sm),
       children: [
         Padding(
-          padding: const EdgeInsets.only(bottom: 16.0),
-            child: Text(
-            '${_searchResults.length} results found',
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
-            ),
+          padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+          child: Text(
+            '${results.length} result${results.length == 1 ? '' : 's'} found',
+            style: text.bodyLarge?.copyWith(color: AppColors.textSecondary),
           ),
         ),
-        ..._searchResults.map((product) => _buildProductCard(product)),
-        const SizedBox(height: 24),
+        ...results.map(_buildProductCard),
+        const SizedBox(height: AppSpacing.xl),
       ],
     );
   }
@@ -357,7 +335,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 height: 80,
                 width: 80,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE5F1F2),
+                  color: AppColors.disabled,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: AppColors.inputBorder, width: 1),
                 ),
@@ -403,7 +381,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           style: GoogleFonts.montserrat(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: const Color(0xFF9CA3AF),
+                            color: AppColors.neutral,
                             decoration: TextDecoration.lineThrough,
                           ),
                         ),
@@ -451,8 +429,8 @@ class _SearchScreenState extends State<SearchScreen> {
                       ? Icons.favorite_rounded
                       : Icons.favorite_outline_rounded,
                   color: product.isFavorite
-                      ? const Color(0xFFFF6B4A)
-                      : const Color(0xFF9CA3AF),
+                      ? AppColors.accent
+                      : AppColors.neutral,
                   size: 22,
                 ),
               ),
@@ -466,14 +444,14 @@ class _SearchScreenState extends State<SearchScreen> {
               Row(
                 children: [
                   const Icon(Icons.bolt_rounded,
-                      size: 18, color: Color(0xFFFF7B5A)),
+                      size: 18, color: AppColors.accent),
                   const SizedBox(width: 4),
                   Text(
                     product.deliveryTime,
                     style: GoogleFonts.montserrat(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFFFF7B5A),
+                      color: AppColors.accent,
                     ),
                   ),
                   if (product.rxRequired) ...[
@@ -482,17 +460,17 @@ class _SearchScreenState extends State<SearchScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEFF6FF),
+                        color: AppColors.primary,
                         borderRadius: BorderRadius.circular(4),
                         border: Border.all(
-                            color: const Color(0xFFBFDBFE), width: 1),
+                            color: AppColors.secondaryBlue, width: 1),
                       ),
                       child: Text(
                         'Rx Required',
                         style: GoogleFonts.montserrat(
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF1D4ED8),
+                          color: AppColors.secondaryTeal,
                         ),
                       ),
                     ),
