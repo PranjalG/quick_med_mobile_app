@@ -57,79 +57,84 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
     final state = context.watch<PhoneAuthCubit>().state;
     final isSending = state is PhoneAuthCodeSending && !context.read<PhoneAuthCubit>().hasActiveVerification;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const LogoWidget(),
-        Center(
-          child: Text(
-            'Login with Phone',
-            style: GoogleFonts.montserrat(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
-          ),
-        ),
-        SizedBox(height: context.sh * 0.02),
-        Center(
-          child: Text(
-            'Enter your Indian mobile number.\nWe\'ll send a 6-digit OTP.',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              color: AppColors.textSecondary,
-              height: 1.4,
-            ),
-          ),
-        ),
-        SizedBox(height: context.sh * 0.04),
-        Center(
-          child: BorderedTextField(
-            controller: _phoneController,
-            label: 'Mobile Number',
-            hintText: '10-digit number',
-            keyboardType: TextInputType.phone,
-            inputFormatter: [
-              FilteringTextInputFormatter.digitsOnly,
-              LengthLimitingTextInputFormatter(10),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: Column(
+            children: [
+              const LogoWidget(),
+              Center(
+                child: Text(
+                  'Login with Phone',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+              SizedBox(height: context.sh * 0.02),
+              Center(
+                child: Text(
+                  'Enter your mobile number.\nWe\'ll send a 6-digit OTP.',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    color: AppColors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+              SizedBox(height: context.sh * 0.04),
+              Center(
+                child: BorderedTextField(
+                  controller: _phoneController,
+                  label: 'Mobile Number',
+                  hintText: '10-digit number',
+                  keyboardType: TextInputType.phone,
+                  inputFormatter: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(10),
+                  ],
+                  errorText: _inlineError,
+                  textInputAction: TextInputAction.done,
+                  onSubmit: _onSendOtp,
+                  onChange: (_) {
+                    if (_inlineError != null) {
+                      setState(() => _inlineError = null);
+                    }
+                  },
+                  textDecoration: InputDecoration(
+                    isDense: true,
+                    contentPadding: EdgeInsets.symmetric(vertical: context.sh * 0.01),
+                    hintText: '10-digit number',
+                    hintStyle: GoogleFonts.montserrat(
+                      color: ThemeColours.darkGreen,
+                      fontSize: 14,
+                    ),
+                    border: InputBorder.none,
+                    prefixText: '+91 ',
+                    prefixStyle: GoogleFonts.montserrat(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: ThemeColours.darkGreen,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: context.sh * 0.02),
+              Center(
+                child: GradientButton(
+                  buttonText: isSending ? 'Sending OTP...' : 'Send OTP',
+                  enabled: !isSending,
+                  onTap: isSending ? null : _onSendOtp,
+                ),
+              ),
+              SizedBox(height: context.sh * 0.03),
             ],
-            errorText: _inlineError,
-            textInputAction: TextInputAction.done,
-            onSubmit: _onSendOtp,
-            onChange: (_) {
-              if (_inlineError != null) {
-                setState(() => _inlineError = null);
-              }
-            },
-            textDecoration: InputDecoration(
-              isDense: true,
-              contentPadding: EdgeInsets.symmetric(vertical: context.sh * 0.01),
-              hintText: '10-digit number',
-              hintStyle: GoogleFonts.montserrat(
-                color: ThemeColours.darkGreen,
-                fontSize: 14,
-              ),
-              border: InputBorder.none,
-              prefixText: '+91 ',
-              prefixStyle: GoogleFonts.montserrat(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: ThemeColours.darkGreen,
-              ),
-            ),
           ),
-        ),
-        const Spacer(),
-        Center(
-          child: GradientButton(
-            buttonText: isSending ? 'Sending OTP...' : 'Send OTP',
-            enabled: !isSending,
-            onTap: isSending ? null : _onSendOtp,
-          ),
-        ),
-        SizedBox(height: context.sh * 0.03),
-      ],
+        );
+      },
     );
   }
 }

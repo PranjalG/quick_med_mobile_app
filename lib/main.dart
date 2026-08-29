@@ -9,6 +9,7 @@ import 'package:quick_med/services/router.dart';
 // late HydratedStorage hydratedStorage;
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:quick_med/services/app_theme.dart';
 import 'package:quick_med/services/supabase_config.dart';
 import 'firebase_options.dart';
 
@@ -38,10 +39,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       routerConfig: router,
       title: 'Quick Med mobile app',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreenAccent),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.light,
     );
   }
 }

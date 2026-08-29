@@ -12,7 +12,7 @@ class FloatingNavbar extends StatelessWidget {
 
   static final List<String> _icons = [
     'assets/icons/home.png',
-    'assets/icons/profile_icon.png',
+    'assets/icons/profile.svg',
     'assets/icons/cart.png',
   ];
 
