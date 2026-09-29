@@ -1,45 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:quick_med/services/app_colors.dart';
+
 import 'package:quick_med/utils/screen_size.dart';
 
+/// Brand logo lockup (wordmark + tagline) rendered from the `Logo.png` asset.
+///
+/// Using the asset directly keeps the official green wordmark and avoids
+/// re-typing the brand name.
 class LogoWidget extends StatelessWidget {
-  const LogoWidget({super.key});
+  /// Logo width as a fraction of screen width.
+  final double widthFactor;
+
+  const LogoWidget({super.key, this.widthFactor = 0.62});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(height: context.sh * 0.08),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'QuickMedD',
-                  style: GoogleFonts.palanquinDark(
-                    fontSize: 42,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.secondaryTeal,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Swift Medicine Delivery',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        SizedBox(height: context.sh * 0.04),
-      ],
+    return Image.asset(
+      'assets/images/Logo.png',
+      width: context.sw * widthFactor,
+      fit: BoxFit.contain,
     );
   }
 }

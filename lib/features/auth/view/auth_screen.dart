@@ -63,24 +63,38 @@ class AuthView extends StatelessWidget {
           backgroundColor: AppColors.scaffoldBackground,
           body: Stack(
             children: [
+              // Full-bleed medical-doodle background. BoxFit.cover keeps the
+              // aspect ratio (no distortion) and crops any overflow.
               Positioned.fill(
-                child: Opacity(
-                  opacity: 0.08,
-                  child: Image.asset(
-                    'assets/images/watermark-pattern.png',
-                    fit: BoxFit.cover,
-                    color: AppColors.primaryDark,
-                    colorBlendMode: BlendMode.srcIn,
+                child: Image.asset(
+                  'assets/images/Gradient.png',
+                  fit: BoxFit.cover,
+                ),
+              ),
+              // Soft mint veil so the card and text stay readable over the
+              // doodles without altering the image itself.
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        AppColors.primary.withValues(alpha: 0.74),
+                        AppColors.primary.withValues(alpha: 0.82),
+                        AppColors.scaffoldBackground.withValues(alpha: 0.92),
+                      ],
+                    ),
                   ),
                 ),
               ),
               SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: showOtp
-                      ? OtpEntryScreen(phoneDisplay: phoneDisplay)
-                      : const PhoneEntryScreen(),
-                ),
+                child: showOtp
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: OtpEntryScreen(phoneDisplay: phoneDisplay),
+                      )
+                    : const PhoneEntryScreen(),
               ),
             ],
           ),
