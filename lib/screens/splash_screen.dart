@@ -41,22 +41,39 @@ class SplashView extends StatelessWidget {
             // 1. Top curved pattern header image using extracted PNG and custom clipper
             ClipPath(
               clipper: BottomCurveClipper(),
-              child: SizedBox(
+              child: Container(
                 height: context.sh * 0.45,
                 width: double.infinity,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.brandGradientStart,
+                      AppColors.brandGradientEnd,
+                    ],
+                  ),
+                ),
                 child: Image.asset(
                   'assets/images/pattern-header.png',
                   fit: BoxFit.cover,
-                  color: AppColors.primary,
+                  color: AppColors.white.withValues(alpha: 0.18),
                   colorBlendMode: BlendMode.srcIn,
                 ),
               ),
             ),
             const Spacer(),
-            // 2. Content area with logo text and tagline
+            // 2. Content area with logo, brand name and tagline
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                Image.asset(
+                  'assets/images/app_logo.png',
+                  width: context.sw * 0.3,
+                  height: context.sw * 0.3,
+                  fit: BoxFit.contain,
+                ),
+                SizedBox(height: context.fs(16)),
                 Text(
                   'QuickMedD',
                   style: AppTextStyles.splashTitle(context),
@@ -84,8 +101,9 @@ class BottomCurveClipper extends CustomClipper<Path> {
     // Control point in the center is higher to create the curved dome arch
     final controlPoint = Offset(size.width / 2, size.height - 90);
     final endPoint = Offset(size.width, size.height);
-    
-    path.quadraticBezierTo(controlPoint.dx, controlPoint.dy, endPoint.dx, endPoint.dy);
+
+    path.quadraticBezierTo(
+        controlPoint.dx, controlPoint.dy, endPoint.dx, endPoint.dy);
     path.lineTo(size.width, 0);
     path.close();
     return path;

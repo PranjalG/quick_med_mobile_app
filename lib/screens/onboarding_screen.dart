@@ -25,17 +25,20 @@ class OnboardingView extends StatelessWidget {
   static final List<OnboardingData> _onboardingData = [
     OnboardingData(
       title: 'Real value deals',
-      subtitle: 'Upto 30% off on generic medicines and 40% off on health products.',
+      subtitle:
+          'Upto 30% off on generic medicines and 40% off on health products.',
       imagePath: 'assets/images/onboarding-real-value-deals.png',
     ),
     OnboardingData(
       title: 'Genuine Medicines',
-      subtitle: 'We source only from licensed, trusted pharmacies — 100% authentic, every order.',
+      subtitle:
+          'We source only from licensed, trusted pharmacies — 100% authentic, every order.',
       imagePath: 'assets/images/medical-store.png',
     ),
     OnboardingData(
       title: '30-Minute Delivery',
-      subtitle: 'Get your medicines delivered to your doorstep in under 30 minutes, every time.',
+      subtitle:
+          'Get your medicines delivered to your doorstep in under 30 minutes, every time.',
       imagePath: 'assets/images/scooter.png',
     ),
   ];
@@ -96,7 +99,8 @@ class OnboardingView extends StatelessWidget {
                         itemBuilder: (context, index) {
                           final data = _onboardingData[index];
                           return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 32.0),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -122,7 +126,8 @@ class OnboardingView extends StatelessWidget {
                                 Text(
                                   data.subtitle,
                                   textAlign: TextAlign.center,
-                                  style: AppTextStyles.onboardingSubtitle(context),
+                                  style:
+                                      AppTextStyles.onboardingSubtitle(context),
                                 ),
                               ],
                             ),
@@ -133,7 +138,8 @@ class OnboardingView extends StatelessWidget {
 
                     // Bottom Action Controls
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 32),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -144,14 +150,16 @@ class OnboardingView extends StatelessWidget {
                               _onboardingData.length,
                               (index) => AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),
-                                margin: const EdgeInsets.symmetric(horizontal: 4),
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 4),
                                 height: 8,
                                 width: currentPage == index ? 24 : 8,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(4),
                                   color: currentPage == index
-                                      ? AppColors.secondaryBlue
-                                      : AppColors.textSecondary.withValues(alpha: 0.3),
+                                      ? AppColors.brandGreen
+                                      : AppColors.brandTeal
+                                          .withValues(alpha: 0.25),
                                 ),
                               ),
                             ),
@@ -173,11 +181,17 @@ class OnboardingView extends StatelessWidget {
                               height: 60,
                               width: double.infinity,
                               decoration: BoxDecoration(
-                                color: AppColors.secondaryBlue,
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    AppColors.brandGradientStart,
+                                    AppColors.brandGradientEnd,
+                                  ],
+                                ),
                                 borderRadius: BorderRadius.circular(30),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppColors.secondaryBlue.withValues(alpha: 0.3),
+                                    color: AppColors.brandTeal
+                                        .withValues(alpha: 0.3),
                                     offset: const Offset(0, 8),
                                     blurRadius: 15,
                                   )
@@ -188,7 +202,8 @@ class OnboardingView extends StatelessWidget {
                                 currentPage == _onboardingData.length - 1
                                     ? 'Get Started'
                                     : 'Next →',
-                                style: AppTextStyles.buttonText(context),
+                                style: AppTextStyles.buttonText(context)
+                                    .copyWith(color: AppColors.white),
                               ),
                             ),
                           ),

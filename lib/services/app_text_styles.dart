@@ -4,99 +4,117 @@ import 'package:quick_med/utils/screen_size.dart';
 import 'app_colors.dart';
 
 class AppTextStyles {
-  static TextStyle splashTitle(BuildContext context) => GoogleFonts.palanquinDark(
+  static TextStyle splashTitle(BuildContext context) =>
+      GoogleFonts.palanquinDark(
         fontSize: context.fs(42),
         fontWeight: FontWeight.bold,
-        color: AppColors.secondaryBlue,
+        color: AppColors.brandGreenDeep,
       );
-  
-  static TextStyle splashSubtitle(BuildContext context) => GoogleFonts.montserrat(
+
+  static TextStyle splashSubtitle(BuildContext context) =>
+      GoogleFonts.montserrat(
         fontSize: context.fs(16),
         fontWeight: FontWeight.w600,
-        color: AppColors.textSecondary,
+        color: AppColors.brandTeal,
         letterSpacing: 0.5,
       );
-  
+
+  /// Brand wordmark shown beneath the logo (e.g. on the login screen).
+  ///
+  /// Rendered in the logo's green family. The caller can override [color] to
+  /// paint the trailing "D" in the teal accent for the two-tone lockup.
+  static TextStyle brandWordmark(BuildContext context) =>
+      GoogleFonts.palanquinDark(
+        fontSize: context.fs(28),
+        fontWeight: FontWeight.bold,
+        color: AppColors.brandGreenDeep,
+        letterSpacing: 0.5,
+      );
+
   static TextStyle body(BuildContext context) => GoogleFonts.montserrat(
         fontSize: context.fs(14),
         fontWeight: FontWeight.w400,
         color: AppColors.textPrimary,
       );
-  
+
   static TextStyle bodyLarge(BuildContext context) => GoogleFonts.montserrat(
         fontSize: context.fs(16),
         fontWeight: FontWeight.w400,
         color: AppColors.textPrimary,
       );
-  
+
   static TextStyle title(BuildContext context) => GoogleFonts.montserrat(
         fontSize: context.fs(20),
         fontWeight: FontWeight.w600,
         color: AppColors.textPrimary,
       );
-  
+
   static TextStyle headline(BuildContext context) => GoogleFonts.montserrat(
         fontSize: context.fs(24),
         fontWeight: FontWeight.bold,
         color: AppColors.textPrimary,
       );
-  
-  static TextStyle onboardingTitle(BuildContext context) => GoogleFonts.montserrat(
+
+  static TextStyle onboardingTitle(BuildContext context) =>
+      GoogleFonts.montserrat(
         fontSize: context.fs(24),
         fontWeight: FontWeight.bold,
         color: AppColors.textPrimary,
       );
-  
-  static TextStyle onboardingSubtitle(BuildContext context) => GoogleFonts.montserrat(
+
+  static TextStyle onboardingSubtitle(BuildContext context) =>
+      GoogleFonts.montserrat(
         fontSize: context.fs(16),
         fontWeight: FontWeight.w500,
         color: AppColors.textSecondary,
         height: 1.5,
       );
-  
+
   static TextStyle buttonText(BuildContext context) => GoogleFonts.montserrat(
         fontSize: context.fs(18),
         fontWeight: FontWeight.bold,
         color: AppColors.primary,
       );
-  
+
   static TextStyle skipText(BuildContext context) => GoogleFonts.montserrat(
         fontSize: context.fs(15),
         fontWeight: FontWeight.w600,
         color: AppColors.textSecondary,
       );
-  
+
   static TextStyle inputText(BuildContext context) => GoogleFonts.montserrat(
         fontSize: context.fs(16),
         fontWeight: FontWeight.w500,
         color: AppColors.textPrimary,
       );
-  
+
   static TextStyle hintText(BuildContext context) => GoogleFonts.montserrat(
         fontSize: context.fs(16),
         fontWeight: FontWeight.w500,
         color: AppColors.textSecondary,
       );
-  
-  static TextStyle forgotPasswordText(BuildContext context) => GoogleFonts.montserrat(
+
+  static TextStyle forgotPasswordText(BuildContext context) =>
+      GoogleFonts.montserrat(
         fontSize: context.fs(15),
         fontWeight: FontWeight.bold,
         color: AppColors.secondaryBlue,
       );
-  
+
   static TextStyle homeTitle(BuildContext context) => GoogleFonts.palanquinDark(
         fontSize: context.fs(20),
         fontWeight: FontWeight.bold,
         color: AppColors.secondaryBlue,
       );
-  
+
   static TextStyle homeHeading(BuildContext context) => GoogleFonts.montserrat(
         fontSize: context.fs(24),
         fontWeight: FontWeight.bold,
         color: AppColors.textPrimary,
       );
- 
-  static TextStyle homeSectionHeader(BuildContext context) => GoogleFonts.montserrat(
+
+  static TextStyle homeSectionHeader(BuildContext context) =>
+      GoogleFonts.montserrat(
         fontSize: context.fs(18),
         fontWeight: FontWeight.bold,
         color: AppColors.textPrimary,
@@ -120,7 +138,8 @@ class AppTextStyles {
         color: AppColors.textPrimary,
       );
 
-  static TextStyle categoryLabel(BuildContext context) => GoogleFonts.montserrat(
+  static TextStyle categoryLabel(BuildContext context) =>
+      GoogleFonts.montserrat(
         fontSize: context.fs(12),
         fontWeight: FontWeight.w600,
         color: AppColors.textPrimary,

@@ -16,7 +16,37 @@ class AppColors {
   // ---------------------------------------------------------------------
 
   static const Color primary = Color(0xFFD6F3F4); // Primary (Light Mint/Aqua)
-  static const Color primaryDark = Color(0xFF508991); // Support (Dusty Slate Blue)
+  static const Color primaryDark =
+      Color(0xFF508991); // Support (Dusty Slate Blue)
+
+  // ---------------------------------------------------------------------
+  // Logo / brand green
+  //
+  // Sampled directly from the QuickMedD app logo (the green hexagon +
+  // teal/white capsule). The mark runs from a bright lime highlight through a
+  // mid emerald to a teal shadow side, so these tokens describe that
+  // green→teal family. Use them for brand surfaces that should echo the logo
+  // (splash, onboarding accents, the login wordmark).
+  // ---------------------------------------------------------------------
+
+  /// Representative mid lime-emerald — the logo's core green.
+  static const Color brandGreen = Color(0xFF3CBB4C);
+
+  /// Bright highlight face of the hexagon.
+  static const Color brandGreenLight = Color(0xFF5FD46E);
+
+  /// Deeper green where the mark turns toward teal.
+  static const Color brandGreenDark = Color(0xFF1E9E6A);
+
+  /// Teal shadow side of the logo / the darker capsule half.
+  static const Color brandTeal = Color(0xFF009078);
+
+  /// Deep teal-green for text on light backgrounds (WCAG-safe on white).
+  static const Color brandGreenDeep = Color(0xFF00695A);
+
+  /// Logo gradient (highlight → teal shadow), matching the hexagon shading.
+  static const Color brandGradientStart = brandGreenLight; // #5FD46E
+  static const Color brandGradientEnd = brandTeal; // #009078
 
   // Secondary Colors
   static const Color secondaryBlue = Color(0xFF74B3CE); // Medium Blue
@@ -28,9 +58,11 @@ class AppColors {
   // ---------------------------------------------------------------------
 
   static const Color scaffoldBackground = Color(0xFFFFFFFF); // White background
-  static const Color cardBackground = Color(0xFFF3F8F9); // Soft Mint/Ice Blue Card Background
+  static const Color cardBackground =
+      Color(0xFFF3F8F9); // Soft Mint/Ice Blue Card Background
   static const Color inputFill = Color(0xFFFFFFFF); // White Input Field
-  static const Color inputBorder = Color(0xFFD1E3E5); // Soft Mint/Teal Gray Border
+  static const Color inputBorder =
+      Color(0xFFD1E3E5); // Soft Mint/Teal Gray Border
 
   static const Color textPrimary = Color(0xFF172A3A); // Midnight Navy Text
   static const Color textSecondary = Color(0xFF508991); // Dusty Slate Blue Text
@@ -46,9 +78,12 @@ class AppColors {
   /// Neutral greys. `ThemeColours` carried its own neutral ramp that was
   /// unrelated to the navy/teal text colours; these fill that gap without
   /// reintroducing a second palette.
-  static const Color neutralDark = Color(0xFF555555); // was ThemeColours.textGrey
-  static const Color neutral = Color(0xFF777777); // was ThemeColours.textLightGrey
-  static const Color neutralLight = Color(0xFFB4B4B4); // was ThemeColours.lightGrey
+  static const Color neutralDark =
+      Color(0xFF555555); // was ThemeColours.textGrey
+  static const Color neutral =
+      Color(0xFF777777); // was ThemeColours.textLightGrey
+  static const Color neutralLight =
+      Color(0xFFB4B4B4); // was ThemeColours.lightGrey
 
   /// Warning / caution state. No equivalent existed in this palette.
   static const Color warning = Color(0xFFFFD234);
@@ -62,7 +97,8 @@ class AppColors {
   /// stays as a deliberate accent or folds into the teal family is a design
   /// decision deferred to Phase 4 component consolidation.
   static const Color accent = Color(0xFFDA6317); // was ThemeColours.darkOrange
-  static const Color accentLight = Color(0xFFF9A84D); // was ThemeColours.lightOrange
+  static const Color accentLight =
+      Color(0xFFF9A84D); // was ThemeColours.lightOrange
 
   /// Primary call-to-action gradient.
   ///

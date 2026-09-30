@@ -3,8 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:quick_med/screens/login/logo_widget.dart';
 
 void main() {
-  testWidgets('LogoWidget displays application name and subtitle', (WidgetTester tester) async {
-    // Build LogoWidget in a MaterialApp container
+  testWidgets('LogoWidget renders the brand logo image asset',
+      (WidgetTester tester) async {
+    // Build LogoWidget in a MaterialApp container.
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
@@ -13,10 +14,13 @@ void main() {
       ),
     );
 
-    // Verify application name is displayed
-    expect(find.text('QuickMedD'), findsOneWidget);
+    // The widget renders a single Image.
+    final imageFinder = find.byType(Image);
+    expect(imageFinder, findsOneWidget);
 
-    // Verify subtitle is displayed
-    expect(find.text('Swift Medicine Delivery'), findsOneWidget);
+    // And that image points at the brand logo asset.
+    final image = tester.widget<Image>(imageFinder);
+    final provider = image.image as AssetImage;
+    expect(provider.assetName, 'assets/images/app_logo.png');
   });
 }
