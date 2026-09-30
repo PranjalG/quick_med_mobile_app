@@ -33,13 +33,13 @@ class OnboardingView extends StatelessWidget {
       title: 'Genuine Medicines',
       subtitle:
           'We source only from licensed, trusted pharmacies — 100% authentic, every order.',
-      imagePath: 'assets/images/medical-store.png',
+      imagePath: 'assets/images/medical-store_.png',
     ),
     OnboardingData(
       title: '30-Minute Delivery',
       subtitle:
           'Get your medicines delivered to your doorstep in under 30 minutes, every time.',
-      imagePath: 'assets/images/scooter.png',
+      imagePath: 'assets/images/scooter_.png',
     ),
   ];
 
@@ -104,17 +104,22 @@ class OnboardingView extends StatelessWidget {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                // Illustration Image Area
-                                Container(
-                                  height: context.sh * 0.35,
-                                  width: double.infinity,
-                                  alignment: Alignment.center,
-                                  child: Image.asset(
-                                    data.imagePath,
-                                    fit: BoxFit.contain,
+                                // Illustration Image Area — flexes to fill the
+                                // available height so the page never overflows,
+                                // while BoxFit.contain scales the artwork up as
+                                // large as that space allows.
+                                Flexible(
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: context.sh * 0.01),
+                                    child: Image.asset(
+                                      data.imagePath,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
-                                SizedBox(height: context.sh * 0.04),
+                                SizedBox(height: context.sh * 0.015),
                                 // Title Text
                                 Text(
                                   data.title,

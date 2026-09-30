@@ -57,14 +57,14 @@ class AppTextStyles {
 
   static TextStyle onboardingTitle(BuildContext context) =>
       GoogleFonts.montserrat(
-        fontSize: context.fs(24),
+        fontSize: context.fs(20),
         fontWeight: FontWeight.bold,
         color: AppColors.textPrimary,
       );
 
   static TextStyle onboardingSubtitle(BuildContext context) =>
       GoogleFonts.montserrat(
-        fontSize: context.fs(16),
+        fontSize: context.fs(14),
         fontWeight: FontWeight.w500,
         color: AppColors.textSecondary,
         height: 1.5,

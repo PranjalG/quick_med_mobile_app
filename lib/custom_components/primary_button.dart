@@ -53,26 +53,12 @@ class PrimaryButton extends StatelessWidget {
                   ]
                 : null,
           ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Text(
-                label,
-                style: AppTextStyles.buttonText(context).copyWith(
-                  color: AppColors.white,
-                  fontSize: context.fs(16),
-                ),
-              ),
-              if (trailingIcon != null)
-                Positioned(
-                  right: context.fs(20),
-                  child: Icon(
-                    trailingIcon,
-                    size: context.fs(22),
-                    color: AppColors.white,
-                  ),
-                ),
-            ],
+          child: Text(
+            label,
+            style: AppTextStyles.buttonText(context).copyWith(
+              color: AppColors.white,
+              fontSize: context.fs(16),
+            ),
           ),
         ),
       ),
