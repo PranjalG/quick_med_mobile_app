@@ -42,18 +42,17 @@ Ensure you have the Flutter SDK configured on your system:
 flutter --version
 ```
 
-### 2. Configure Backend Credentials
-1. **Supabase Setup:** Create a configuration file at `lib/services/supabase_config.dart` containing your database URL and anon publishable key:
-   ```dart
-   class SupabaseConfig {
-     static const String url = 'https://your-project-id.supabase.co';
-     static const String publishableKey = 'your-anon-publishable-key';
-   }
+### 2. Configure Backend Credentials (local only — not committed)
+1. **Supabase:** Copy the template and add your project URL and **publishable/anon** key (never `service_role`):
+   ```bash
+   cp lib/services/supabase_config.example.dart lib/services/supabase_config.dart
    ```
-2. **Firebase Setup:** Register your application platforms inside the Firebase console and generate `lib/firebase_options.dart` via the FlutterFire CLI:
+2. **Firebase:** Generate platform config locally (gitignored):
    ```bash
    flutterfire configure
    ```
+   Place `google-services.json` under `android/app/` and `GoogleService-Info.plist` under `ios/Runner/` per Firebase console instructions.
+3. **Google Maps (Android):** Set your Maps API key in `android/app/src/main/AndroidManifest.xml` (`com.google.android.geo.API_KEY`) — use a restricted key, not committed if you prefer env-based injection.
 
 ### 3. Fetch Dependencies
 Install package references:

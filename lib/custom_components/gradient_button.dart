@@ -31,8 +31,8 @@ class GradientButton extends StatelessWidget {
           gradient: (enabled ?? true)
               ? const LinearGradient(
             colors: [
-              AppColors.gradientStart,
-              AppColors.gradientEnd,
+              AppColors.brandGradientStart,
+              AppColors.brandGradientEnd,
             ],
             stops: [0.1, 0.8],
             begin: Alignment.topLeft,
@@ -40,8 +40,8 @@ class GradientButton extends StatelessWidget {
           )
               : LinearGradient(
             colors: [
-              AppColors.gradientStart.withValues(alpha: 0.4),
-              AppColors.gradientEnd.withValues(alpha: 0.4),
+              AppColors.brandGradientStart.withValues(alpha: 0.4),
+              AppColors.brandGradientEnd.withValues(alpha: 0.4),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,

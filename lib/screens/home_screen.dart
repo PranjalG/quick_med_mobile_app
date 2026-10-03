@@ -8,6 +8,7 @@ import 'package:quick_med/screens/cart/cart_view.dart';
 import 'package:quick_med/blocs/catalogue_cubit/catalogue_cubit.dart';
 import 'package:quick_med/screens/landing_screen.dart';
 import 'package:quick_med/screens/profile/profile_screen.dart';
+import 'package:quick_med/services/app_colors.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -63,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen>
         },
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: Colors.white,
+            backgroundColor: AppColors.scaffoldBackground,
             body: SafeArea(
               child: TabBarView(
                 controller: tabController,

@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quick_med/services/auth_service.dart';
 import 'package:quick_med/services/profile_service.dart';
+import 'package:quick_med/utils/profile_completeness.dart';
 import 'splash_state.dart';
 
 class SplashCubit extends Cubit<SplashState> {
@@ -16,7 +17,8 @@ class SplashCubit extends Cubit<SplashState> {
     if (userId != null) {
       try {
         final profile = await _profileService.fetchProfile(userId);
-        if (profile != null && profile.name.isNotEmpty) {
+        final profileComplete = isProfileComplete(profile);
+        if (profileComplete) {
           emit(SplashNavigateToHome());
         } else {
           emit(SplashNavigateToProfileSetup());

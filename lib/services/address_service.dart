@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Address {
@@ -26,6 +27,12 @@ class AddressException implements Exception {
   String toString() => message;
 }
 
+double? _readDouble(Object? value) {
+  if (value == null) return null;
+  if (value is num) return value.toDouble();
+  return double.tryParse(value.toString());
+}
+
 class AddressService {
   AddressService({SupabaseClient? client})
       : _client = client ?? Supabase.instance.client;
@@ -41,20 +48,57 @@ class AddressService {
     return rows.map((r) => Address.fromJson(r as Map<String, dynamic>)).toList();
   }
 
-  /// Returns the user's first address, creating one from their profile if they
-  /// have none.
-  ///
-  /// `place_order` requires an address_id owned by the caller, but profile
-  /// setup writes its address into `profiles.address_detail` / `kota_area`
-  /// rather than into `addresses`. Without this bridge, a first-time customer
-  /// could never check out. A proper address book replaces this later.
+  /// Returns an address id owned by the caller's JWT `sub` (same rule as
+  /// [place_order]). Prefer the server RPC; fall back to client insert for
+  /// projects that have not applied `010_ensure_delivery_address.sql` yet.
   Future<Address> ensureDefault(String uid) async {
+    try {
+      final id = await _client.rpc<String>('ensure_delivery_address');
+      if (id.isNotEmpty) {
+        final row = await _client
+            .from('addresses')
+            .select()
+            .eq('id', id)
+            .maybeSingle();
+        if (row != null) {
+          return Address.fromJson(row);
+        }
+        return Address(id: id, label: 'Home', fullAddress: '');
+      }
+    } on PostgrestException catch (error) {
+      if (error.code == 'PGRST202') {
+        debugPrint(
+          'ensure_delivery_address RPC missing — using client fallback. '
+          'Apply supabase/migrations/010_ensure_delivery_address.sql',
+        );
+      } else {
+        throw AddressException(_friendlyRpc(error));
+      }
+    }
+
+    return _ensureDefaultClientSide(uid);
+  }
+
+  String _friendlyRpc(PostgrestException error) {
+    final raw = error.message;
+    if (error.code == '22023' && raw.contains('delivery address')) {
+      return 'Add a delivery address to your profile before ordering.';
+    }
+    if (error.code == '28000') {
+      return 'Please sign in again to place this order.';
+    }
+    return raw.isNotEmpty ? raw : 'Could not resolve your delivery address.';
+  }
+
+  Future<Address> _ensureDefaultClientSide(String uid) async {
     final existing = await fetchAll(uid);
     if (existing.isNotEmpty) return existing.first;
 
     final profile = await _client
         .from('profiles')
-        .select('kota_area, address_detail')
+        .select(
+          'kota_area, address_detail, address_latitude, address_longitude',
+        )
         .eq('id', uid)
         .maybeSingle();
 
@@ -67,6 +111,14 @@ class AddressService {
       );
     }
 
+    final lat = _readDouble(profile?['address_latitude']);
+    final lng = _readDouble(profile?['address_longitude']);
+    if (lat == null || lng == null) {
+      throw const AddressException(
+        'Pin your delivery location in Profile before ordering.',
+      );
+    }
+
     final full = [detail, area].where((p) => p.isNotEmpty).join(', ');
 
     final row = await _client
@@ -75,6 +127,8 @@ class AddressService {
           'user_id': uid,
           'label': 'Home',
           'full_address': full,
+          'latitude': lat,
+          'longitude': lng,
         })
         .select()
         .single();

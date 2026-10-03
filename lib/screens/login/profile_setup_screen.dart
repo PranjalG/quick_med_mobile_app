@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:quick_med/custom_components/brand_curved_header.dart';
+import 'package:quick_med/custom_components/primary_button.dart';
+import 'package:quick_med/screens/login/logo_widget.dart';
 import 'package:quick_med/services/auth_service.dart';
 import 'package:quick_med/blocs/profile_cubit/profile_cubit.dart';
 import 'package:quick_med/blocs/profile_cubit/profile_state.dart';
@@ -9,7 +11,9 @@ import 'package:quick_med/services/profile_service.dart';
 import 'package:quick_med/services/app_colors.dart';
 import 'package:quick_med/services/app_text_styles.dart';
 import 'package:quick_med/utils/screen_size.dart';
+import 'package:quick_med/constants/kota_areas.dart';
 import 'package:quick_med/custom_components/custom_text_field.dart';
+import 'package:quick_med/custom_components/delivery_location_picker.dart';
 
 class ProfileSetupScreen extends StatelessWidget {
   const ProfileSetupScreen({super.key});
@@ -40,43 +44,36 @@ class ProfileSetupView extends StatefulWidget {
 class _ProfileSetupViewState extends State<ProfileSetupView> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
   
   String? _selectedKotaArea;
-
-  final List<String> _kotaAreas = [
-    'Nayapura',
-    'Talwandi',
-    'Kunhari',
-    'Landmark City',
-    'Vigyan Nagar',
-    'Gumanpura',
-    'Dadabari',
-    'Mahaveer Nagar',
-    'Rajeev Gandhi Nagar',
-    'Shrinath Puram',
-  ];
+  String _preservedEmail = '';
+  double? _addressLatitude;
+  double? _addressLongitude;
+  String? _locationValidationError;
 
   @override
   void initState() {
     super.initState();
-    _emailController.text = AuthService.currentUserEmail ?? '';
     _phoneController.text = AuthService.currentUserPhone ?? '';
   }
 
   @override
   void dispose() {
     _nameController.dispose();
-    _emailController.dispose();
     _phoneController.dispose();
     _addressController.dispose();
     super.dispose();
   }
 
   void _onSave(BuildContext context) {
-    if (_formKey.currentState!.validate()) {
+    final hasCoords = _addressLatitude != null && _addressLongitude != null;
+    setState(() {
+      _locationValidationError =
+          hasCoords ? null : 'Pin your delivery location on the map to continue.';
+    });
+    if (_formKey.currentState!.validate() && hasCoords) {
       final userId = AuthService.currentUserId;
       if (userId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -90,9 +87,11 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
         id: userId,
         name: _nameController.text.trim(),
         phone: _phoneController.text.trim(),
-        email: _emailController.text.trim(),
+        email: _preservedEmail,
         kotaArea: _selectedKotaArea ?? '',
         addressDetail: _addressController.text.trim(),
+        addressLatitude: _addressLatitude,
+        addressLongitude: _addressLongitude,
       );
 
       context.read<ProfileCubit>().saveProfile(profile);
@@ -108,11 +107,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
           if (_nameController.text.isEmpty) {
             _nameController.text = state.profile.name;
           }
-          if (_emailController.text.isEmpty) {
-            _emailController.text = state.profile.email.isNotEmpty 
-                ? state.profile.email 
-                : (AuthService.currentUserEmail ?? '');
-          }
+          _preservedEmail = state.profile.email;
           if (_phoneController.text.isEmpty) {
             _phoneController.text = state.profile.phone.isNotEmpty 
                 ? state.profile.phone 
@@ -121,16 +116,22 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
           if (_addressController.text.isEmpty) {
             _addressController.text = state.profile.addressDetail;
           }
-          if (_selectedKotaArea == null && _kotaAreas.contains(state.profile.kotaArea)) {
+          if (_selectedKotaArea == null && kotaAreas.contains(state.profile.kotaArea)) {
             setState(() {
               _selectedKotaArea = state.profile.kotaArea;
+            });
+          }
+          if (_addressLatitude == null && state.profile.hasDeliveryCoordinates) {
+            setState(() {
+              _addressLatitude = state.profile.addressLatitude;
+              _addressLongitude = state.profile.addressLongitude;
             });
           }
         } else if (state is ProfileUpdateSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Profile saved successfully! Welcome to QuickMed.'),
-              backgroundColor: Colors.green,
+              backgroundColor: AppColors.brandGreen,
             ),
           );
           context.go('/home_screen');
@@ -144,91 +145,69 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
         }
       },
       builder: (context, state) {
+        final isSaving = state is ProfileUpdating;
+
         return Scaffold(
           backgroundColor: AppColors.scaffoldBackground,
-          body: Stack(
+          body: Column(
             children: [
-              // 1. Watermark Background Pattern
-              Positioned.fill(
-                child: Opacity(
-                  opacity: 0.08,
-                  child: Image.asset(
-                    'assets/images/watermark-pattern.png',
-                    fit: BoxFit.cover,
-                    color: AppColors.primaryDark,
-                    colorBlendMode: BlendMode.srcIn,
-                  ),
-                ),
-              ),
-
-              // 2. Main Content
-              SafeArea(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        SizedBox(height: context.sh * 0.04),
-                        
-                        // Icon Header
-                        Center(
-                          child: Container(
-                            height: 80,
-                            width: 80,
+              const BrandCurvedHeader(heightFactor: 0.18),
+              Expanded(
+                child: SafeArea(
+                  top: false,
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: EdgeInsets.symmetric(horizontal: context.fs(20)),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          SizedBox(height: context.sh * 0.02),
+                          const Center(
+                            child: LogoWidget(
+                              widthFactor: 0.22,
+                              showTagline: false,
+                            ),
+                          ),
+                          SizedBox(height: context.fs(16)),
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.all(context.fs(24)),
                             decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.1),
-                              shape: BoxShape.circle,
+                              color: AppColors.white,
+                              borderRadius:
+                                  BorderRadius.circular(context.fs(28)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.secondaryNavy
+                                      .withValues(alpha: 0.10),
+                                  offset: const Offset(0, 8),
+                                  blurRadius: 24,
+                                ),
+                              ],
                             ),
-                            child: const Icon(
-                              Icons.person_add_alt_1_outlined,
-                              size: 40,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: context.sh * 0.02),
-
-                        // Title
-                        Text(
-                          'Complete Profile',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.montserrat(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF111827),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Tell us a bit about yourself to get fast delivery in Kota',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.montserrat(
-                            fontSize: 14,
-                            color: const Color(0xFF6B7280),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        SizedBox(height: context.sh * 0.04),
-
-                        // Email Input (Disabled/Read-only from active session)
-                        CustomTextField(
-                          controller: _emailController,
-                          labelText: 'Email Address',
-                          hintText: 'Email address',
-                          enabled: false,
-                          prefixIcon: const Icon(Icons.mail_outline, color: Color(0xFF9CA3AF)),
-                        ),
-                        SizedBox(height: context.sh * 0.02),
-
-                        // Full Name Input
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Complete profile',
+                                  style: AppTextStyles.title(context),
+                                ),
+                                SizedBox(height: context.fs(8)),
+                                Text(
+                                  'Tell us a bit about yourself for fast delivery in Kota',
+                                  style: AppTextStyles.body(context).copyWith(
+                                    color: AppColors.textSecondary,
+                                    height: 1.4,
+                                  ),
+                                ),
+                                SizedBox(height: context.fs(24)),
                         CustomTextField(
                           controller: _nameController,
                           labelText: 'Full Name',
                           hintText: 'Enter your full name',
-                          prefixIcon: const Icon(Icons.person_outline, color: Color(0xFF6B7280)),
+                          prefixIcon: const Icon(Icons.person_outline, color: AppColors.textSecondary),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return 'Please enter your full name';
@@ -294,7 +273,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
                               borderSide: const BorderSide(
-                                color: AppColors.primary,
+                                color: AppColors.brandTeal,
                                 width: 1.5,
                               ),
                             ),
@@ -313,7 +292,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                               ),
                             ),
                           ),
-                          items: _kotaAreas.map((area) {
+                          items: kotaAreas.map((area) {
                             return DropdownMenuItem<String>(
                               value: area,
                               child: Text(
@@ -349,42 +328,33 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                             return null;
                           },
                         ),
-                        SizedBox(height: context.sh * 0.05),
-
-                        // Save Button
-                        GestureDetector(
-                          onTap: state is ProfileUpdating ? null : () => _onSave(context),
-                          child: Container(
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: AppColors.secondaryTeal,
-                              borderRadius: BorderRadius.circular(30),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.secondaryTeal.withValues(alpha: 0.25),
-                                  offset: const Offset(0, 8),
-                                  blurRadius: 15,
-                                )
+                        SizedBox(height: context.sh * 0.02),
+                        DeliveryLocationPicker(
+                          latitude: _addressLatitude,
+                          longitude: _addressLongitude,
+                          errorText: _locationValidationError,
+                          onLocationChanged: (latLng) {
+                            setState(() {
+                              _addressLatitude = latLng.latitude;
+                              _addressLongitude = latLng.longitude;
+                              _locationValidationError = null;
+                            });
+                          },
+                        ),
+                                SizedBox(height: context.fs(24)),
+                                PrimaryButton(
+                                  label: isSaving
+                                      ? 'Saving...'
+                                      : 'Save & Continue',
+                                  enabled: !isSaving,
+                                  onTap: isSaving ? null : () => _onSave(context),
+                                ),
                               ],
                             ),
-                            alignment: Alignment.center,
-                            child: state is ProfileUpdating
-                                ? const SizedBox(
-                                    height: 24,
-                                    width: 24,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.5,
-                                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
-                                    ),
-                                  )
-                                : Text(
-                                    'Save & Continue',
-                                    style: AppTextStyles.buttonText(context),
-                                  ),
                           ),
-                        ),
-                        SizedBox(height: context.sh * 0.04),
-                      ],
+                          SizedBox(height: context.fs(24)),
+                        ],
+                      ),
                     ),
                   ),
                 ),

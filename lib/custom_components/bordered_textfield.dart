@@ -70,7 +70,7 @@ class BorderedTextField extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               width: 2,
-              color: hasError ? AppColors.error : AppColors.secondaryBlue,
+              color: hasError ? AppColors.error : AppColors.brandGradientEnd,
             ),
           ),
           child: TextFormField(

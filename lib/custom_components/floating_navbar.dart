@@ -44,9 +44,9 @@ class FloatingNavbar extends StatelessWidget {
           vertical: AppSpacing.md,
         ),
         child: Material(
-          color: AppColors.scaffoldBackground,
-          elevation: 8,
-          shadowColor: AppColors.secondaryNavy.withValues(alpha: 0.18),
+          color: AppColors.white,
+          elevation: 10,
+          shadowColor: AppColors.brandTeal.withValues(alpha: 0.22),
           borderRadius: BorderRadius.circular(AppRadius.lg + 4),
           child: Padding(
             padding: const EdgeInsets.symmetric(
@@ -102,8 +102,8 @@ class _NavButton extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: AppRadius.mdAll,
-        splashColor: AppColors.primary,
-        highlightColor: AppColors.primary.withValues(alpha: 0.5),
+        splashColor: AppColors.brandGreenLight.withValues(alpha: 0.35),
+        highlightColor: AppColors.brandTeal.withValues(alpha: 0.12),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOut,
@@ -112,13 +112,32 @@ class _NavButton extends StatelessWidget {
             vertical: AppSpacing.sm,
           ),
           decoration: BoxDecoration(
-            color: isActive ? AppColors.primary : Colors.transparent,
+            gradient: isActive
+                ? const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.brandGradientStart,
+                      AppColors.brandGradientEnd,
+                    ],
+                  )
+                : null,
+            color: isActive ? null : Colors.transparent,
             borderRadius: AppRadius.mdAll,
+            boxShadow: isActive
+                ? [
+                    BoxShadow(
+                      color: AppColors.brandTeal.withValues(alpha: 0.28),
+                      offset: const Offset(0, 4),
+                      blurRadius: 8,
+                    ),
+                  ]
+                : null,
           ),
           child: Icon(
             isActive ? destination.activeIcon : destination.icon,
             size: AppIconSize.lg,
-            color: isActive ? AppColors.secondaryTeal : AppColors.secondaryBlue,
+            color: isActive ? AppColors.white : AppColors.textSecondary,
           ),
         ),
       ),

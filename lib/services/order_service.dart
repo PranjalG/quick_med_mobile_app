@@ -81,7 +81,11 @@ class OrderService {
       '22023' => raw.contains('cart is empty')
           ? 'Your cart is empty.'
           : 'Something in your cart is invalid.',
-      '42501' => 'That delivery address is not available. Pick another.',
+      '42501' => raw.contains('does not belong') || raw.contains('address')
+          ? 'That delivery address is not available. Update your profile address and try again.'
+          : (raw.isNotEmpty
+              ? raw
+              : 'Permission denied while placing the order.'),
       '23503' => 'A medicine in your cart is no longer available.',
       // The RPC formats this one with the medicine name and counts.
       '23514' => raw,

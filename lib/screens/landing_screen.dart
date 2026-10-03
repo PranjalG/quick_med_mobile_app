@@ -10,6 +10,7 @@ import 'package:quick_med/models/medicine_model.dart';
 import 'package:quick_med/services/app_theme.dart';
 import 'package:quick_med/blocs/profile_cubit/profile_cubit.dart';
 import 'package:quick_med/blocs/profile_cubit/profile_state.dart';
+import 'package:quick_med/screens/login/logo_widget.dart';
 import 'package:quick_med/services/app_colors.dart';
 import 'package:quick_med/services/app_text_styles.dart';
 import 'package:quick_med/utils/screen_size.dart';
@@ -82,49 +83,35 @@ class LandingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
-      body: Stack(
-        children: [
-          // 1. Watermark Background Pattern
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.08,
-              child: Image.asset(
-                'assets/images/watermark-pattern.png',
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-
-          // 2. Main Scroll Content
-          SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // 1. Top Header Section (Brand, Greeting, Location, Bell Notification)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 1. Top Header Section (Brand, Greeting, Location, Bell Notification)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        BlocBuilder<ProfileCubit, ProfileState>(
-                          builder: (context, state) {
-                            String displayName = 'Guest';
-                            String displayArea = 'Kota';
-                            if (state is ProfileLoaded) {
-                              displayName = state.profile.name.split(' ').first;
-                              displayArea = state.profile.kotaArea;
-                            }
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'QuickMedD',
-                                  style: AppTextStyles.homeTitle(context),
-                                ),
-                                const SizedBox(height: 2),
+                  BlocBuilder<ProfileCubit, ProfileState>(
+                    builder: (context, state) {
+                      String displayName = 'Guest';
+                      String displayArea = 'Kota';
+                      if (state is ProfileLoaded) {
+                        displayName = state.profile.name.split(' ').first;
+                        displayArea = state.profile.kotaArea;
+                      }
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const LogoWidget(
+                            horizontal: true,
+                            widthFactor: 0.09,
+                            showTagline: false,
+                          ),
+                          const SizedBox(height: 8),
                                 Text(
                                   'Hi, $displayName 👋',
                                   style: AppTextStyles.homeHeading(context),
@@ -147,13 +134,13 @@ class LandingScreen extends StatelessWidget {
                                       const Icon(
                                         Icons.location_on_outlined,
                                         size: 16,
-                                        color: AppColors.primaryDark,
+                                        color: AppColors.brandTeal,
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
                                         '$displayArea, Kota',
                                         style: AppTextStyles.skipText(context).copyWith(
-                                          color: AppColors.primaryDark,
+                                          color: AppColors.brandGreenDeep,
                                           fontSize: context.fs(13),
                                         ),
                                       ),
@@ -161,17 +148,17 @@ class LandingScreen extends StatelessWidget {
                                       const Icon(
                                         Icons.keyboard_arrow_down_rounded,
                                         size: 16,
-                                        color: AppColors.primaryDark,
+                                        color: AppColors.brandGreenDeep,
                                       ),
                                     ],
                                   ),
                                 ),
                               ],
-                            );
-                          },
-                        ),
-                        // Notification Bell with Badge
-                        Stack(
+                      );
+                    },
+                  ),
+                  // Notification Bell with Badge
+                  Stack(
                           children: [
                             Container(
                               padding: const EdgeInsets.all(10),
@@ -192,7 +179,7 @@ class LandingScreen extends StatelessWidget {
                                 height: 8,
                                 width: 8,
                                 decoration: const BoxDecoration(
-                                  color: Color(0xFFFF6B4A),
+                                  color: AppColors.error,
                                   shape: BoxShape.circle,
                                 ),
                               ),
@@ -241,21 +228,34 @@ class LandingScreen extends StatelessWidget {
                           height: 48,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
-                            color: AppColors.secondaryBlue,
+                            gradient: const LinearGradient(
+                              colors: [
+                                AppColors.brandGradientStart,
+                                AppColors.brandGradientEnd,
+                              ],
+                            ),
                             borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.brandTeal.withValues(alpha: 0.25),
+                                offset: const Offset(0, 4),
+                                blurRadius: 10,
+                              ),
+                            ],
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.document_scanner_outlined, color: AppColors.primary, size: 20),
+                              const Icon(Icons.document_scanner_outlined, color: AppColors.white, size: 20),
                               const SizedBox(width: 12),
                               Text(
                                 'Upload Prescription',
                                 style: AppTextStyles.buttonText(context).copyWith(
                                   fontSize: context.fs(14),
+                                  color: AppColors.white,
                                 ),
                               ),
                               const Spacer(),
-                              const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.primary, size: 14),
+                              const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.white, size: 14),
                             ],
                           ),
                           ),
@@ -272,14 +272,17 @@ class LandingScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [AppColors.secondaryTeal, AppColors.primaryDark],
+                          colors: [
+                            AppColors.secondaryBlue,
+                            AppColors.secondaryTeal,
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.secondaryTeal.withValues(alpha: 0.25),
+                            color: AppColors.brandTeal.withValues(alpha: 0.25),
                             offset: const Offset(0, 8),
                             blurRadius: 16,
                           )
@@ -295,14 +298,14 @@ class LandingScreen extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: AppColors.secondaryBlue,
+                                    color: AppColors.white.withValues(alpha: 0.22),
                                     borderRadius: BorderRadius.circular(999),
                                   ),
                                   child: Text(
                                     '⚡ Fast Delivery',
                                     style: AppTextStyles.chipTitle(context).copyWith(
                                       fontSize: context.fs(12),
-                                      color: AppColors.primary,
+                                      color: AppColors.white,
                                     ),
                                   ),
                                 ),
@@ -320,7 +323,7 @@ class LandingScreen extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                   decoration: BoxDecoration(
-                                    color: AppColors.primary,
+                                    color: AppColors.white,
                                     borderRadius: BorderRadius.circular(999),
                                   ),
                                   child: Row(
@@ -329,14 +332,14 @@ class LandingScreen extends StatelessWidget {
                                       Text(
                                         'Order Now',
                                         style: AppTextStyles.bannerButton(context).copyWith(
-                                          color: AppColors.secondaryNavy,
+                                          color: AppColors.brandGreenDeep,
                                         ),
                                       ),
                                       const SizedBox(width: 6),
                                       const Icon(
                                         Icons.arrow_forward_rounded,
                                         size: 16,
-                                        color: AppColors.secondaryNavy,
+                                        color: AppColors.brandGreenDeep,
                                       ),
                                     ],
                                   ),
@@ -383,8 +386,9 @@ class LandingScreen extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: AppColors.secondaryBlue,
+                                color: AppColors.brandGreenLight.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(999),
+                                border: Border.all(color: AppColors.brandGreenLight),
                               ),
                               child: Row(
                                 children: [
@@ -392,7 +396,7 @@ class LandingScreen extends StatelessWidget {
                                     height: 6,
                                     width: 6,
                                     decoration: const BoxDecoration(
-                                      color: AppColors.primary,
+                                      color: AppColors.brandGreen,
                                       shape: BoxShape.circle,
                                     ),
                                   ),
@@ -401,7 +405,7 @@ class LandingScreen extends StatelessWidget {
                                     'LIVE',
                                     style: AppTextStyles.chipTitle(context).copyWith(
                                       fontSize: context.fs(11),
-                                      color: AppColors.primary,
+                                      color: AppColors.brandGreenDeep,
                                     ),
                                   ),
                                 ],
@@ -415,7 +419,10 @@ class LandingScreen extends StatelessWidget {
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [AppColors.secondaryTeal, AppColors.primaryDark],
+                              colors: [
+                                AppColors.brandGradientStart,
+                                AppColors.brandGradientEnd,
+                              ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
@@ -427,14 +434,14 @@ class LandingScreen extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: AppColors.secondaryBlue,
+                                  color: AppColors.white.withValues(alpha: 0.22),
                                   borderRadius: BorderRadius.circular(999),
                                 ),
                                 child: Text(
                                   'TODAY ONLY 🔥',
                                   style: AppTextStyles.bannerButton(context).copyWith(
                                     fontSize: context.fs(11),
-                                    color: AppColors.secondaryNavy,
+                                    color: AppColors.white,
                                   ),
                                 ),
                               ),
@@ -454,13 +461,13 @@ class LandingScreen extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                                 decoration: BoxDecoration(
-                                  color: AppColors.secondaryBlue,
+                                  color: AppColors.white,
                                   borderRadius: BorderRadius.circular(999),
                                 ),
                                 child: Text(
                                   'Claim Offer →',
                                   style: AppTextStyles.chipTitle(context).copyWith(
-                                    color: AppColors.primary,
+                                    color: AppColors.brandGreenDeep,
                                   ),
                                 ),
                               ),
@@ -487,16 +494,13 @@ class LandingScreen extends StatelessWidget {
                               ),
                             ),
                           ],
-                        ),
-                      ],
-                    ),
                   ),
-                  const SizedBox(height: 40),
                 ],
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 40),
+          ],
+        ),
       ),
     );
   }
@@ -556,12 +560,12 @@ class _CategoriesSection extends StatelessWidget {
   };
 
   static const List<Color> _tints = [
-    AppColors.primary,
-    AppColors.secondaryBlue,
-    AppColors.primaryDark,
-    AppColors.secondaryTeal,
-    AppColors.secondaryBlue,
-    AppColors.primaryDark,
+    AppColors.brandGreenLight,
+    AppColors.brandTeal,
+    AppColors.brandGreen,
+    AppColors.brandGreenDark,
+    AppColors.brandGradientStart,
+    AppColors.brandGradientEnd,
   ];
 
   @override
@@ -684,9 +688,7 @@ class _CategoryTile extends StatelessWidget {
           decoration: BoxDecoration(color: tint, shape: BoxShape.circle),
           child: Icon(
             icon,
-            color: tint == AppColors.primary
-                ? AppColors.secondaryNavy
-                : AppColors.primary,
+            color: AppColors.white,
             size: 28,
           ),
         ),
@@ -812,8 +814,7 @@ class _MedicineCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: text.labelSmall?.copyWith(
-                      color:
-                          outOfStock ? AppColors.error : AppColors.secondaryTeal,
+                      color: outOfStock ? AppColors.error : AppColors.brandTeal,
                     ),
                   ),
                 ),
@@ -837,9 +838,15 @@ class _MedicineCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: AppSpacing.sm, vertical: 2),
                           decoration: BoxDecoration(
-                            color: inCart
-                                ? AppColors.primary
-                                : AppColors.secondaryTeal,
+                            gradient: inCart
+                                ? null
+                                : const LinearGradient(
+                                    colors: [
+                                      AppColors.brandGradientStart,
+                                      AppColors.brandGradientEnd,
+                                    ],
+                                  ),
+                            color: inCart ? AppColors.brandGreenLight : null,
                             borderRadius: AppRadius.smAll,
                           ),
                           child: Icon(
@@ -848,7 +855,7 @@ class _MedicineCard extends StatelessWidget {
                                 : Icons.add_shopping_cart_rounded,
                             size: AppIconSize.sm,
                             color: inCart
-                                ? AppColors.secondaryTeal
+                                ? AppColors.brandGreenDeep
                                 : AppColors.white,
                           ),
                         ),
@@ -884,7 +891,7 @@ class _CatalogueMessage extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.xl),
       child: Column(
         children: [
-          Icon(icon, size: 40, color: AppColors.secondaryBlue),
+          Icon(icon, size: 40, color: AppColors.brandTeal),
           const SizedBox(height: AppSpacing.md),
           Text(title, style: text.titleMedium, textAlign: TextAlign.center),
           const SizedBox(height: AppSpacing.xs),

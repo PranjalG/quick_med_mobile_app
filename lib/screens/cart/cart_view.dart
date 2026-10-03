@@ -4,8 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quick_med/blocs/cart_cubit/cart_cubit.dart';
 import 'package:quick_med/models/cart_item_model.dart';
 import 'package:quick_med/services/address_service.dart';
+import 'package:quick_med/custom_components/primary_button.dart';
 import 'package:quick_med/services/app_colors.dart';
+import 'package:quick_med/services/app_text_styles.dart';
 import 'package:quick_med/services/app_theme.dart';
+import 'package:quick_med/utils/screen_size.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:quick_med/services/auth_service.dart';
 import 'package:quick_med/services/order_service.dart';
 
@@ -35,6 +39,8 @@ class _CartViewState extends State<CartView> {
 
     setState(() => _placing = true);
     try {
+      // Refresh the ID token so Supabase RLS/RPC see the same `sub` as Firebase.
+      await FirebaseAuth.instance.currentUser?.getIdToken(true);
       final address = await _addresses.ensureDefault(uid);
       final placed = await _orders.placeOrder(
         lines: cart.lines,
@@ -77,15 +83,55 @@ class _CartViewState extends State<CartView> {
 
         return Column(
           children: [
-            Padding(
+            Container(
+              width: double.infinity,
               padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.sm),
+                AppSpacing.xl,
+                AppSpacing.lg,
+                AppSpacing.xl,
+                AppSpacing.md,
+              ),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppColors.brandGradientStart,
+                    AppColors.brandGradientEnd,
+                  ],
+                ),
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(24),
+                ),
+              ),
               child: Row(
                 children: [
-                  Text('Your Cart', style: text.headlineSmall),
+                  Text(
+                    'Your cart',
+                    style: AppTextStyles.title(context).copyWith(
+                      color: AppColors.white,
+                      fontSize: context.fs(22),
+                    ),
+                  ),
                   const Spacer(),
-                  Text('${cart.itemCount} item${cart.itemCount == 1 ? '' : 's'}',
-                      style: text.bodySmall),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.xs,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.white.withValues(alpha: 0.2),
+                      borderRadius: AppRadius.pillAll,
+                    ),
+                    child: Text(
+                      '${cart.itemCount} item${cart.itemCount == 1 ? '' : 's'}',
+                      style: AppTextStyles.body(context).copyWith(
+                        color: AppColors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: context.fs(12),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -114,7 +160,7 @@ class _CartViewState extends State<CartView> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.shopping_cart_outlined,
-                size: 64, color: AppColors.secondaryBlue),
+                size: 64, color: AppColors.brandTeal),
             const SizedBox(height: AppSpacing.lg),
             Text('Your cart is empty', style: text.titleMedium),
             const SizedBox(height: AppSpacing.xs),
@@ -131,9 +177,16 @@ class _CartViewState extends State<CartView> {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
+        color: AppColors.white,
         borderRadius: AppRadius.lgAll,
         border: Border.all(color: AppColors.inputBorder),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.secondaryNavy.withValues(alpha: 0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,7 +229,7 @@ class _CartViewState extends State<CartView> {
                 ? Icons.delete_outline_rounded
                 : Icons.remove_circle_outline_rounded,
             size: AppIconSize.lg,
-            color: AppColors.secondaryTeal,
+            color: AppColors.brandTeal,
           ),
         ),
         Text('${line.quantity}', style: text.titleMedium),
@@ -186,7 +239,7 @@ class _CartViewState extends State<CartView> {
               ? null
               : () => cubit.setQuantity(line.medicine.id, line.quantity + 1),
           icon: const Icon(Icons.add_circle_outline_rounded,
-              size: AppIconSize.lg, color: AppColors.secondaryTeal),
+              size: AppIconSize.lg, color: AppColors.brandTeal),
         ),
       ],
     );
@@ -212,7 +265,7 @@ class _CartViewState extends State<CartView> {
                 Text('You save', style: text.bodyLarge),
                 Text('Rs ${cart.savings.toStringAsFixed(2)}',
                     style: text.bodyLarge
-                        ?.copyWith(color: AppColors.secondaryTeal)),
+                        ?.copyWith(color: AppColors.brandGreen)),
               ],
             ),
           ],
@@ -233,19 +286,12 @@ class _CartViewState extends State<CartView> {
             ),
           ],
           const SizedBox(height: AppSpacing.lg),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _placing ? null : () => _checkout(cart),
-              child: _placing
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2.5, color: AppColors.white),
-                    )
-                  : Text('Place order  ·  Rs ${cart.subtotal.toStringAsFixed(2)}'),
-            ),
+          PrimaryButton(
+            label: _placing
+                ? 'Placing order...'
+                : 'Place order · Rs ${cart.subtotal.toStringAsFixed(2)}',
+            enabled: !_placing,
+            onTap: _placing ? null : () => _checkout(cart),
           ),
         ],
       ),
