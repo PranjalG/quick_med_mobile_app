@@ -14,8 +14,12 @@ class SupabaseConfig {
       accessToken: () async {
         final user = FirebaseAuth.instance.currentUser;
         if (user == null) return null;
-        return user.getIdToken();
+        return user.getIdToken(false);
       },
     );
   }
 }
+
+// After Firebase phone login, call SupabaseAuthBridge.syncSessionFromFirebase()
+// (see lib/services/supabase_auth_bridge.dart). Enable Firebase under Supabase
+// Dashboard → Authentication → Third-party auth.

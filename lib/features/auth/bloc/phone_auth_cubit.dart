@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:quick_med/services/profile_service.dart';
+import 'package:quick_med/services/supabase_auth_bridge.dart';
 import 'package:quick_med/utils/profile_completeness.dart';
 
 import '../repository/auth_exceptions.dart';
@@ -115,6 +116,7 @@ class PhoneAuthCubit extends Cubit<PhoneAuthState> {
 
   Future<void> _completeSignIn(User user) async {
     try {
+      await SupabaseAuthBridge.syncSessionFromFirebase(forceRefresh: true);
       final phone = user.phoneNumber ?? _authRepository.lastPhoneE164 ?? '';
       await _profileRepository.upsertOnLogin(uid: user.uid, phone: phone);
       final needsProfileSetup = await _needsProfileSetup(user.uid);
@@ -124,6 +126,8 @@ class PhoneAuthCubit extends Cubit<PhoneAuthState> {
           needsProfileSetup: needsProfileSetup,
         ),
       );
+    } on SupabaseSessionException catch (error) {
+      emit(PhoneAuthFailure(message: error.message));
     } catch (_) {
       emit(
         const PhoneAuthFailure(

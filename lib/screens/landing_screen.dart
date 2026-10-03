@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:quick_med/blocs/cart_cubit/cart_cubit.dart';
-import 'package:quick_med/services/prescription_service.dart';
+import 'package:quick_med/utils/prescription_upload_flow.dart';
 import 'package:quick_med/blocs/catalogue_cubit/catalogue_cubit.dart';
 import 'package:quick_med/models/category_model.dart';
 import 'package:quick_med/models/medicine_model.dart';
@@ -17,67 +16,6 @@ import 'package:quick_med/utils/screen_size.dart';
 
 class LandingScreen extends StatelessWidget {
   const LandingScreen({super.key});
-
-  /// Prescription upload from the landing screen, before any order exists.
-  /// The row is created with a null order_id and attached at checkout.
-  Future<void> _uploadPrescription(BuildContext context) async {
-    final messenger = ScaffoldMessenger.of(context);
-    final service = PrescriptionService();
-
-    final fromCamera = await showModalBottomSheet<bool>(
-      context: context,
-      builder: (sheetContext) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo_camera_outlined),
-              title: const Text('Take a photo'),
-              onTap: () => Navigator.of(sheetContext).pop(true),
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Choose from gallery'),
-              onTap: () => Navigator.of(sheetContext).pop(false),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (fromCamera == null) return;
-
-    XFile? file;
-    try {
-      file = await service.pick(fromCamera: fromCamera);
-    } catch (error) {
-      messenger.showSnackBar(
-        SnackBar(content: Text('Could not open the camera: $error')),
-      );
-      return;
-    }
-    if (file == null) return; // user backed out
-
-    messenger.showSnackBar(
-      const SnackBar(content: Text('Uploading prescription...')),
-    );
-
-    try {
-      await service.upload(file: file);
-      messenger
-        ..hideCurrentSnackBar()
-        ..showSnackBar(const SnackBar(
-          content: Text('Prescription uploaded. Our doctors will review it.'),
-        ));
-    } on PrescriptionException catch (error) {
-      messenger
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(error.message)));
-    } catch (error) {
-      messenger
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text('Upload failed: $error')));
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -157,35 +95,22 @@ class LandingScreen extends StatelessWidget {
                       );
                     },
                   ),
-                  // Notification Bell with Badge
-                  Stack(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: const BoxDecoration(
-                                color: AppColors.cardBackground,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.notifications_none_rounded,
-                                size: 24,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            Positioned(
-                              right: 4,
-                              top: 4,
-                              child: Container(
-                                height: 8,
-                                width: 8,
-                                decoration: const BoxDecoration(
-                                  color: AppColors.error,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                            ),
-                          ],
+                  Material(
+                    color: AppColors.cardBackground,
+                    shape: const CircleBorder(),
+                    child: InkWell(
+                      onTap: () => context.push('/alerts'),
+                      customBorder: const CircleBorder(),
+                      child: const Padding(
+                        padding: EdgeInsets.all(10),
+                        child: Icon(
+                          Icons.notifications_none_rounded,
+                          size: 24,
+                          color: AppColors.textPrimary,
                         ),
+                      ),
+                    ),
+                  ),
                       ],
                     ),
                   ),
@@ -222,7 +147,7 @@ class LandingScreen extends StatelessWidget {
                         const SizedBox(height: 12),
                         // Upload Prescription Card
                         InkWell(
-                          onTap: () => _uploadPrescription(context),
+                          onTap: () => PrescriptionUploadFlow.run(context),
                           borderRadius: BorderRadius.circular(14),
                           child: Container(
                           height: 48,

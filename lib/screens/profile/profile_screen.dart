@@ -14,6 +14,7 @@ import 'package:quick_med/services/app_text_styles.dart';
 import 'package:quick_med/services/app_theme.dart';
 import 'package:quick_med/services/auth_service.dart';
 import 'package:quick_med/services/profile_service.dart';
+import 'package:quick_med/utils/prescription_upload_flow.dart';
 import 'package:quick_med/utils/screen_size.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -580,6 +581,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: text.labelSmall?.copyWith(color: AppColors.accent),
                 ),
               ],
+            ),
+          ],
+          if (order.needsPrescriptionUpload) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () async {
+                  await PrescriptionUploadFlow.run(
+                    context,
+                    orderId: order.id,
+                  );
+                  if (mounted) _orders.refresh();
+                },
+                icon: const Icon(Icons.upload_file_outlined, size: 18),
+                label: const Text('Upload prescription'),
+              ),
             ),
           ],
           const SizedBox(height: AppSpacing.md),

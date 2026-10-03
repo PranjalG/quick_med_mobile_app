@@ -151,7 +151,8 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
           backgroundColor: AppColors.scaffoldBackground,
           body: Column(
             children: [
-              const BrandCurvedHeader(heightFactor: 0.18),
+              // const BrandCurvedHeader(heightFactor: 0.18),
+              const SizedBox(height: 36),
               Expanded(
                 child: SafeArea(
                   top: false,

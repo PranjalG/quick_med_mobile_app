@@ -61,6 +61,10 @@
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Quick Med uses your location to pin your medicine delivery address on the map.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Quick Med needs the camera to photograph your prescription for doctor review.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Quick Med needs photo access to upload prescription images from your gallery.</string>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

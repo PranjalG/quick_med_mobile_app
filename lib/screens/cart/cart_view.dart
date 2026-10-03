@@ -9,9 +9,10 @@ import 'package:quick_med/services/app_colors.dart';
 import 'package:quick_med/services/app_text_styles.dart';
 import 'package:quick_med/services/app_theme.dart';
 import 'package:quick_med/utils/screen_size.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:quick_med/services/auth_service.dart';
+import 'package:quick_med/services/supabase_auth_bridge.dart';
 import 'package:quick_med/services/order_service.dart';
+import 'package:quick_med/utils/prescription_upload_flow.dart';
 
 /// The real cart.
 ///
@@ -39,8 +40,7 @@ class _CartViewState extends State<CartView> {
 
     setState(() => _placing = true);
     try {
-      // Refresh the ID token so Supabase RLS/RPC see the same `sub` as Firebase.
-      await FirebaseAuth.instance.currentUser?.getIdToken(true);
+      await SupabaseAuthBridge.syncSessionFromFirebase(forceRefresh: true);
       final address = await _addresses.ensureDefault(uid);
       final placed = await _orders.placeOrder(
         lines: cart.lines,
@@ -50,11 +50,43 @@ class _CartViewState extends State<CartView> {
       if (!mounted) return;
       context.read<CartCubit>().clearCart();
 
-      _toast(
-        placed.needsPrescription
-            ? 'Order placed. Upload your prescription so our doctors can review it.'
-            : 'Order placed. Total Rs ${placed.total.toStringAsFixed(2)}.',
-      );
+      if (placed.needsPrescription) {
+        final uploadNow = await showDialog<bool>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: const Text('Upload prescription'),
+            content: const Text(
+              'This order includes prescription medicine. '
+              'Upload a clear photo of your doctor\'s prescription now '
+              'so our team can review it.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, false),
+                child: const Text('Later'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, true),
+                child: const Text('Upload now'),
+              ),
+            ],
+          ),
+        );
+        if (uploadNow == true && mounted) {
+          await PrescriptionUploadFlow.run(
+            context,
+            orderId: placed.orderId,
+          );
+        } else {
+          _toast(
+            'Order placed. Upload your prescription from Profile when ready.',
+          );
+        }
+      } else {
+        _toast('Order placed. Total Rs ${placed.total.toStringAsFixed(2)}.');
+      }
+    } on SupabaseSessionException catch (e) {
+      _toast(e.message);
     } on AddressException catch (e) {
       _toast(e.message);
     } on OrderException catch (e) {

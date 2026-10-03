@@ -68,6 +68,8 @@ class CustomerOrder {
 
   bool get isTerminal => status == 'delivered' || status == 'cancelled';
 
+  bool get needsPrescriptionUpload => status == 'awaiting_rx';
+
   /// Label for each of the ten lifecycle states in the orders CHECK constraint.
   String get statusLabel => switch (status) {
         'placed' => 'Placed',

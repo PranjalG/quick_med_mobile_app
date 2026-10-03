@@ -4,6 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:quick_med/custom_components/primary_button.dart';
 import 'package:quick_med/services/app_colors.dart';
 import 'package:quick_med/services/app_text_styles.dart';
+import 'package:quick_med/utils/map_gesture_utils.dart';
 import 'package:quick_med/utils/screen_size.dart';
 
 /// Kota city center — default map pin before GPS is set.
@@ -42,6 +43,33 @@ class _DeliveryLocationPickerState extends State<DeliveryLocationPicker> {
   bool get _hasPin =>
       widget.latitude != null && widget.longitude != null;
 
+  double _mapHeight(BuildContext context) {
+    final scaled = context.sh * 0.28;
+    return scaled < 220 ? 220 : scaled;
+  }
+
+  @override
+  void didUpdateWidget(DeliveryLocationPicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final latChanged = oldWidget.latitude != widget.latitude;
+    final lngChanged = oldWidget.longitude != widget.longitude;
+    if (latChanged || lngChanged) {
+      _syncCameraToPin(animated: true);
+    }
+  }
+
+  Future<void> _syncCameraToPin({bool animated = false}) async {
+    final controller = _mapController;
+    if (controller == null) return;
+
+    final update = CameraUpdate.newLatLngZoom(_pin, _hasPin ? 16 : 12);
+    if (animated) {
+      await controller.animateCamera(update);
+    } else {
+      await controller.moveCamera(update);
+    }
+  }
+
   Future<void> _useCurrentLocation() async {
     setState(() {
       _locating = true;
@@ -79,9 +107,7 @@ class _DeliveryLocationPickerState extends State<DeliveryLocationPicker> {
 
       final latLng = LatLng(position.latitude, position.longitude);
       widget.onLocationChanged(latLng);
-      await _mapController?.animateCamera(
-        CameraUpdate.newLatLngZoom(latLng, 16),
-      );
+      await _syncCameraToPin(animated: true);
     } catch (_) {
       setState(() {
         _locationError =
@@ -99,10 +125,23 @@ class _DeliveryLocationPickerState extends State<DeliveryLocationPicker> {
     widget.onLocationChanged(latLng);
   }
 
+  Set<Marker> _buildMarkers() {
+    if (!_hasPin) return {};
+    return {
+      Marker(
+        markerId: const MarkerId('delivery'),
+        position: _pin,
+        draggable: true,
+        onDragEnd: widget.onLocationChanged,
+      ),
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final validationError = widget.errorText;
     final hintError = _locationError;
+    final mapHeight = _mapHeight(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -116,7 +155,7 @@ class _DeliveryLocationPickerState extends State<DeliveryLocationPicker> {
         ),
         SizedBox(height: context.fs(6)),
         Text(
-          'Pin where the rider should arrive. Required for profile setup.',
+          'Drag the map to move around. Tap to place the pin, or drag the pin to adjust.',
           style: AppTextStyles.body(context).copyWith(
             color: AppColors.textSecondary,
             fontSize: context.fs(13),
@@ -127,26 +166,29 @@ class _DeliveryLocationPickerState extends State<DeliveryLocationPicker> {
         ClipRRect(
           borderRadius: BorderRadius.circular(context.fs(16)),
           child: SizedBox(
-            height: context.sh * 0.22,
+            height: mapHeight,
+            width: double.infinity,
             child: GoogleMap(
+              gestureRecognizers: mapScrollGestures,
               initialCameraPosition: CameraPosition(
                 target: _pin,
                 zoom: _hasPin ? 16 : 12,
               ),
-              onMapCreated: (controller) => _mapController = controller,
+              onMapCreated: (controller) async {
+                _mapController = controller;
+                await _syncCameraToPin(animated: false);
+              },
               onTap: _onMapTap,
+              markers: _buildMarkers(),
               myLocationButtonEnabled: false,
-              zoomControlsEnabled: false,
-              markers: _hasPin
-                  ? {
-                      Marker(
-                        markerId: const MarkerId('delivery'),
-                        position: _pin,
-                        draggable: true,
-                        onDragEnd: (latLng) => widget.onLocationChanged(latLng),
-                      ),
-                    }
-                  : {},
+              myLocationEnabled: false,
+              zoomControlsEnabled: true,
+              zoomGesturesEnabled: true,
+              scrollGesturesEnabled: true,
+              rotateGesturesEnabled: false,
+              tiltGesturesEnabled: false,
+              compassEnabled: false,
+              mapToolbarEnabled: false,
             ),
           ),
         ),

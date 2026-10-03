@@ -52,7 +52,7 @@ flutter --version
    flutterfire configure
    ```
    Place `google-services.json` under `android/app/` and `GoogleService-Info.plist` under `ios/Runner/` per Firebase console instructions.
-3. **Google Maps (Android):** Set your Maps API key in `android/app/src/main/AndroidManifest.xml` (`com.google.android.geo.API_KEY`) — use a restricted key, not committed if you prefer env-based injection.
+3. **Google Maps:** Add `google.maps.apiKey=...` to `android/local.properties` (see `android/local.properties.example`). Enable **Maps SDK for Android** and **Maps SDK for iOS** in Google Cloud. iOS reads the key from `GoogleService-Info.plist` (`API_KEY`) or optional `GMSApiKey` in `Info.plist`.
 
 ### 3. Fetch Dependencies
 Install package references:

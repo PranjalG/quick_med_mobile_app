@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:quick_med/services/auth_service.dart';
+import 'package:quick_med/services/supabase_auth_bridge.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PrescriptionException implements Exception {
@@ -60,26 +62,44 @@ class PrescriptionService {
   Future<XFile?> pick({required bool fromCamera}) {
     return _picker.pickImage(
       source: fromCamera ? ImageSource.camera : ImageSource.gallery,
-      // Prescriptions must stay legible; compress, but not to mush.
       imageQuality: 85,
       maxWidth: 2000,
     );
   }
 
+  Future<void> _ensureSupabaseSession() async {
+    try {
+      await SupabaseAuthBridge.syncSessionFromFirebase(forceRefresh: true);
+    } on SupabaseSessionException catch (error) {
+      throw PrescriptionException(error.message);
+    }
+  }
+
+  String? _resolveUserId() {
+    return AuthService.currentUserId ?? _firebaseSubjectFromJwt();
+  }
+
+  static String _mimeForExtension(String ext) {
+    switch (ext) {
+      case 'png':
+        return 'image/png';
+      case 'webp':
+        return 'image/webp';
+      case 'jpg':
+      case 'jpeg':
+      default:
+        return 'image/jpeg';
+    }
+  }
+
   /// Uploads [file] for [orderId] and records it for doctor review.
-  /// [orderId] is optional: a customer can upload a prescription before any
-  /// order exists (the landing-screen entry point). `prescriptions.order_id`
-  /// is nullable for exactly this case, and it is attached at checkout.
   Future<Prescription> upload({
     required XFile file,
     String? orderId,
   }) async {
-    final uid = _client.auth.currentUser?.id ??
-        Supabase.instance.client.auth.currentSession?.user.id;
+    await _ensureSupabaseSession();
 
-    // Firebase third-party auth means Supabase has no local user row; the uid
-    // we key storage on is the Firebase UID carried in the JWT `sub` claim.
-    final subject = uid ?? _firebaseSubject();
+    final subject = _resolveUserId();
     if (subject == null) {
       throw const PrescriptionException(
         'You need to be signed in to upload a prescription.',
@@ -87,28 +107,28 @@ class PrescriptionService {
     }
 
     final ext = file.name.split('.').last.toLowerCase();
-    final safeExt = (ext == 'png' || ext == 'jpg' || ext == 'jpeg' || ext == 'webp')
-        ? ext
-        : 'jpg';
+    final safeExt =
+        (ext == 'png' || ext == 'jpg' || ext == 'jpeg' || ext == 'webp')
+            ? ext
+            : 'jpg';
     final stamp = DateTime.now().millisecondsSinceEpoch;
     final path = '$subject/${orderId ?? 'standalone'}-$stamp.$safeExt';
+    final mime = _mimeForExtension(safeExt);
 
     try {
       await _client.storage.from(bucket).upload(
             path,
             File(file.path),
             fileOptions: FileOptions(
-              contentType: 'image/$safeExt',
+              contentType: mime,
               upsert: false,
             ),
           );
     } on StorageException catch (error) {
-      debugPrint('prescription upload failed: ${error.statusCode} ${error.message}');
-      throw PrescriptionException(
-        error.statusCode == '404'
-            ? 'Prescription storage is not set up. Run migration 007.'
-            : 'Could not upload the prescription. Please try again.',
+      debugPrint(
+        'prescription upload failed: ${error.statusCode} ${error.message}',
       );
+      throw PrescriptionException(_friendlyStorage(error));
     }
 
     try {
@@ -123,13 +143,36 @@ class PrescriptionService {
           .single();
       return Prescription.fromJson(row);
     } on PostgrestException catch (error) {
-      // The image is already uploaded; leaving an orphan is better than
-      // leaving the customer unable to retry, so surface and move on.
       debugPrint('prescription row insert failed: ${error.message}');
-      throw const PrescriptionException(
-        'The image uploaded but could not be recorded. Please try again.',
-      );
+      throw PrescriptionException(_friendlyPostgrest(error));
     }
+  }
+
+  String _friendlyStorage(StorageException error) {
+    final code = error.statusCode ?? '';
+    final message = error.message.toLowerCase();
+    if (code == '404' || message.contains('bucket')) {
+      return 'Prescription storage is not set up. Apply migration 007 on Supabase.';
+    }
+    if (code == '403' ||
+        message.contains('row-level security') ||
+        message.contains('jwt')) {
+      return 'Upload blocked — app could not verify your login with Supabase. '
+          'Enable Firebase under Supabase Third-party auth, then sign out and sign in again.';
+    }
+    if (message.contains('mime') || message.contains('mimetype')) {
+      return 'That image type is not supported. Use JPG or PNG.';
+    }
+    return 'Could not upload the prescription. Please try again.';
+  }
+
+  String _friendlyPostgrest(PostgrestException error) {
+    return switch (error.code) {
+      '42501' => 'Upload blocked. Complete profile setup, then sign out and sign in again.',
+      '23503' => 'Profile not found. Complete profile setup and try again.',
+      _ =>
+        'The image uploaded but could not be saved. Please try again.',
+    };
   }
 
   /// Short-lived signed URL for viewing a private prescription image.
@@ -151,7 +194,7 @@ class PrescriptionService {
     return row == null ? null : Prescription.fromJson(row);
   }
 
-  String? _firebaseSubject() {
+  String? _firebaseSubjectFromJwt() {
     final token = _client.auth.currentSession?.accessToken;
     if (token == null) return null;
     try {
@@ -166,10 +209,6 @@ class PrescriptionService {
     }
   }
 
-  /// True when the signed-in profile has role doctor or admin.
-  ///
-  /// Read from `profiles`, not from the JWT: role is our data, and putting it
-  /// in a Firebase custom claim would mean re-issuing tokens to change it.
   Future<bool> isStaff(String uid) async {
     try {
       final row = await _client
@@ -184,8 +223,6 @@ class PrescriptionService {
     }
   }
 
-  /// Prescriptions awaiting review, oldest first, with the order and its
-  /// medicine names embedded.
   Future<List<PendingReview>> fetchQueue({int limit = 50}) async {
     final List<dynamic> rows = await _client
         .from('prescriptions')
@@ -203,7 +240,6 @@ class PrescriptionService {
         .toList();
   }
 
-  /// Approves or rejects, moving the prescription and its order together.
   Future<void> review({
     required String prescriptionId,
     required bool approve,
@@ -271,5 +307,7 @@ class PendingReview {
     );
   }
 
-  String get reference => '#${orderId.substring(0, 8).toUpperCase()}';
+  String get reference => orderId.isEmpty
+      ? '#${id.substring(0, 8).toUpperCase()}'
+      : '#${orderId.substring(0, 8).toUpperCase()}';
 }
