@@ -65,9 +65,9 @@ class BorderedTextField extends StatelessWidget {
           ),
         Container(
           width: context.sw * 0.8,
-          padding: EdgeInsets.symmetric(horizontal: context.sw * 0.04),
+          // padding: EdgeInsets.symmetric(horizontal: context.sw * 0.04),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(14),
             border: Border.all(
               width: 2,
               color: hasError ? AppColors.error : AppColors.secondaryBlue,

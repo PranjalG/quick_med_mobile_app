@@ -33,13 +33,13 @@ class OnboardingView extends StatelessWidget {
       title: 'Genuine Medicines',
       subtitle:
           'We source only from licensed, trusted pharmacies — 100% authentic, every order.',
-      imagePath: 'assets/images/medical-store_.png',
+      imagePath: 'assets/images/medical-store.png',
     ),
     OnboardingData(
       title: '30-Minute Delivery',
       subtitle:
           'Get your medicines delivered to your doorstep in under 30 minutes, every time.',
-      imagePath: 'assets/images/scooter_.png',
+      imagePath: 'assets/images/scooter.png',
     ),
   ];
 
