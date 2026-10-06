@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="QuickMedD favicon">
+  <title>QuickMedD favicon</title>
+  <rect width="64" height="64" rx="14" fill="#0B3B6F"/>
+  <!-- one motion line for speed hint -->
+  <rect x="8" y="30" width="16" height="7" rx="3.5" transform="rotate(-45 16 33.5)" fill="#FF6B57"/>
+  <!-- capsule + plus, simplified for 16px legibility -->
+  <g transform="rotate(-45 34 32)">
+    <rect x="20" y="22" width="40" height="24" rx="12" fill="#12A5A5"/>
+    <rect x="20" y="22" width="20" height="24" rx="12" fill="#EAF7F7"/>
+    <g fill="#FFFFFF">
+      <rect x="45" y="30" width="8" height="8" rx="1.5"/>
+      <rect x="47" y="26" width="4" height="16" rx="1.5"/>
+      <rect x="41" y="32" width="16" height="4" rx="1.5"/>
+    </g>
+  </g>
+</svg>

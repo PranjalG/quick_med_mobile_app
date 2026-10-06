@@ -40,10 +40,9 @@ class ProfileSetupView extends StatefulWidget {
 class _ProfileSetupViewState extends State<ProfileSetupView> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
-  
+
   String? _selectedKotaArea;
 
   final List<String> _kotaAreas = [
@@ -62,14 +61,12 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
   @override
   void initState() {
     super.initState();
-    _emailController.text = AuthService.currentUserEmail ?? '';
     _phoneController.text = AuthService.currentUserPhone ?? '';
   }
 
   @override
   void dispose() {
     _nameController.dispose();
-    _emailController.dispose();
     _phoneController.dispose();
     _addressController.dispose();
     super.dispose();
@@ -80,7 +77,8 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
       final userId = AuthService.currentUserId;
       if (userId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Session expired. Please log in again.')),
+          const SnackBar(
+              content: Text('Session expired. Please log in again.')),
         );
         context.go('/login');
         return;
@@ -90,7 +88,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
         id: userId,
         name: _nameController.text.trim(),
         phone: _phoneController.text.trim(),
-        email: _emailController.text.trim(),
+        email: '',
         kotaArea: _selectedKotaArea ?? '',
         addressDetail: _addressController.text.trim(),
       );
@@ -108,20 +106,16 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
           if (_nameController.text.isEmpty) {
             _nameController.text = state.profile.name;
           }
-          if (_emailController.text.isEmpty) {
-            _emailController.text = state.profile.email.isNotEmpty 
-                ? state.profile.email 
-                : (AuthService.currentUserEmail ?? '');
-          }
           if (_phoneController.text.isEmpty) {
-            _phoneController.text = state.profile.phone.isNotEmpty 
-                ? state.profile.phone 
+            _phoneController.text = state.profile.phone.isNotEmpty
+                ? state.profile.phone
                 : (AuthService.currentUserPhone ?? '');
           }
           if (_addressController.text.isEmpty) {
             _addressController.text = state.profile.addressDetail;
           }
-          if (_selectedKotaArea == null && _kotaAreas.contains(state.profile.kotaArea)) {
+          if (_selectedKotaArea == null &&
+              _kotaAreas.contains(state.profile.kotaArea)) {
             setState(() {
               _selectedKotaArea = state.profile.kotaArea;
             });
@@ -172,7 +166,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         SizedBox(height: context.sh * 0.04),
-                        
+
                         // Icon Header
                         Center(
                           child: Container(
@@ -213,22 +207,13 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                         ),
                         SizedBox(height: context.sh * 0.04),
 
-                        // Email Input (Disabled/Read-only from active session)
-                        CustomTextField(
-                          controller: _emailController,
-                          labelText: 'Email Address',
-                          hintText: 'Email address',
-                          enabled: false,
-                          prefixIcon: const Icon(Icons.mail_outline, color: Color(0xFF9CA3AF)),
-                        ),
-                        SizedBox(height: context.sh * 0.02),
-
                         // Full Name Input
                         CustomTextField(
                           controller: _nameController,
                           labelText: 'Full Name',
                           hintText: 'Enter your full name',
-                          prefixIcon: const Icon(Icons.person_outline, color: Color(0xFF6B7280)),
+                          prefixIcon: const Icon(Icons.person_outline,
+                              color: Color(0xFF6B7280)),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return 'Please enter your full name';
@@ -247,7 +232,8 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                           labelText: 'Phone Number',
                           hintText: 'Enter your 10-digit phone number',
                           keyboardType: TextInputType.phone,
-                          prefixIcon: const Icon(Icons.phone_outlined, color: AppColors.textSecondary),
+                          prefixIcon: const Icon(Icons.phone_outlined,
+                              color: AppColors.textSecondary),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return 'Please enter your phone number';
@@ -263,7 +249,8 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                         // Kota Area Dropdown
                         DropdownButtonFormField<String>(
                           initialValue: _selectedKotaArea,
-                          hint: Text('Select Area in Kota', style: AppTextStyles.hintText(context)),
+                          hint: Text('Select Area in Kota',
+                              style: AppTextStyles.hintText(context)),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please select your area in Kota';
@@ -280,8 +267,10 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                               color: AppColors.primary,
                               fontWeight: FontWeight.w600,
                             ),
-                            prefixIcon: const Icon(Icons.location_city_outlined, color: AppColors.textSecondary),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                            prefixIcon: const Icon(Icons.location_city_outlined,
+                                color: AppColors.textSecondary),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 20),
                             filled: true,
                             fillColor: AppColors.inputFill,
                             enabledBorder: OutlineInputBorder(
@@ -338,7 +327,8 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                           labelText: 'Delivery Address Detail',
                           hintText: 'Flat/Street/Landmark',
                           maxLines: 3,
-                          prefixIcon: const Icon(Icons.home_outlined, color: AppColors.textSecondary),
+                          prefixIcon: const Icon(Icons.home_outlined,
+                              color: AppColors.textSecondary),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return 'Please enter your detailed delivery address';
@@ -353,7 +343,9 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
 
                         // Save Button
                         GestureDetector(
-                          onTap: state is ProfileUpdating ? null : () => _onSave(context),
+                          onTap: state is ProfileUpdating
+                              ? null
+                              : () => _onSave(context),
                           child: Container(
                             height: 60,
                             decoration: BoxDecoration(
@@ -361,7 +353,8 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                               borderRadius: BorderRadius.circular(30),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.secondaryBlue.withValues(alpha: 0.3),
+                                  color: AppColors.secondaryBlue
+                                      .withValues(alpha: 0.3),
                                   offset: const Offset(0, 8),
                                   blurRadius: 15,
                                 )
@@ -374,7 +367,8 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                                     width: 24,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2.5,
-                                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          AppColors.primary),
                                     ),
                                   )
                                 : Text(
