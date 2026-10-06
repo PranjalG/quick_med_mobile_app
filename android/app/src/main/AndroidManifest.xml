@@ -1,4 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Firebase Auth (phone OTP) needs network access. Flutter injects
+         INTERNET into the debug manifest automatically, but declaring it here
+         ensures profile/release builds have it too. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
     <application
         android:label="QuickMedD"
         android:name="${applicationName}"

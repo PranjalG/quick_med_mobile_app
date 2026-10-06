@@ -103,6 +103,8 @@ class PhoneAuthCubit extends Cubit<PhoneAuthState> {
       final phone = user.phoneNumber ?? _authRepository.lastPhoneE164 ?? '';
       await _profileRepository.upsertOnLogin(uid: user.uid, phone: phone);
       emit(PhoneAuthSuccess(user: user));
+    } on AuthException catch (error) {
+      emit(PhoneAuthFailure(message: error.message));
     } catch (_) {
       emit(
         const PhoneAuthFailure(
