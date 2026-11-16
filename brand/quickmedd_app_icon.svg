@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="QuickMedD app icon">
+  <title>QuickMedD app icon</title>
+  <!-- rounded square base -->
+  <rect width="512" height="512" rx="112" fill="#FFFFFF"/>
+  <rect x="16" y="16" width="480" height="480" rx="100" fill="#0B3B6F"/>
+
+  <!-- motion lines -->
+  <g fill="#FF6B57">
+    <rect x="70" y="196" width="70" height="26" rx="13" transform="rotate(-45 105 209)"/>
+    <rect x="78" y="256" width="96" height="26" rx="13" transform="rotate(-45 126 269)"/>
+    <rect x="86" y="316" width="70" height="26" rx="13" transform="rotate(-45 121 329)"/>
+  </g>
+
+  <!-- capsule with plus -->
+  <g transform="rotate(-45 300 256)">
+    <rect x="222" y="188" width="170" height="136" rx="68" fill="#12A5A5"/>
+    <rect x="222" y="188" width="85" height="136" rx="68" fill="#EAF7F7"/>
+    <rect x="303" y="188" width="8" height="136" fill="#0B3B6F"/>
+    <g fill="#FFFFFF">
+      <rect x="332" y="238" width="34" height="34" rx="6"/>
+      <rect x="341" y="220" width="16" height="70" rx="6"/>
+      <rect x="314" y="247" width="70" height="16" rx="6"/>
+    </g>
+  </g>
+</svg>

@@ -46,7 +46,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
-  
+
   String? _selectedKotaArea;
   String _preservedEmail = '';
   double? _addressLatitude;
@@ -77,7 +77,8 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
       final userId = AuthService.currentUserId;
       if (userId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Session expired. Please log in again.')),
+          const SnackBar(
+              content: Text('Session expired. Please log in again.')),
         );
         context.go('/login');
         return;
@@ -87,7 +88,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
         id: userId,
         name: _nameController.text.trim(),
         phone: _phoneController.text.trim(),
-        email: _preservedEmail,
+        email: '',
         kotaArea: _selectedKotaArea ?? '',
         addressDetail: _addressController.text.trim(),
         addressLatitude: _addressLatitude,
@@ -107,16 +108,16 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
           if (_nameController.text.isEmpty) {
             _nameController.text = state.profile.name;
           }
-          _preservedEmail = state.profile.email;
           if (_phoneController.text.isEmpty) {
-            _phoneController.text = state.profile.phone.isNotEmpty 
-                ? state.profile.phone 
+            _phoneController.text = state.profile.phone.isNotEmpty
+                ? state.profile.phone
                 : (AuthService.currentUserPhone ?? '');
           }
           if (_addressController.text.isEmpty) {
             _addressController.text = state.profile.addressDetail;
           }
-          if (_selectedKotaArea == null && kotaAreas.contains(state.profile.kotaArea)) {
+          if (_selectedKotaArea == null &&
+              _kotaAreas.contains(state.profile.kotaArea)) {
             setState(() {
               _selectedKotaArea = state.profile.kotaArea;
             });
@@ -151,64 +152,61 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
           backgroundColor: AppColors.scaffoldBackground,
           body: Column(
             children: [
-              // const BrandCurvedHeader(heightFactor: 0.18),
-              const SizedBox(height: 36),
-              Expanded(
-                child: SafeArea(
-                  top: false,
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    padding: EdgeInsets.symmetric(horizontal: context.fs(20)),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          SizedBox(height: context.sh * 0.02),
-                          const Center(
-                            child: LogoWidget(
-                              widthFactor: 0.22,
-                              showTagline: false,
+              // 1. Watermark Background Pattern
+              Positioned.fill(
+                child: Opacity(
+                  opacity: 0.08,
+                  child: Image.asset(
+                    'assets/images/watermark-pattern.png',
+                    fit: BoxFit.cover,
+                    color: AppColors.primaryDark,
+                    colorBlendMode: BlendMode.srcIn,
+                  ),
+                ),
+              ),
+
+              // 2. Main Content
+              SafeArea(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SizedBox(height: context.sh * 0.04),
+
+                        // Icon Header
+                        Center(
+                          child: Container(
+                            height: 80,
+                            width: 80,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.1),
+                              shape: BoxShape.circle,
                             ),
                           ),
-                          SizedBox(height: context.fs(16)),
-                          Container(
-                            width: double.infinity,
-                            padding: EdgeInsets.all(context.fs(24)),
-                            decoration: BoxDecoration(
-                              color: AppColors.white,
-                              borderRadius:
-                                  BorderRadius.circular(context.fs(28)),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.secondaryNavy
-                                      .withValues(alpha: 0.10),
-                                  offset: const Offset(0, 8),
-                                  blurRadius: 24,
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Complete profile',
-                                  style: AppTextStyles.title(context),
-                                ),
-                                SizedBox(height: context.fs(8)),
-                                Text(
-                                  'Tell us a bit about yourself for fast delivery in Kota',
-                                  style: AppTextStyles.body(context).copyWith(
-                                    color: AppColors.textSecondary,
-                                    height: 1.4,
-                                  ),
-                                ),
-                                SizedBox(height: context.fs(24)),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Tell us a bit about yourself to get fast delivery in Kota',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.montserrat(
+                            fontSize: 14,
+                            color: const Color(0xFF6B7280),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(height: context.sh * 0.04),
+
+                        // Full Name Input
                         CustomTextField(
                           controller: _nameController,
                           labelText: 'Full Name',
                           hintText: 'Enter your full name',
-                          prefixIcon: const Icon(Icons.person_outline, color: AppColors.textSecondary),
+                          prefixIcon: const Icon(Icons.person_outline,
+                              color: Color(0xFF6B7280)),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return 'Please enter your full name';
@@ -227,7 +225,8 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                           labelText: 'Phone Number',
                           hintText: 'Enter your 10-digit phone number',
                           keyboardType: TextInputType.phone,
-                          prefixIcon: const Icon(Icons.phone_outlined, color: AppColors.textSecondary),
+                          prefixIcon: const Icon(Icons.phone_outlined,
+                              color: AppColors.textSecondary),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return 'Please enter your phone number';
@@ -243,7 +242,8 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                         // Kota Area Dropdown
                         DropdownButtonFormField<String>(
                           initialValue: _selectedKotaArea,
-                          hint: Text('Select Area in Kota', style: AppTextStyles.hintText(context)),
+                          hint: Text('Select Area in Kota',
+                              style: AppTextStyles.hintText(context)),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please select your area in Kota';
@@ -260,8 +260,10 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                               color: AppColors.textSecondary,
                               fontWeight: FontWeight.w600,
                             ),
-                            prefixIcon: const Icon(Icons.location_city_outlined, color: AppColors.textSecondary),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                            prefixIcon: const Icon(Icons.location_city_outlined,
+                                color: AppColors.textSecondary),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 20),
                             filled: true,
                             fillColor: AppColors.inputFill,
                             enabledBorder: OutlineInputBorder(
@@ -318,7 +320,8 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                           labelText: 'Delivery Address Detail',
                           hintText: 'Flat/Street/Landmark',
                           maxLines: 3,
-                          prefixIcon: const Icon(Icons.home_outlined, color: AppColors.textSecondary),
+                          prefixIcon: const Icon(Icons.home_outlined,
+                              color: AppColors.textSecondary),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
                               return 'Please enter your detailed delivery address';
@@ -329,29 +332,42 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                             return null;
                           },
                         ),
-                        SizedBox(height: context.sh * 0.02),
-                        DeliveryLocationPicker(
-                          latitude: _addressLatitude,
-                          longitude: _addressLongitude,
-                          errorText: _locationValidationError,
-                          onLocationChanged: (latLng) {
-                            setState(() {
-                              _addressLatitude = latLng.latitude;
-                              _addressLongitude = latLng.longitude;
-                              _locationValidationError = null;
-                            });
-                          },
-                        ),
-                                SizedBox(height: context.fs(24)),
-                                PrimaryButton(
-                                  label: isSaving
-                                      ? 'Saving...'
-                                      : 'Save & Continue',
-                                  enabled: !isSaving,
-                                  onTap: isSaving ? null : () => _onSave(context),
-                                ),
+                        SizedBox(height: context.sh * 0.05),
+
+                        // Save Button
+                        GestureDetector(
+                          onTap: state is ProfileUpdating
+                              ? null
+                              : () => _onSave(context),
+                          child: Container(
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: AppColors.secondaryBlue,
+                              borderRadius: BorderRadius.circular(30),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.secondaryBlue
+                                      .withValues(alpha: 0.3),
+                                  offset: const Offset(0, 8),
+                                  blurRadius: 15,
+                                )
                               ],
                             ),
+                            alignment: Alignment.center,
+                            child: state is ProfileUpdating
+                                ? const SizedBox(
+                                    height: 24,
+                                    width: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          AppColors.primary),
+                                    ),
+                                  )
+                                : Text(
+                                    'Save & Continue',
+                                    style: AppTextStyles.buttonText(context),
+                                  ),
                           ),
                           SizedBox(height: context.fs(24)),
                         ],

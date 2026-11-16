@@ -119,14 +119,8 @@ class PhoneAuthCubit extends Cubit<PhoneAuthState> {
       await SupabaseAuthBridge.syncSessionFromFirebase(forceRefresh: true);
       final phone = user.phoneNumber ?? _authRepository.lastPhoneE164 ?? '';
       await _profileRepository.upsertOnLogin(uid: user.uid, phone: phone);
-      final needsProfileSetup = await _needsProfileSetup(user.uid);
-      emit(
-        PhoneAuthSuccess(
-          user: user,
-          needsProfileSetup: needsProfileSetup,
-        ),
-      );
-    } on SupabaseSessionException catch (error) {
+      emit(PhoneAuthSuccess(user: user));
+    } on AuthException catch (error) {
       emit(PhoneAuthFailure(message: error.message));
     } catch (_) {
       emit(

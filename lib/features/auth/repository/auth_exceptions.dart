@@ -30,3 +30,11 @@ class NetworkAuthException extends AuthException {
     super.message = 'Network error. Check your connection and try again.',
   ]);
 }
+
+/// Sign-in succeeded with Firebase, but creating/updating the Supabase
+/// `profiles` row failed (RLS, schema, or the third-party-auth bridge).
+class ProfileSetupException extends AuthException {
+  const ProfileSetupException([
+    super.message = 'Signed in, but profile setup failed. Please try again.',
+  ]);
+}
