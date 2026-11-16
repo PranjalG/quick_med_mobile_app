@@ -73,7 +73,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   parent: BouncingScrollPhysics(),
                 ),
                 slivers: [
-                  SliverToBoxAdapter(child: _profileHeader(context, profileState)),
+                  SliverToBoxAdapter(
+                      child: _profileHeader(context, profileState)),
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(
@@ -293,7 +294,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(AppSpacing.md),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.cardBackground,
                 borderRadius: AppRadius.mdAll,
               ),
@@ -437,7 +438,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Log out?'),
-        content: const Text('You will need to sign in again to order medicines.'),
+        content:
+            const Text('You will need to sign in again to order medicines.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -445,7 +447,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(
+            child: const Text(
               'Log out',
               style: TextStyle(color: AppColors.textSecondary),
             ),
@@ -489,7 +491,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: AppSpacing.md),
             TextButton(
               onPressed: onRetry,
-              child: Text(
+              child: const Text(
                 'Retry',
                 style: TextStyle(color: AppColors.brandGreenDeep),
               ),
@@ -699,100 +701,101 @@ class _EditDeliverySheetState extends State<_EditDeliverySheet> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.inputBorder,
-                  borderRadius: BorderRadius.circular(4),
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.inputBorder,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: context.fs(16)),
-            Text(
-              'Edit delivery address',
-              style: AppTextStyles.title(context),
-            ),
-            SizedBox(height: context.fs(8)),
-            Text(
-              'Orders are delivered within Kota city.',
-              style: AppTextStyles.body(context).copyWith(
-                color: AppColors.textSecondary,
+              SizedBox(height: context.fs(16)),
+              Text(
+                'Edit delivery address',
+                style: AppTextStyles.title(context),
               ),
-            ),
-            SizedBox(height: context.fs(20)),
-            DropdownButtonFormField<String>(
-              value: _selectedArea,
-              hint: Text(
-                'Select area in Kota',
-                style: AppTextStyles.hintText(context),
-              ),
-              decoration: InputDecoration(
-                labelText: 'Kota area',
-                filled: true,
-                fillColor: AppColors.inputFill,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
+              SizedBox(height: context.fs(8)),
+              Text(
+                'Orders are delivered within Kota city.',
+                style: AppTextStyles.body(context).copyWith(
+                  color: AppColors.textSecondary,
                 ),
               ),
-              items: kotaAreas
-                  .map(
-                    (area) => DropdownMenuItem(
-                      value: area,
-                      child: Text(area, style: AppTextStyles.inputText(context)),
-                    ),
-                  )
-                  .toList(),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please select your area';
-                }
-                return null;
-              },
-              onChanged: (value) => setState(() => _selectedArea = value),
-            ),
-            SizedBox(height: context.fs(16)),
-            CustomTextField(
-              controller: _addressController,
-              labelText: 'Flat / street / landmark',
-              hintText: 'e.g. 12, Station Road, near City Mall',
-              maxLines: 3,
-              prefixIcon: const Icon(
-                Icons.home_outlined,
-                color: AppColors.textSecondary,
+              SizedBox(height: context.fs(20)),
+              DropdownButtonFormField<String>(
+                initialValue: _selectedArea,
+                hint: Text(
+                  'Select area in Kota',
+                  style: AppTextStyles.hintText(context),
+                ),
+                decoration: InputDecoration(
+                  labelText: 'Kota area',
+                  filled: true,
+                  fillColor: AppColors.inputFill,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                items: kotaAreas
+                    .map(
+                      (area) => DropdownMenuItem(
+                        value: area,
+                        child:
+                            Text(area, style: AppTextStyles.inputText(context)),
+                      ),
+                    )
+                    .toList(),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please select your area';
+                  }
+                  return null;
+                },
+                onChanged: (value) => setState(() => _selectedArea = value),
               ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Enter your delivery address';
-                }
-                if (value.trim().length < 5) {
-                  return 'Address must be at least 5 characters';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: context.fs(16)),
-            DeliveryLocationPicker(
-              latitude: _latitude,
-              longitude: _longitude,
-              errorText: _locationValidationError,
-              onLocationChanged: (latLng) {
-                setState(() {
-                  _latitude = latLng.latitude;
-                  _longitude = latLng.longitude;
-                  _locationValidationError = null;
-                });
-              },
-            ),
-            SizedBox(height: context.fs(24)),
-            PrimaryButton(
-              label: 'Save address',
-              onTap: _submit,
-            ),
-          ],
+              SizedBox(height: context.fs(16)),
+              CustomTextField(
+                controller: _addressController,
+                labelText: 'Flat / street / landmark',
+                hintText: 'e.g. 12, Station Road, near City Mall',
+                maxLines: 3,
+                prefixIcon: const Icon(
+                  Icons.home_outlined,
+                  color: AppColors.textSecondary,
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Enter your delivery address';
+                  }
+                  if (value.trim().length < 5) {
+                    return 'Address must be at least 5 characters';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: context.fs(16)),
+              DeliveryLocationPicker(
+                latitude: _latitude,
+                longitude: _longitude,
+                errorText: _locationValidationError,
+                onLocationChanged: (latLng) {
+                  setState(() {
+                    _latitude = latLng.latitude;
+                    _longitude = latLng.longitude;
+                    _locationValidationError = null;
+                  });
+                },
+              ),
+              SizedBox(height: context.fs(24)),
+              PrimaryButton(
+                label: 'Save address',
+                onTap: _submit,
+              ),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
