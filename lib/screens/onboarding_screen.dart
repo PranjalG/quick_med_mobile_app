@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:quick_med/blocs/onboarding_cubit/onboarding_cubit.dart';
 import 'package:quick_med/blocs/onboarding_cubit/onboarding_state.dart';
+import 'package:quick_med/custom_components/brand_curved_header.dart';
 import 'package:quick_med/services/app_colors.dart';
 import 'package:quick_med/services/app_text_styles.dart';
 import 'package:quick_med/utils/screen_size.dart';
@@ -33,13 +34,13 @@ class OnboardingView extends StatelessWidget {
       title: 'Genuine Medicines',
       subtitle:
           'We source only from licensed, trusted pharmacies — 100% authentic, every order.',
-      imagePath: 'assets/images/medical-store_.png',
+      imagePath: 'assets/images/medical-store.png',
     ),
     OnboardingData(
       title: '30-Minute Delivery',
       subtitle:
           'Get your medicines delivered to your doorstep in under 30 minutes, every time.',
-      imagePath: 'assets/images/scooter_.png',
+      imagePath: 'assets/images/scooter.png',
     ),
   ];
 
@@ -49,24 +50,13 @@ class OnboardingView extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
-      body: Stack(
+      body: Column(
         children: [
-          // 1. Watermark Background Image
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.12,
-              child: Image.asset(
-                'assets/images/watermark-pattern.png',
-                fit: BoxFit.cover,
-                color: AppColors.primaryDark,
-                colorBlendMode: BlendMode.srcIn,
-              ),
-            ),
-          ),
-
-          // 2. Main Content Stack
-          SafeArea(
-            child: BlocBuilder<OnboardingCubit, OnboardingState>(
+          const BrandCurvedHeader(heightFactor: 0.14),
+          Expanded(
+            child: SafeArea(
+              top: false,
+              child: BlocBuilder<OnboardingCubit, OnboardingState>(
               builder: (context, state) {
                 final int currentPage = state.currentPage;
 
@@ -220,6 +210,7 @@ class OnboardingView extends StatelessWidget {
               },
             ),
           ),
+        ),
         ],
       ),
     );

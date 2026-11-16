@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:quick_med/services/theme_colours.dart';
+import 'package:quick_med/services/app_colors.dart';
 
 class ThemedFloatingButton extends StatelessWidget {
   final VoidCallback onTap;
@@ -25,8 +25,8 @@ class ThemedFloatingButton extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [
-                    ThemeColours.lightGreen,
-                    ThemeColours.darkGreen,
+                    AppColors.gradientStart,
+                    AppColors.gradientEnd,
                   ],
                   stops: [0.1, 0.8],
                   begin: Alignment.topLeft,
@@ -35,7 +35,7 @@ class ThemedFloatingButton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.green.withValues(alpha: 0.4),
+                    color: AppColors.secondaryTeal.withValues(alpha: 0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:quick_med/services/theme_colours.dart';
+import 'package:quick_med/services/app_colors.dart';
 
 class ThemedTextField extends StatefulWidget {
   final String hintText;
@@ -35,29 +35,29 @@ class _ThemedTextFieldState extends State<ThemedTextField> {
     return TextFormField(
       controller: _controller,
       style: const TextStyle(
-        color: ThemeColours.darkOrange,
+        color: AppColors.accent,
         decoration: TextDecoration.none,
       ),
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        fillColor: ThemeColours.lightOrange.withValues(alpha: 0.4),
+        fillColor: AppColors.accentLight.withValues(alpha: 0.4),
         filled: true,
         hintText: widget.hintText,
         hintStyle: const TextStyle(
           fontSize: 14,
-          color: ThemeColours.darkOrange,
+          color: AppColors.accent,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: ThemeColours.lightOrange.withValues(alpha : 0.3),
+            color: AppColors.accentLight.withValues(alpha : 0.3),
             width: 0,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: ThemeColours.lightOrange.withValues(alpha : 0.3),
+            color: AppColors.accentLight.withValues(alpha : 0.3),
             width: 0,
           ),
         ),
@@ -65,11 +65,11 @@ class _ThemedTextFieldState extends State<ThemedTextField> {
           onTap: widget.onSearchPressed ?? () {},
           child: const Icon(
             Icons.search,
-            color: ThemeColours.darkOrange,
+            color: AppColors.accent,
           ),
         ),
       ),
-      cursorColor: ThemeColours.darkOrange,
+      cursorColor: AppColors.accent,
     );
   }
 }

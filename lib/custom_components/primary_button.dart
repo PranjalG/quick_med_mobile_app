@@ -36,22 +36,39 @@ class PrimaryButton extends StatelessWidget {
           width: double.infinity,
           height: context.fs(56),
           alignment: Alignment.center,
+          // decoration: BoxDecoration(
+          //   borderRadius: BorderRadius.circular(context.fs(16)),
+          //   gradient: const LinearGradient(
+          //     colors: [AppColors.gradientStart, AppColors.gradientEnd],
+          //     begin: Alignment.centerLeft,
+          //     end: Alignment.centerRight,
+          //   ),
+          //   boxShadow: isEnabled
+          //       ? [
+          //           BoxShadow(
+          //             color: AppColors.gradientEnd.withValues(alpha: 0.28),
+          //             offset: const Offset(0, 6),
+          //             blurRadius: 14,
+          //           ),
+          //         ]
+          //       : null,
+          // ),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(context.fs(16)),
             gradient: const LinearGradient(
-              colors: [AppColors.gradientStart, AppColors.gradientEnd],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
+              colors: [
+                AppColors.brandGradientStart,
+                AppColors.brandGradientEnd,
+              ],
             ),
-            boxShadow: isEnabled
-                ? [
-                    BoxShadow(
-                      color: AppColors.gradientEnd.withValues(alpha: 0.28),
-                      offset: const Offset(0, 6),
-                      blurRadius: 14,
-                    ),
-                  ]
-                : null,
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.brandTeal
+                    .withValues(alpha: 0.3),
+                offset: const Offset(0, 8),
+                blurRadius: 15,
+              )
+            ],
           ),
           child: Text(
             label,

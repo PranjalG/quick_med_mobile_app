@@ -44,3 +44,15 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /android/app/src/google-services.json
+/android/app/google-services.json
+/ios/Runner/GoogleService-Info.plist
+
+# Local backend credentials (use *.example.dart templates in repo)
+/lib/services/supabase_config.dart
+/lib/firebase_options.dart
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+**/secrets.json

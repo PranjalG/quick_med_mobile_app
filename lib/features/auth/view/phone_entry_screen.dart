@@ -65,8 +65,8 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
               padding: EdgeInsets.symmetric(horizontal: context.fs(20)),
               child: Column(
                 children: [
-                  SizedBox(height: context.sh * 0.06),
-                  const LogoWidget(),
+                  SizedBox(height: context.sh * 0.02),
+                  const LogoWidget(widthFactor: 0.26),
                   SizedBox(height: context.sh * 0.05),
                   _buildCard(context, isSending),
                   SizedBox(height: context.fs(20)),
@@ -112,7 +112,7 @@ class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
           Text(
             'MOBILE NUMBER',
             style: AppTextStyles.categoryLabel(context).copyWith(
-              color: AppColors.secondaryTeal,
+              color: AppColors.brandGreenDeep,
               letterSpacing: 0.5,
             ),
           ),

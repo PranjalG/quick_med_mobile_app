@@ -1,46 +1,75 @@
 ---
-description: Quick Med stack, architecture targets, conventions, and current status
+description: Quick Med stack, architecture, conventions, and status (aligned with .kiro/steering)
 alwaysApply: true
 ---
 
 # Quick Med — Project Context
 
+Authoritative extended steering lives in `.kiro/steering/` (`product.md`, `tech.md`, `structure.md`, `conventions.md`, plus scoped `backend.md` and `design-system.md`). This rule summarizes what agents must follow day to day.
+
+## Product
+- On-demand medicine delivery for Indian users; **launch city: Kota, Rajasthan**.
+- **Customer** journey today: splash → onboarding → phone OTP auth → profile setup → home → search → cart → live tracking.
+- **Delivery rider** role is planned (same app, role-based routing) — **not implemented**.
+- Package: `quick_med`. Principles: Figma fidelity, graceful degradation when Supabase is down (mock/cache fallbacks in data services), India defaults (`+91`, INR ₹, default city `Kota`).
+
 ## Stack
-- Flutter (Dart), MaterialApp.router with go_router
-- State management: flutter_bloc + hydrated_bloc (persist cart/auth across restarts)
-- Backend: Supabase (Postgres + Storage + Realtime) — single source of truth
-- Firebase: FCM push notifications and Auth. Do not use Firebase Firestore.
-- App has TWO user roles in one app: customer and delivery rider (role-based routing)
+- Flutter / Dart (`>=3.4.3 <4.0.0`), `MaterialApp.router` + `go_router` (`lib/services/router.dart`).
+- State: **flutter_bloc** + **equatable** only — no Provider/Riverpod/GetX. **hydrated_bloc** is enabled for cart persistence (`main.dart` + `CartCubit`).
+- **Firebase Auth** = identity (phone OTP is canonical). **Supabase** = Postgres, Storage, Realtime — **no Firestore**.
+- Maps: `google_maps_flutter`. Typography: `google_fonts`. Lint: `flutter_lints`.
+- Firebase also targets **FCM** for push (not fully wired everywhere).
+
+## Dual backend (do not invert this)
+1. `Firebase.initializeApp` **then** `SupabaseConfig.initialize()` in `main.dart`.
+2. `SupabaseConfig.initialize` passes `accessToken` returning `FirebaseAuth.instance.currentUser?.getIdToken()` so Supabase RLS/Realtime/Storage run as the Firebase user (Third-Party Auth).
+3. Convention: `profiles.id` == Firebase `uid`.
+4. Client uses **publishable/anon** key in `supabase_config.dart` only — never `service_role`.
 
 ## Architecture
-- Feature-first folder structure under lib/features/{auth,customer,rider,shared}
-- Each feature: bloc/ + view/ + (widgets/ if needed)
-- lib/data/models — shared models (Order, Medicine, Pharmacy, RiderTask, Profile)
-- lib/data/repositories — one repository per Supabase table/domain, wraps supabase_flutter calls
-- lib/services/router.dart — go_router config with role-based redirect logic
-- lib/services/supabase_config.dart — holds Supabase url/anon key (never service_role key here)
+- **New work:** feature-first `lib/features/<feature>/{bloc,repository,view}/`. Only **auth** is migrated (`phone_auth_cubit`, `AuthRepository`, `ProfileRepository`, auth views).
+- **Legacy (incremental migration):** `lib/blocs`, `lib/screens`, `lib/services`, `lib/models`, `lib/custom_components`. Duplicate legacy `lib/blocs/phone_auth_cubit/` — prefer `lib/features/auth/`.
+- Target: shared models under `lib/data/models/`, domain repos under `lib/data/repositories/` or feature `repository/` folders.
+- **view → cubit/bloc → repository** — widgets never call Firebase/Supabase directly.
+
+## Auth (canonical)
+- `lib/features/auth/repository/auth_repository.dart`: Indian E.164 `+91[6-9]\d{9}`, `sendOtp` / `verifyOtp` / `resendOtp`, typed `AuthException` subclasses (`InvalidPhoneNumberException`, `OtpVerificationFailedException`, `OtpTimeoutException`, `NetworkAuthException`).
+- On success, `ProfileRepository.upsertOnLogin` writes `profiles` (default `kota_area`: Kota).
+- Login route: `AuthScreen` (`/login`). Legacy `login_screen.dart`, `email_auth_cubit`, `services/auth.dart` (email/password) are **legacy** — do not extend; remove when rebuilding auth UI is complete.
+- **Do not add Supabase Auth** (`signInWithOtp`, `supabase.auth.*`, etc.).
+
+## Design system (enforced on UI changes)
+- **Colors:** `AppColors` (`lib/services/app_colors.dart`) — no raw `Color(0x...)` or `Colors.*` at call sites.
+- **Typography:** `AppTextStyles` + `context.fs(size)` from `lib/utils/screen_size.dart` — no hardcoded font sizes.
+- **Theme:** `AppTheme.light` in `lib/services/app_theme.dart`.
+- **Legacy (do not extend):** `ThemeColours`, `TextStyles`. Migrate touched widgets toward `AppColors` / `AppTextStyles`.
 
 ## Conventions
-- Use Equatable on Bloc states/events
-- Repositories throw typed domain exceptions (e.g. `CustomAuthException` subclasses); blocs/cubits catch and map to failure states — do not use `Either<Failure, T>` unless the project adopts dartz/fpdart
-- RLS is enabled on all Supabase tables — never bypass with service_role key in app code
-- Keep UI (view/) free of Supabase calls — always go through bloc → repository
+- Equatable state classes per distinct state (`XxxInitial`, `XxxLoading`, …); inject repos with optional constructor defaults for tests.
+- Repositories throw typed domain exceptions; cubits catch and emit failure states — **no** `Either` / dartz unless the whole project adopts it.
+- Data services (`medicine_service`, `profile_service`, `live_tracking_repository`) **fail soft** with local mock/cache/simulated GPS — preserve when editing.
+- Navigation: `context.go` for flow replacement, `context.push` to stack; register routes in `router.dart`.
+- After substantive changes: run `flutter analyze` (and relevant `flutter test` when logic changes).
 
 ## Current status
-- **Legacy layout (in repo today):** `lib/blocs`, `lib/screens`, `lib/services`, `lib/models`, `lib/custom_components` — migrate toward feature-first + `lib/data/` incrementally
-- **Routing:** `go_router` routes for splash, onboarding, login, profile setup, home, search, live tracking — role-based redirects not implemented yet
-- **Auth:** `AuthRepository` with typed auth exceptions; use Firebase Phone Auth (`firebase_auth` in pubspec)
-- **Customer UI:** onboarding, login, home/landing, search, cart, profile, live tracking scaffolded
-- **Rider:** not started
-- **Persistence:** `hydrated_bloc` referenced in comments but not enabled in `pubspec.yaml` / `main.dart`
-- **Firebase:** `firebase_core` initialized; target is FCM-only (not wired yet)
+| Area | Status |
+|------|--------|
+| Splash, onboarding | Scaffolded |
+| Phone OTP (`lib/features/auth/`) | Canonical flow + Supabase token bridge |
+| Email/password auth | Legacy (`services/auth.dart`, stubbed/unwired paths) |
+| Profile + `profiles` table | Working with local-cache fallback (`profile_service`) |
+| Home, search, cart, live tracking | Scaffolded / partial; cart uses `hydrated_bloc` |
+| Rider + role-based routing | Not started |
+| `lib/data/` models/repos | Target layout; much data still in `lib/services/` |
 
-## What's next
-- Consolidate authentication on Supabase and remove Firebase Auth usage
-- Enable `hydrated_bloc` for cart/auth persistence
-- Add role-based redirect logic in `router.dart` (customer vs delivery rider)
-- Introduce `lib/features/` and `lib/data/repositories/` while keeping existing screens working
-- Connect customer medicine browse/search to Supabase-backed repositories (replace or extend current services)
+## What's next (aligned with repo gaps)
+- Remove legacy auth UI/blocs (`login_bloc`, dual-tab `login_screen`, duplicate `phone_auth_cubit`) after confirming router uses `features/auth` only.
+- Role-based redirects in `router.dart` (customer vs rider).
+- Continue feature-first migration (customer catalogue/orders, shared `lib/data/models`).
+- Wire FCM where needed; keep Supabase as sole app data store.
 
 ## Do NOT
-- Do not add new state management approaches (stick to flutter_bloc)
+- Do not move identity to Supabase Auth or remove Firebase Auth for login.
+- Do not use Firestore or introduce new state-management libraries.
+- Do not bypass RLS with service_role in the app.
+- Do not touch unrelated scopes when asked for focused work (e.g. auth-only tasks — skip cart/profile/medicine unless requested).

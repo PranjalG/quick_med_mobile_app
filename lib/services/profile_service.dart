@@ -10,6 +10,8 @@ class UserProfile {
   final String email;
   final String kotaArea;
   final String addressDetail;
+  final double? addressLatitude;
+  final double? addressLongitude;
 
   UserProfile({
     required this.id,
@@ -18,7 +20,17 @@ class UserProfile {
     required this.email,
     required this.kotaArea,
     required this.addressDetail,
+    this.addressLatitude,
+    this.addressLongitude,
   });
+
+  bool get hasDeliveryCoordinates {
+    final lat = addressLatitude;
+    final lng = addressLongitude;
+    if (lat == null || lng == null) return false;
+    if (lat.abs() > 90 || lng.abs() > 180) return false;
+    return true;
+  }
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     return UserProfile(
@@ -28,7 +40,15 @@ class UserProfile {
       email: json['email'] as String? ?? '',
       kotaArea: json['kota_area'] as String? ?? '',
       addressDetail: json['address_detail'] as String? ?? '',
+      addressLatitude: _readDouble(json['address_latitude']),
+      addressLongitude: _readDouble(json['address_longitude']),
     );
+  }
+
+  static double? _readDouble(Object? value) {
+    if (value == null) return null;
+    if (value is num) return value.toDouble();
+    return double.tryParse(value.toString());
   }
 
   Map<String, dynamic> toJson() {
@@ -39,6 +59,8 @@ class UserProfile {
       'email': email,
       'kota_area': kotaArea,
       'address_detail': addressDetail,
+      'address_latitude': addressLatitude,
+      'address_longitude': addressLongitude,
     };
   }
 
@@ -49,6 +71,9 @@ class UserProfile {
     String? email,
     String? kotaArea,
     String? addressDetail,
+    double? addressLatitude,
+    double? addressLongitude,
+    bool clearCoordinates = false,
   }) {
     return UserProfile(
       id: id ?? this.id,
@@ -57,6 +82,11 @@ class UserProfile {
       email: email ?? this.email,
       kotaArea: kotaArea ?? this.kotaArea,
       addressDetail: addressDetail ?? this.addressDetail,
+      addressLatitude:
+          clearCoordinates ? null : (addressLatitude ?? this.addressLatitude),
+      addressLongitude: clearCoordinates
+          ? null
+          : (addressLongitude ?? this.addressLongitude),
     );
   }
 }

@@ -1,9 +1,11 @@
 import 'package:go_router/go_router.dart';
+import 'package:quick_med/screens/review/review_screen.dart';
 import 'package:quick_med/screens/home_screen.dart';
 import 'package:quick_med/features/auth/view/auth_screen.dart';
 import 'package:quick_med/screens/splash_screen.dart';
 import 'package:quick_med/screens/onboarding_screen.dart';
 import 'package:quick_med/screens/login/profile_setup_screen.dart';
+import 'package:quick_med/screens/alerts/alerts_screen.dart';
 import 'package:quick_med/screens/search_screen.dart';
 import 'package:quick_med/screens/tracking/live_tracking_screen.dart';
 
@@ -30,8 +32,16 @@ final GoRouter router = GoRouter(
       builder: (context, state) => const ProfileSetupScreen(),
     ),
     GoRoute(
+      path: '/review',
+      builder: (context, state) => const ReviewScreen(),
+    ),
+    GoRoute(
       path: '/search',
       builder: (context, state) => const SearchScreen(),
+    ),
+    GoRoute(
+      path: '/alerts',
+      builder: (context, state) => const AlertsScreen(),
     ),
     GoRoute(
       path: '/tracking',

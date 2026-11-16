@@ -360,7 +360,8 @@ class _LoginViewState extends State<LoginView> {
                                         });
                                       },
                                       child: Container(
-                                        padding: const EdgeInsets.symmetric(vertical: 12),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 12),
                                         decoration: BoxDecoration(
                                           border: Border(
                                             bottom: BorderSide(
@@ -393,7 +394,8 @@ class _LoginViewState extends State<LoginView> {
                                         });
                                       },
                                       child: Container(
-                                        padding: const EdgeInsets.symmetric(vertical: 12),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 12),
                                         decoration: BoxDecoration(
                                           border: Border(
                                             bottom: BorderSide(
@@ -445,7 +447,8 @@ class _LoginViewState extends State<LoginView> {
                                 prefixIcon: const Icon(Icons.security,
                                     color: AppColors.textSecondary),
                                 validator: (value) {
-                                  if (value == null || value.trim().length != 6) {
+                                  if (value == null ||
+                                      value.trim().length != 6) {
                                     return 'Enter a valid 6-digit OTP';
                                   }
                                   return null;
@@ -467,9 +470,8 @@ class _LoginViewState extends State<LoginView> {
                                   if (_canResendOtp)
                                     GestureDetector(
                                       onTap: () {
-                                        context
-                                            .read<PhoneAuthCubit>()
-                                            .sendOtp(_phoneController.text.trim());
+                                        context.read<PhoneAuthCubit>().sendOtp(
+                                            _phoneController.text.trim());
                                         _startResendTimer();
                                       },
                                       child: Text(
@@ -497,8 +499,10 @@ class _LoginViewState extends State<LoginView> {
                                   if (value == null || value.trim().isEmpty) {
                                     return 'Please enter your mobile number';
                                   }
-                                  final cleaned = value.replaceAll(RegExp(r'\D'), '');
-                                  if (cleaned.length != 10 && !value.startsWith('+')) {
+                                  final cleaned =
+                                      value.replaceAll(RegExp(r'\D'), '');
+                                  if (cleaned.length != 10 &&
+                                      !value.startsWith('+')) {
                                     return 'Enter a valid 10-digit mobile number';
                                   }
                                   return null;
@@ -595,7 +599,7 @@ class _LoginViewState extends State<LoginView> {
                                     return 'Please enter your email';
                                   }
                                   final emailRegex = RegExp(
-                                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                                      r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$');
                                   if (!emailRegex.hasMatch(value)) {
                                     return 'Enter a valid email address';
                                   }
@@ -761,12 +765,29 @@ class _LoginViewState extends State<LoginView> {
                                   isLoading ? null : () => _onSubmit(context),
                               child: Container(
                                 height: 60,
+                                // decoration: BoxDecoration(
+                                //   color: AppColors.secondaryBlue,
+                                //   borderRadius: BorderRadius.circular(30),
+                                //   boxShadow: [
+                                //     BoxShadow(
+                                //       color: AppColors.secondaryBlue
+                                //           .withValues(alpha: 0.3),
+                                //       offset: const Offset(0, 8),
+                                //       blurRadius: 15,
+                                //     )
+                                //   ],
+                                // ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.secondaryBlue,
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      AppColors.brandGradientStart,
+                                      AppColors.brandGradientEnd,
+                                    ],
+                                  ),
                                   borderRadius: BorderRadius.circular(30),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: AppColors.secondaryBlue
+                                      color: AppColors.brandTeal
                                           .withValues(alpha: 0.3),
                                       offset: const Offset(0, 8),
                                       blurRadius: 15,
@@ -789,8 +810,8 @@ class _LoginViewState extends State<LoginView> {
                                                 : _isLoginMode
                                                     ? 'Login'
                                                     : 'Sign Up',
-                                        style:
-                                            AppTextStyles.buttonText(context),
+                                        style: AppTextStyles.buttonText(context)
+                                            .copyWith(color: AppColors.white),
                                       ),
                               ),
                             ),
