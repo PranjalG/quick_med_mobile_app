@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../custom_components/brand_curved_header.dart';
 import '../../../services/app_colors.dart';
 import '../bloc/phone_auth_cubit.dart';
 import '../bloc/phone_auth_state.dart';
@@ -28,7 +29,11 @@ class AuthView extends StatelessWidget {
     return BlocConsumer<PhoneAuthCubit, PhoneAuthState>(
       listener: (context, state) {
         if (state is PhoneAuthSuccess) {
-          context.go('/home_screen');
+          if (state.needsProfileSetup) {
+            context.go('/profile_setup');
+          } else {
+            context.go('/home_screen');
+          }
         } else if (state is PhoneAuthFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -47,7 +52,6 @@ class AuthView extends StatelessWidget {
           PhoneAuthVerifying() => true,
           PhoneAuthCodeSending() => cubit.hasActiveVerification,
           PhoneAuthFailure() => cubit.hasActiveVerification,
-          // TODO: Handle this case.
           PhoneAuthState() => throw UnimplementedError(),
         };
 
@@ -61,40 +65,16 @@ class AuthView extends StatelessWidget {
 
         return Scaffold(
           backgroundColor: AppColors.scaffoldBackground,
-          body: Stack(
+          body: Column(
             children: [
-              // Full-bleed medical-doodle background. BoxFit.cover keeps the
-              // aspect ratio (no distortion) and crops any overflow.
-              Positioned.fill(
-                child: Image.asset(
-                  'assets/images/Gradient.png',
-                  fit: BoxFit.cover,
+              const BrandCurvedHeader(heightFactor: 0.22),
+              Expanded(
+                child: SafeArea(
+                  top: false,
+                  child: showOtp
+                      ? OtpEntryScreen(phoneDisplay: phoneDisplay)
+                      : const PhoneEntryScreen(),
                 ),
-              ),
-              // Soft mint veil so the card and text stay readable over the
-              // doodles without altering the image itself.
-              Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        AppColors.primary.withValues(alpha: 0.74),
-                        AppColors.primary.withValues(alpha: 0.82),
-                        AppColors.scaffoldBackground.withValues(alpha: 0.92),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              SafeArea(
-                child: showOtp
-                    ? Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: OtpEntryScreen(phoneDisplay: phoneDisplay),
-                      )
-                    : const PhoneEntryScreen(),
               ),
             ],
           ),

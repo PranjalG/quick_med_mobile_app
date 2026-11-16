@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:quick_med/services/strings.dart';
-import 'package:quick_med/services/theme_colours.dart';
+import 'package:quick_med/services/app_colors.dart';
 import 'package:quick_med/utils/screen_size.dart';
 
 class ThemedCard extends StatelessWidget {
@@ -33,7 +33,7 @@ class ThemedCard extends StatelessWidget {
         //   end: Alignment.topRight,
         //   stops: [0, 0.2, 0.8, 1]
         // ),
-        color: ThemeColours.appWhite,
+        color: AppColors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withValues(alpha: 0.2),
@@ -64,7 +64,7 @@ class ThemedCard extends StatelessWidget {
                     title,
                     style: TextStyle(
                       fontSize: context.sh * 0.014,
-                      color: ThemeColours.textGrey,
+                      color: AppColors.neutralDark,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -72,7 +72,7 @@ class ThemedCard extends StatelessWidget {
                     '${Strings.rupeeSymbol} $subTitle',
                     style: TextStyle(
                       fontSize: context.sh * 0.016,
-                      color: ThemeColours.textLightGrey,
+                      color: AppColors.neutral,
                     ),
                   ),
                 ],

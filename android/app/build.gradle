@@ -26,6 +26,12 @@ if (flutterVersionName == null) {
     flutterVersionName = "1.0"
 }
 
+// Maps SDK key — set google.maps.apiKey in android/local.properties (not committed).
+def googleMapsApiKey = localProperties.getProperty("google.maps.apiKey")
+if (googleMapsApiKey == null) {
+    googleMapsApiKey = "AIzaSyDummyKeyForDevelopment123"
+}
+
 android {
     namespace = "com.example.quick_med"
     compileSdk = flutter.compileSdkVersion
@@ -38,6 +44,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
+        manifestPlaceholders += [googleMapsApiKey: googleMapsApiKey]
     }
 
     compileOptions {

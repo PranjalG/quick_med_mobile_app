@@ -104,7 +104,7 @@ class AppTextStyles {
   static TextStyle homeTitle(BuildContext context) => GoogleFonts.palanquinDark(
         fontSize: context.fs(20),
         fontWeight: FontWeight.bold,
-        color: AppColors.secondaryBlue,
+        color: AppColors.brandGreenDeep,
       );
 
   static TextStyle homeHeading(BuildContext context) => GoogleFonts.montserrat(

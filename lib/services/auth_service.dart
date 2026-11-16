@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthService {
   static String? get currentUserId {
@@ -15,5 +16,6 @@ class AuthService {
 
   static Future<void> signOut() async {
     await fb.FirebaseAuth.instance.signOut();
+    await Supabase.instance.client.auth.signOut();
   }
 }

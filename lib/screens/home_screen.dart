@@ -4,9 +4,11 @@ import 'package:quick_med/services/auth_service.dart';
 import 'package:quick_med/blocs/home_bloc/home_bloc.dart';
 import 'package:quick_med/blocs/profile_cubit/profile_cubit.dart';
 import 'package:quick_med/custom_components/floating_navbar.dart';
-import 'package:quick_med/screens/cart/cart_screen.dart';
+import 'package:quick_med/screens/cart/cart_view.dart';
+import 'package:quick_med/blocs/catalogue_cubit/catalogue_cubit.dart';
 import 'package:quick_med/screens/landing_screen.dart';
 import 'package:quick_med/screens/profile/profile_screen.dart';
+import 'package:quick_med/services/app_colors.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -51,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen>
             return cubit;
           },
         ),
+        BlocProvider(create: (context) => CatalogueCubit()..load()),
       ],
       child: BlocConsumer<HomeBloc, HomeState>(
         bloc: _homeBloc,
@@ -61,14 +64,14 @@ class _HomeScreenState extends State<HomeScreen>
         },
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: Colors.white,
+            backgroundColor: AppColors.scaffoldBackground,
             body: SafeArea(
               child: TabBarView(
                 controller: tabController,
                 children: const [
                   LandingScreen(),
                   ProfileScreen(),
-                  CartScreen(),
+                  CartView(),
                 ],
               ),
             ),

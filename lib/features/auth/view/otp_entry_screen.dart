@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-import '../../../custom_components/bordered_textfield.dart';
-import '../../../custom_components/gradient_button.dart';
+import '../../../custom_components/primary_button.dart';
+import '../../../screens/login/logo_widget.dart';
 import '../../../services/app_colors.dart';
+import '../../../services/app_text_styles.dart';
 import '../../../utils/screen_size.dart';
 import '../bloc/phone_auth_cubit.dart';
 import '../bloc/phone_auth_state.dart';
@@ -67,20 +67,6 @@ class _OtpEntryScreenState extends State<OtpEntryScreen> {
     context.read<PhoneAuthCubit>().verifyOtp(code);
   }
 
-  void _onOtpChanged(String? value) {
-    if (_inlineError != null) {
-      setState(() => _inlineError = null);
-    }
-    final digits = value != null ? value.replaceAll(RegExp(r'\D'), '') : '';
-    if (digits.length == 6 && digits != _otpController.text) {
-      _otpController.text = digits;
-      _otpController.selection = TextSelection.collapsed(offset: digits.length);
-    }
-    if (digits.length == 6) {
-      _onVerify();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final state = context.watch<PhoneAuthCubit>().state;
@@ -93,111 +79,168 @@ class _OtpEntryScreenState extends State<OtpEntryScreen> {
         return SingleChildScrollView(
           child: ConstrainedBox(
             constraints: BoxConstraints(minHeight: constraints.maxHeight),
-            child: IntrinsicHeight(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: context.fs(20)),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  SizedBox(height: context.sh * 0.08),
-                  Center(
-                    child: Text(
-                      'OTP Verification',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ),
                   SizedBox(height: context.sh * 0.02),
-                  Center(
-                    child: Text(
-                      'Enter the 6-digit code sent to\n${widget.phoneDisplay}',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 14,
-                        color: AppColors.textSecondary,
-                        height: 1.4,
-                      ),
-                    ),
-                  ),
+                  const LogoWidget(widthFactor: 0.26),
                   SizedBox(height: context.sh * 0.04),
-                  Center(
-                    child: BorderedTextField(
-                      controller: _otpController,
-                      label: 'Verification Code',
-                      hintText: '6-digit OTP',
-                      keyboardType: TextInputType.number,
-                      inputFormatter: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(6),
-                      ],
-                      errorText: _inlineError,
-                      textInputAction: TextInputAction.done,
-                      onSubmit: _onVerify,
-                      onChange: _onOtpChanged,
-                    ),
-                  ),
-                  SizedBox(height: context.sh * 0.02),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        _canResend
-                            ? "Didn't receive the code? "
-                            : 'Resend OTP in 00:${_resendSeconds.toString().padLeft(2, '0')}',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 14,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      if (_canResend)
-                        GestureDetector(
-                          onTap: isBusy
-                              ? null
-                              : () {
-                                  context.read<PhoneAuthCubit>().resendOtp();
-                                  _startResendTimer();
-                                },
-                          child: Text(
-                            'Resend',
-                            style: GoogleFonts.montserrat(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.secondaryBlue,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  SizedBox(height: context.sh * 0.02),
-                  Center(
-                    child: GestureDetector(
-                      onTap: () => context.read<PhoneAuthCubit>().resetToPhoneEntry(),
-                      child: Text(
-                        'Change phone number',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  Center(
-                    child: GradientButton(
-                      buttonText: isBusy ? 'Verifying...' : 'Verify OTP',
-                      enabled: !isBusy,
-                      onTap: isBusy ? null : _onVerify,
-                    ),
-                  ),
-                  SizedBox(height: context.sh * 0.03),
+                  _buildCard(context, isBusy),
+                  SizedBox(height: context.fs(16)),
                 ],
               ),
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildCard(BuildContext context, bool isBusy) {
+    final bool hasError = _inlineError != null;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(context.fs(24)),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(context.fs(28)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.secondaryNavy.withValues(alpha: 0.10),
+            offset: const Offset(0, 8),
+            blurRadius: 24,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Verify OTP', style: AppTextStyles.title(context)),
+          SizedBox(height: context.fs(8)),
+          Text(
+            'Enter the 6-digit code sent to\n${widget.phoneDisplay}',
+            style: AppTextStyles.body(context).copyWith(
+              color: AppColors.textSecondary,
+              height: 1.4,
+            ),
+          ),
+          SizedBox(height: context.fs(24)),
+          Text(
+            'VERIFICATION CODE',
+            style: AppTextStyles.categoryLabel(context).copyWith(
+              color: AppColors.brandGreenDeep,
+              letterSpacing: 0.5,
+            ),
+          ),
+          SizedBox(height: context.fs(8)),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.cardBackground,
+              borderRadius: BorderRadius.circular(context.fs(14)),
+              border: Border.all(
+                color: hasError ? AppColors.error : AppColors.inputBorder,
+                width: 1.5,
+              ),
+            ),
+            child: TextField(
+              controller: _otpController,
+              keyboardType: TextInputType.number,
+              textInputAction: TextInputAction.done,
+              style: AppTextStyles.inputText(context),
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(6),
+              ],
+              decoration: InputDecoration(
+                hintText: '6-digit OTP',
+                hintStyle: AppTextStyles.hintText(context).copyWith(
+                  color: AppColors.neutralLight,
+                ),
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: context.fs(16),
+                  vertical: context.fs(17),
+                ),
+              ),
+              onChanged: (value) {
+                if (_inlineError != null) {
+                  setState(() => _inlineError = null);
+                }
+                final digits = value.replaceAll(RegExp(r'\D'), '');
+                if (digits.length == 6) {
+                  _onVerify();
+                }
+              },
+              onSubmitted: (_) => _onVerify(),
+            ),
+          ),
+          if (hasError)
+            Padding(
+              padding: EdgeInsets.only(top: context.fs(6), left: context.fs(4)),
+              child: Text(
+                _inlineError!,
+                style: AppTextStyles.body(context).copyWith(
+                  color: AppColors.error,
+                  fontSize: context.fs(12),
+                ),
+              ),
+            ),
+          SizedBox(height: context.fs(16)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                _canResend
+                    ? "Didn't receive the code? "
+                    : 'Resend OTP in 00:${_resendSeconds.toString().padLeft(2, '0')}',
+                style: AppTextStyles.body(context).copyWith(
+                  color: AppColors.textSecondary,
+                  fontSize: context.fs(13),
+                ),
+              ),
+              if (_canResend)
+                GestureDetector(
+                  onTap: isBusy
+                      ? null
+                      : () {
+                          context.read<PhoneAuthCubit>().resendOtp();
+                          _startResendTimer();
+                        },
+                  child: Text(
+                    'Resend',
+                    style: AppTextStyles.body(context).copyWith(
+                      color: AppColors.brandTeal,
+                      fontWeight: FontWeight.bold,
+                      fontSize: context.fs(13),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          SizedBox(height: context.fs(12)),
+          Center(
+            child: GestureDetector(
+              onTap: () => context.read<PhoneAuthCubit>().resetToPhoneEntry(),
+              child: Text(
+                'Change phone number',
+                style: AppTextStyles.body(context).copyWith(
+                  color: AppColors.brandGreenDeep,
+                  fontWeight: FontWeight.bold,
+                  fontSize: context.fs(13),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: context.fs(24)),
+          PrimaryButton(
+            label: isBusy ? 'Verifying...' : 'Verify OTP',
+            enabled: !isBusy,
+            onTap: isBusy ? null : _onVerify,
+          ),
+        ],
+      ),
     );
   }
 }

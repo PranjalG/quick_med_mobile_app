@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AgentLocation {
@@ -86,6 +87,8 @@ class LiveTrackingRepository {
     return controller.stream;
   }
 
+  /// Simulated rider movement. Debug builds only — in release an unmoving
+  /// map is honest, a fake moving one is not.
   Timer _startSimulation(StreamController<AgentLocation> controller) {
     int index = 0;
     return Timer.periodic(const Duration(seconds: 4), (t) {
@@ -129,5 +132,92 @@ class LiveTrackingRepository {
       'lat': 25.1480,
       'lng': 75.8400,
     };
+  }
+
+  /// Live order status, pushed via Realtime rather than polled.
+  ///
+  /// Emits the current status immediately, then again on every UPDATE to that
+  /// order row. Falls back to a single read if Realtime cannot connect, so the
+  /// screen still shows something truthful.
+  Stream<String> orderStatusStream(String orderId) {
+    final controller = StreamController<String>();
+    RealtimeChannel? channel;
+
+    Future<void> emitCurrent() async {
+      try {
+        final row = await _client
+            .from('orders')
+            .select('status')
+            .eq('id', orderId)
+            .maybeSingle();
+        final status = row?['status'] as String?;
+        if (status != null && !controller.isClosed) controller.add(status);
+      } catch (error) {
+        debugPrint('orderStatusStream initial read failed: $error');
+      }
+    }
+
+    controller.onListen = () {
+      emitCurrent();
+      try {
+        channel = _client
+            .channel('order_status:$orderId')
+            .onPostgresChanges(
+              event: PostgresChangeEvent.update,
+              schema: 'public',
+              table: 'orders',
+              filter: PostgresChangeFilter(
+                type: PostgresChangeFilterType.eq,
+                column: 'id',
+                value: orderId,
+              ),
+              callback: (payload) {
+                final status = payload.newRecord['status'] as String?;
+                if (status != null && !controller.isClosed) {
+                  controller.add(status);
+                }
+              },
+            )
+            .subscribe();
+      } catch (error) {
+        // Realtime unavailable: the initial read above still populated the UI.
+        debugPrint('order status Realtime unavailable: $error');
+      }
+    };
+
+    controller.onCancel = () async {
+      if (channel != null) await _client.removeChannel(channel!);
+      await controller.close();
+    };
+
+    return controller.stream;
+  }
+
+  /// Advances an order through the delivery states on a timer.
+  ///
+  /// DEBUG ONLY. There is no rider app yet, so nothing else will ever move an
+  /// order past `preparing`; this makes the flow demonstrable. It is a no-op
+  /// in release builds.
+  Future<void> simulateDeliveryProgress(
+    String orderId, {
+    Duration step = const Duration(seconds: 6),
+  }) async {
+    if (!kDebugMode) return;
+
+    const path = ['preparing', 'assigned', 'out_for_delivery', 'delivered'];
+    for (final status in path) {
+      await Future<void>.delayed(step);
+      try {
+        await _client.from('orders').update({
+          'status': status,
+          'updated_at': DateTime.now().toUtc().toIso8601String(),
+        }).eq('id', orderId);
+        debugPrint('[sim] order $orderId -> $status');
+      } catch (error) {
+        // Customers have no UPDATE grant on orders; only staff do.
+        debugPrint('[sim] could not advance order (staff role required): $error');
+        return;
+      }
+    }
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quick_med/services/text_styles.dart';
-import 'package:quick_med/services/theme_colours.dart';
+import 'package:quick_med/services/app_colors.dart';
 
 class SuffixActionTextField extends StatefulWidget {
   final String hintText;
@@ -42,10 +42,10 @@ class _SuffixActionTextFieldState extends State<SuffixActionTextField> {
       decoration: InputDecoration(
         hintText: widget.hintText,
         hintStyle: TextStyles.body(context).copyWith(
-          color: ThemeColours.darkOrange,
+          color: AppColors.accent,
         ),
         filled: true,
-        fillColor: ThemeColours.lightOrange.withValues(alpha: 0.3),
+        fillColor: AppColors.accentLight.withValues(alpha: 0.3),
         contentPadding:
         const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         border: OutlineInputBorder(
@@ -62,7 +62,7 @@ class _SuffixActionTextFieldState extends State<SuffixActionTextField> {
         ),
         suffixIcon: IconButton(
           icon: const Icon(Icons.search),
-          color: ThemeColours.darkOrange,
+          color: AppColors.accent,
           onPressed: () {
             widget.onSearchPressed?.call(_controller.text.trim());
           },

@@ -1,6 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:quick_med/services/profile_service.dart';
+import 'package:quick_med/services/supabase_auth_bridge.dart';
+import 'package:quick_med/utils/profile_completeness.dart';
+
 import '../repository/auth_exceptions.dart';
 import '../repository/auth_repository.dart';
 import '../repository/profile_repository.dart';
@@ -10,12 +14,15 @@ class PhoneAuthCubit extends Cubit<PhoneAuthState> {
   PhoneAuthCubit({
     AuthRepository? authRepository,
     ProfileRepository? profileRepository,
+    ProfileService? profileService,
   })  : _authRepository = authRepository ?? AuthRepository(),
         _profileRepository = profileRepository ?? ProfileRepository(),
+        _profileService = profileService ?? ProfileService(),
         super(const PhoneAuthInitial());
 
   final AuthRepository _authRepository;
   final ProfileRepository _profileRepository;
+  final ProfileService _profileService;
 
   String? _phoneDisplay;
 
@@ -98,8 +105,18 @@ class PhoneAuthCubit extends Cubit<PhoneAuthState> {
     }
   }
 
+  Future<bool> _needsProfileSetup(String userId) async {
+    try {
+      final profile = await _profileService.fetchProfile(userId);
+      return !isProfileComplete(profile);
+    } catch (_) {
+      return true;
+    }
+  }
+
   Future<void> _completeSignIn(User user) async {
     try {
+      await SupabaseAuthBridge.syncSessionFromFirebase(forceRefresh: true);
       final phone = user.phoneNumber ?? _authRepository.lastPhoneE164 ?? '';
       await _profileRepository.upsertOnLogin(uid: user.uid, phone: phone);
       emit(PhoneAuthSuccess(user: user));

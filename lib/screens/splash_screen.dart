@@ -5,6 +5,7 @@ import 'package:quick_med/blocs/splash_cubit/splash_cubit.dart';
 import 'package:quick_med/blocs/splash_cubit/splash_state.dart';
 import 'package:quick_med/services/app_colors.dart';
 import 'package:quick_med/services/app_text_styles.dart';
+import 'package:quick_med/custom_components/brand_curved_header.dart';
 import 'package:quick_med/utils/screen_size.dart';
 
 class SplashScreen extends StatelessWidget {
@@ -39,29 +40,7 @@ class SplashView extends StatelessWidget {
         body: Column(
           children: [
             // 1. Top curved pattern header image using extracted PNG and custom clipper
-            ClipPath(
-              clipper: BottomCurveClipper(),
-              child: Container(
-                height: context.sh * 0.45,
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      AppColors.brandGradientStart,
-                      AppColors.brandGradientEnd,
-                    ],
-                  ),
-                ),
-                child: Image.asset(
-                  'assets/images/pattern-header.png',
-                  fit: BoxFit.cover,
-                  color: AppColors.white.withValues(alpha: 0.18),
-                  colorBlendMode: BlendMode.srcIn,
-                ),
-              ),
-            ),
+            const BrandCurvedHeader(heightFactor: 0.45),
             const Spacer(),
             // 2. Content area with logo, brand name and tagline
             Column(
@@ -91,24 +70,4 @@ class SplashView extends StatelessWidget {
       ),
     );
   }
-}
-
-class BottomCurveClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    final path = Path();
-    path.lineTo(0, size.height);
-    // Control point in the center is higher to create the curved dome arch
-    final controlPoint = Offset(size.width / 2, size.height - 90);
-    final endPoint = Offset(size.width, size.height);
-
-    path.quadraticBezierTo(
-        controlPoint.dx, controlPoint.dy, endPoint.dx, endPoint.dy);
-    path.lineTo(size.width, 0);
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }

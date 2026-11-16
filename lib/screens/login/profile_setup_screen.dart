@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:quick_med/custom_components/brand_curved_header.dart';
+import 'package:quick_med/custom_components/primary_button.dart';
+import 'package:quick_med/screens/login/logo_widget.dart';
 import 'package:quick_med/services/auth_service.dart';
 import 'package:quick_med/blocs/profile_cubit/profile_cubit.dart';
 import 'package:quick_med/blocs/profile_cubit/profile_state.dart';
@@ -9,7 +11,9 @@ import 'package:quick_med/services/profile_service.dart';
 import 'package:quick_med/services/app_colors.dart';
 import 'package:quick_med/services/app_text_styles.dart';
 import 'package:quick_med/utils/screen_size.dart';
+import 'package:quick_med/constants/kota_areas.dart';
 import 'package:quick_med/custom_components/custom_text_field.dart';
+import 'package:quick_med/custom_components/delivery_location_picker.dart';
 
 class ProfileSetupScreen extends StatelessWidget {
   const ProfileSetupScreen({super.key});
@@ -44,19 +48,10 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
   final _addressController = TextEditingController();
 
   String? _selectedKotaArea;
-
-  final List<String> _kotaAreas = [
-    'Nayapura',
-    'Talwandi',
-    'Kunhari',
-    'Landmark City',
-    'Vigyan Nagar',
-    'Gumanpura',
-    'Dadabari',
-    'Mahaveer Nagar',
-    'Rajeev Gandhi Nagar',
-    'Shrinath Puram',
-  ];
+  String _preservedEmail = '';
+  double? _addressLatitude;
+  double? _addressLongitude;
+  String? _locationValidationError;
 
   @override
   void initState() {
@@ -73,7 +68,12 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
   }
 
   void _onSave(BuildContext context) {
-    if (_formKey.currentState!.validate()) {
+    final hasCoords = _addressLatitude != null && _addressLongitude != null;
+    setState(() {
+      _locationValidationError =
+          hasCoords ? null : 'Pin your delivery location on the map to continue.';
+    });
+    if (_formKey.currentState!.validate() && hasCoords) {
       final userId = AuthService.currentUserId;
       if (userId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -91,6 +91,8 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
         email: '',
         kotaArea: _selectedKotaArea ?? '',
         addressDetail: _addressController.text.trim(),
+        addressLatitude: _addressLatitude,
+        addressLongitude: _addressLongitude,
       );
 
       context.read<ProfileCubit>().saveProfile(profile);
@@ -120,11 +122,17 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
               _selectedKotaArea = state.profile.kotaArea;
             });
           }
+          if (_addressLatitude == null && state.profile.hasDeliveryCoordinates) {
+            setState(() {
+              _addressLatitude = state.profile.addressLatitude;
+              _addressLongitude = state.profile.addressLongitude;
+            });
+          }
         } else if (state is ProfileUpdateSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Profile saved successfully! Welcome to QuickMed.'),
-              backgroundColor: Colors.green,
+              backgroundColor: AppColors.brandGreen,
             ),
           );
           context.go('/home_screen');
@@ -138,9 +146,11 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
         }
       },
       builder: (context, state) {
+        final isSaving = state is ProfileUpdating;
+
         return Scaffold(
           backgroundColor: AppColors.scaffoldBackground,
-          body: Stack(
+          body: Column(
             children: [
               // 1. Watermark Background Pattern
               Positioned.fill(
@@ -176,23 +186,6 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                               color: AppColors.primary.withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(
-                              Icons.person_add_alt_1_outlined,
-                              size: 40,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: context.sh * 0.02),
-
-                        // Title
-                        Text(
-                          'Complete Profile',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.montserrat(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF111827),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -264,7 +257,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                               fontSize: context.fs(14),
                             ),
                             floatingLabelStyle: const TextStyle(
-                              color: AppColors.primary,
+                              color: AppColors.textSecondary,
                               fontWeight: FontWeight.w600,
                             ),
                             prefixIcon: const Icon(Icons.location_city_outlined,
@@ -283,7 +276,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
                               borderSide: const BorderSide(
-                                color: AppColors.primary,
+                                color: AppColors.brandTeal,
                                 width: 1.5,
                               ),
                             ),
@@ -302,7 +295,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                               ),
                             ),
                           ),
-                          items: _kotaAreas.map((area) {
+                          items: kotaAreas.map((area) {
                             return DropdownMenuItem<String>(
                               value: area,
                               child: Text(
@@ -376,9 +369,9 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                                     style: AppTextStyles.buttonText(context),
                                   ),
                           ),
-                        ),
-                        SizedBox(height: context.sh * 0.04),
-                      ],
+                          SizedBox(height: context.fs(24)),
+                        ],
+                      ),
                     ),
                   ),
                 ),

@@ -40,11 +40,15 @@ class PhoneAuthVerifying extends PhoneAuthState {
 
 class PhoneAuthSuccess extends PhoneAuthState {
   final User user;
+  final bool needsProfileSetup;
 
-  const PhoneAuthSuccess({required this.user});
+  const PhoneAuthSuccess({
+    required this.user,
+    required this.needsProfileSetup,
+  });
 
   @override
-  List<Object?> get props => [user.uid];
+  List<Object?> get props => [user.uid, needsProfileSetup];
 }
 
 class PhoneAuthFailure extends PhoneAuthState {

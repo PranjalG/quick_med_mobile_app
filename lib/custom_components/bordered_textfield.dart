@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:quick_med/services/theme_colours.dart';
+import 'package:quick_med/services/app_colors.dart';
 import 'package:quick_med/utils/screen_size.dart';
 
 class BorderedTextField extends StatelessWidget {
@@ -59,18 +59,18 @@ class BorderedTextField extends StatelessWidget {
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: ThemeColours.darkGreen,
+                color: AppColors.secondaryTeal,
               ),
             ),
           ),
         Container(
           width: context.sw * 0.8,
-          padding: EdgeInsets.symmetric(horizontal: context.sw * 0.04),
+          // padding: EdgeInsets.symmetric(horizontal: context.sw * 0.04),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(14),
             border: Border.all(
               width: 2,
-              color: hasError ? Colors.red : ThemeColours.lightGreen,
+              color: hasError ? AppColors.error : AppColors.brandGradientEnd,
             ),
           ),
           child: TextFormField(
@@ -78,11 +78,11 @@ class BorderedTextField extends StatelessWidget {
             keyboardType: keyboardType,
             obscureText: obscureText,
             inputFormatters: inputFormatter,
-            cursorColor: ThemeColours.darkGreen,
+            cursorColor: AppColors.secondaryTeal,
             enabled: enabled ?? true,
             style: GoogleFonts.montserrat(
               fontSize: 16,
-              color: ThemeColours.darkGreen,
+              color: AppColors.textPrimary,
               decoration: TextDecoration.none,
             ),
             textInputAction: textInputAction,
@@ -99,7 +99,7 @@ class BorderedTextField extends StatelessWidget {
                       EdgeInsets.symmetric(vertical: context.sh * 0.01),
                   hintText: hintText,
                   hintStyle: GoogleFonts.montserrat(
-                    color: ThemeColours.darkGreen,
+                    color: AppColors.textSecondary,
                     fontSize: 14,
                   ),
                   border: InputBorder.none,
@@ -109,7 +109,7 @@ class BorderedTextField extends StatelessWidget {
                       : IconButton(
                           icon: Icon(
                             suffixIcon,
-                            color: ThemeColours.darkGreen,
+                            color: AppColors.primaryDark,
                           ),
                           onPressed: suffixIconOnTap ?? () {},
                         ),
@@ -125,7 +125,7 @@ class BorderedTextField extends StatelessWidget {
               errorText!,
               style: GoogleFonts.montserrat(
                 fontSize: 12,
-                color: Colors.red,
+                color: AppColors.error,
               ),
             ),
           ),
