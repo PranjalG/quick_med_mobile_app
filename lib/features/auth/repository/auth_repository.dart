@@ -29,6 +29,11 @@ class AuthRepository {
 
   String? get lastPhoneE164 => _lastPhoneE164;
 
+  /// Called when Android auto-verifies the number after the code was already
+  /// sent (the UI is on the OTP screen), so the caller can finish sign-in
+  /// without waiting for the user to type the code.
+  void Function(User user)? onLateAutoVerification;
+
   bool get hasActiveVerification => _lastVerificationId != null;
 
   static final RegExp _indianMobilePattern = RegExp(r'^\+91[6-9]\d{9}$');
@@ -102,8 +107,11 @@ class AuthRepository {
           final userCredential =
               await _firebaseAuth.signInWithCredential(credential);
           final user = userCredential.user;
-          if (user != null && !completer.isCompleted) {
+          if (user == null) return;
+          if (!completer.isCompleted) {
             completer.complete(SendOtpResult.autoVerified(user));
+          } else {
+            onLateAutoVerification?.call(user);
           }
         } catch (_) {
           if (!completer.isCompleted) {
@@ -134,7 +142,24 @@ class AuthRepository {
     );
   }
 
+  /// The signed-in Firebase user, if it is the number we are verifying.
+  ///
+  /// Android can verify the number on its own (instant verification or SMS
+  /// auto-retrieval) and sign the user in through `verificationCompleted`,
+  /// after `codeSent` has already moved the UI to the OTP screen. That uses up
+  /// the code, so submitting it manually afterwards fails with
+  /// `session-expired`. Checking for an existing sign-in avoids reporting a
+  /// successful login as an expired OTP.
+  User? _alreadySignedInForPendingPhone() {
+    final user = _firebaseAuth.currentUser;
+    if (user == null || _lastPhoneE164 == null) return null;
+    return user.phoneNumber == _lastPhoneE164 ? user : null;
+  }
+
   Future<User> verifyOtp(String smsCode, {String? verificationId}) async {
+    final alreadySignedIn = _alreadySignedInForPendingPhone();
+    if (alreadySignedIn != null) return alreadySignedIn;
+
     final id = verificationId ?? _lastVerificationId;
     if (id == null) {
       throw const OtpVerificationFailedException(
@@ -147,13 +172,18 @@ class AuthRepository {
         verificationId: id,
         smsCode: smsCode.trim(),
       );
-      final userCredential = await _firebaseAuth.signInWithCredential(credential);
+      final userCredential =
+          await _firebaseAuth.signInWithCredential(credential);
       final user = userCredential.user;
       if (user == null) {
         throw const OtpVerificationFailedException();
       }
       return user;
     } on FirebaseAuthException catch (error) {
+      // Auto-verification may have signed the user in while this request was
+      // in flight; that is a success, not an expired code.
+      final signedIn = _alreadySignedInForPendingPhone();
+      if (signedIn != null) return signedIn;
       throw _mapFirebaseException(error);
     } on AuthException {
       rethrow;
@@ -168,7 +198,7 @@ class AuthRepository {
         return const InvalidPhoneNumberException();
       case 'session-expired':
         return const OtpTimeoutException(
-          'OTP session expired. Request a new code.',
+          'This OTP has expired or was already used. Tap Resend for a new code.',
         );
       case 'invalid-verification-code':
         return const OtpVerificationFailedException();

@@ -18,7 +18,9 @@ class PhoneAuthCubit extends Cubit<PhoneAuthState> {
   })  : _authRepository = authRepository ?? AuthRepository(),
         _profileRepository = profileRepository ?? ProfileRepository(),
         _profileService = profileService ?? ProfileService(),
-        super(const PhoneAuthInitial());
+        super(const PhoneAuthInitial()) {
+    _authRepository.onLateAutoVerification = _onLateAutoVerification;
+  }
 
   final AuthRepository _authRepository;
   final ProfileRepository _profileRepository;
@@ -67,7 +69,22 @@ class PhoneAuthCubit extends Cubit<PhoneAuthState> {
     }
   }
 
+  /// Android verified the number by itself while the OTP screen was showing.
+  void _onLateAutoVerification(User user) {
+    if (isClosed) return;
+    final current = state;
+    // Ignore if a manual verify is already finishing, or sign-in completed.
+    if (current is PhoneAuthVerifying || current is PhoneAuthSuccess) return;
+    emit(PhoneAuthVerifying(phoneDisplay: _phoneDisplay ?? ''));
+    _completeSignIn(user);
+  }
+
   Future<void> verifyOtp(String smsCode) async {
+    // An OTP can only be redeemed once. The OTP screen submits on the 6th
+    // digit, on keyboard "done" and on the button; a second in-flight call
+    // would reuse the consumed code and fail with session-expired.
+    if (state is PhoneAuthVerifying || state is PhoneAuthSuccess) return;
+
     final phoneDisplay = _phoneDisplay ?? '';
     emit(PhoneAuthVerifying(phoneDisplay: phoneDisplay));
     try {

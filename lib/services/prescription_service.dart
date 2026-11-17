@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -75,9 +74,7 @@ class PrescriptionService {
     }
   }
 
-  String? _resolveUserId() {
-    return AuthService.currentUserId ?? _firebaseSubjectFromJwt();
-  }
+  String? _resolveUserId() => AuthService.currentUserId;
 
   static String _mimeForExtension(String ext) {
     switch (ext) {
@@ -168,10 +165,10 @@ class PrescriptionService {
 
   String _friendlyPostgrest(PostgrestException error) {
     return switch (error.code) {
-      '42501' => 'Upload blocked. Complete profile setup, then sign out and sign in again.',
+      '42501' =>
+        'Upload blocked. Complete profile setup, then sign out and sign in again.',
       '23503' => 'Profile not found. Complete profile setup and try again.',
-      _ =>
-        'The image uploaded but could not be saved. Please try again.',
+      _ => 'The image uploaded but could not be saved. Please try again.',
     };
   }
 
@@ -192,21 +189,6 @@ class PrescriptionService {
         .limit(1)
         .maybeSingle();
     return row == null ? null : Prescription.fromJson(row);
-  }
-
-  String? _firebaseSubjectFromJwt() {
-    final token = _client.auth.currentSession?.accessToken;
-    if (token == null) return null;
-    try {
-      final parts = token.split('.');
-      if (parts.length < 2) return null;
-      final payload = String.fromCharCodes(
-        base64Url.decode(base64Url.normalize(parts[1])),
-      );
-      return (jsonDecode(payload) as Map<String, dynamic>)['sub'] as String?;
-    } catch (_) {
-      return null;
-    }
   }
 
   Future<bool> isStaff(String uid) async {

@@ -58,6 +58,11 @@ class _OtpEntryScreenState extends State<OtpEntryScreen> {
   }
 
   void _onVerify() {
+    // Auto-submit on the 6th digit and keyboard "done" can both fire; only the
+    // first should reach Firebase.
+    final current = context.read<PhoneAuthCubit>().state;
+    if (current is PhoneAuthVerifying || current is PhoneAuthSuccess) return;
+
     final code = _otpController.text.trim();
     if (code.length != 6) {
       setState(() => _inlineError = 'Enter the 6-digit OTP');
