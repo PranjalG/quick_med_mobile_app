@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:quick_med/services/supabase_auth_bridge.dart';
+
 class Address {
   final String id;
   final String label;
@@ -45,7 +47,9 @@ class AddressService {
         .select()
         .eq('user_id', uid)
         .order('created_at', ascending: true);
-    return rows.map((r) => Address.fromJson(r as Map<String, dynamic>)).toList();
+    return rows
+        .map((r) => Address.fromJson(r as Map<String, dynamic>))
+        .toList();
   }
 
   /// Returns an address id owned by the caller's JWT `sub` (same rule as
@@ -55,11 +59,8 @@ class AddressService {
     try {
       final id = await _client.rpc<String>('ensure_delivery_address');
       if (id.isNotEmpty) {
-        final row = await _client
-            .from('addresses')
-            .select()
-            .eq('id', id)
-            .maybeSingle();
+        final row =
+            await _client.from('addresses').select().eq('id', id).maybeSingle();
         if (row != null) {
           return Address.fromJson(row);
         }
@@ -81,6 +82,10 @@ class AddressService {
 
   String _friendlyRpc(PostgrestException error) {
     final raw = error.message;
+    if (isGuestRoleDenial(error.code, raw)) return guestRoleMessage;
+    if (error.code == '22023' && raw.contains('coordinates')) {
+      return 'Pin your delivery location in Profile before ordering.';
+    }
     if (error.code == '22023' && raw.contains('delivery address')) {
       return 'Add a delivery address to your profile before ordering.';
     }

@@ -1,7 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:quick_med/services/geocoding_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:quick_med/custom_components/primary_button.dart';
 import 'package:quick_med/services/app_colors.dart';
 import 'package:quick_med/services/app_text_styles.dart';
 import 'package:quick_med/utils/map_gesture_utils.dart';
@@ -16,12 +18,17 @@ class DeliveryLocationPicker extends StatefulWidget {
   final ValueChanged<LatLng> onLocationChanged;
   final String? errorText;
 
+  /// Called with the street address found for the pin, so the form can
+  /// pre-fill its address fields.
+  final ValueChanged<ResolvedAddress>? onAddressResolved;
+
   const DeliveryLocationPicker({
     super.key,
     this.latitude,
     this.longitude,
     required this.onLocationChanged,
     this.errorText,
+    this.onAddressResolved,
   });
 
   @override
@@ -33,6 +40,55 @@ class _DeliveryLocationPickerState extends State<DeliveryLocationPicker> {
   bool _locating = false;
   String? _locationError;
 
+  final GeocodingService _geocoder = GeocodingService();
+  Timer? _lookupDebounce;
+  int _lookupId = 0;
+  bool _resolving = false;
+  ResolvedAddress? _resolved;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_hasPin) _scheduleAddressLookup(delay: Duration.zero);
+  }
+
+  @override
+  void dispose() {
+    _lookupDebounce?.cancel();
+    super.dispose();
+  }
+
+  /// Looks up the address for the current pin. Debounced because dragging or
+  /// tapping around fires many pin changes; only the latest one matters.
+  ///
+  /// Only called from [initState] and [didUpdateWidget], which are always
+  /// followed by a build, so the fields are set without `setState`.
+  void _scheduleAddressLookup({
+    Duration delay = const Duration(milliseconds: 500),
+  }) {
+    _lookupDebounce?.cancel();
+    _resolving = true;
+    _resolved = null;
+    _lookupDebounce = Timer(delay, _lookupAddress);
+  }
+
+  Future<void> _lookupAddress() async {
+    final lat = widget.latitude;
+    final lng = widget.longitude;
+    if (lat == null || lng == null) return;
+
+    final id = ++_lookupId;
+    final result = await _geocoder.reverse(lat, lng);
+    // Ignore answers for a pin the user has since moved.
+    if (!mounted || id != _lookupId) return;
+
+    setState(() {
+      _resolving = false;
+      _resolved = result;
+    });
+    if (result != null) widget.onAddressResolved?.call(result);
+  }
+
   LatLng get _pin {
     if (widget.latitude != null && widget.longitude != null) {
       return LatLng(widget.latitude!, widget.longitude!);
@@ -40,8 +96,7 @@ class _DeliveryLocationPickerState extends State<DeliveryLocationPicker> {
     return kotaDefaultCenter;
   }
 
-  bool get _hasPin =>
-      widget.latitude != null && widget.longitude != null;
+  bool get _hasPin => widget.latitude != null && widget.longitude != null;
 
   double _mapHeight(BuildContext context) {
     final scaled = context.sh * 0.28;
@@ -55,6 +110,7 @@ class _DeliveryLocationPickerState extends State<DeliveryLocationPicker> {
     final lngChanged = oldWidget.longitude != widget.longitude;
     if (latChanged || lngChanged) {
       _syncCameraToPin(animated: true);
+      if (_hasPin) _scheduleAddressLookup();
     }
   }
 
@@ -137,6 +193,84 @@ class _DeliveryLocationPickerState extends State<DeliveryLocationPicker> {
     };
   }
 
+  Widget _buildPinAddress(BuildContext context) {
+    final resolved = _resolved;
+    final String title;
+    final Color titleColor;
+    if (_resolving) {
+      title = 'Finding address…';
+      titleColor = AppColors.textSecondary;
+    } else if (resolved != null && resolved.formatted.isNotEmpty) {
+      title = resolved.formatted;
+      titleColor = AppColors.textPrimary;
+    } else {
+      title = 'No street address found for this spot — add details above.';
+      titleColor = AppColors.textSecondary;
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: context.fs(14),
+        vertical: context.fs(12),
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(context.fs(12)),
+        border: Border.all(color: AppColors.inputBorder),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top: context.fs(2)),
+            child: _resolving
+                ? SizedBox(
+                    width: context.fs(18),
+                    height: context.fs(18),
+                    child: const CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.brandTeal,
+                    ),
+                  )
+                : Icon(
+                    Icons.location_on_rounded,
+                    color: AppColors.brandTeal,
+                    size: context.fs(20),
+                  ),
+          ),
+          SizedBox(width: context.fs(10)),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: AppTextStyles.body(context).copyWith(
+                    color: titleColor,
+                    fontWeight: FontWeight.w600,
+                    fontSize: context.fs(13),
+                    height: 1.35,
+                  ),
+                ),
+                SizedBox(height: context.fs(2)),
+                Text(
+                  '${widget.latitude!.toStringAsFixed(5)}, '
+                  '${widget.longitude!.toStringAsFixed(5)}',
+                  style: AppTextStyles.body(context).copyWith(
+                    color: AppColors.textSecondary,
+                    fontSize: context.fs(11),
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final validationError = widget.errorText;
@@ -193,40 +327,36 @@ class _DeliveryLocationPickerState extends State<DeliveryLocationPicker> {
           ),
         ),
         SizedBox(height: context.fs(10)),
-        if (_hasPin)
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(
-              horizontal: context.fs(14),
-              vertical: context.fs(10),
-            ),
-            decoration: BoxDecoration(
-              color: AppColors.cardBackground,
-              borderRadius: BorderRadius.circular(context.fs(12)),
-              border: Border.all(color: AppColors.inputBorder),
-            ),
-            child: Row(
+        if (_hasPin) ...[
+          _buildPinAddress(context),
+          if (!GeocodingService.isInDeliveryArea(
+            widget.latitude!,
+            widget.longitude!,
+          )) ...[
+            SizedBox(height: context.fs(8)),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
-                  Icons.pin_drop_outlined,
-                  color: AppColors.brandTeal,
-                  size: 20,
+                Icon(
+                  Icons.warning_amber_rounded,
+                  size: context.fs(16),
+                  color: AppColors.accent,
                 ),
-                SizedBox(width: context.fs(8)),
+                SizedBox(width: context.fs(6)),
                 Expanded(
                   child: Text(
-                    '${widget.latitude!.toStringAsFixed(5)}, '
-                    '${widget.longitude!.toStringAsFixed(5)}',
+                    'This pin is outside our Kota delivery area. Move it to '
+                    'your address in Kota.',
                     style: AppTextStyles.body(context).copyWith(
-                      fontSize: context.fs(13),
-                      fontFeatures: const [FontFeature.tabularFigures()],
+                      color: AppColors.accent,
+                      fontSize: context.fs(12),
                     ),
                   ),
                 ),
               ],
             ),
-          )
-        else
+          ],
+        ] else
           Text(
             'No pin yet — use GPS or tap the map.',
             style: AppTextStyles.body(context).copyWith(
@@ -255,10 +385,38 @@ class _DeliveryLocationPickerState extends State<DeliveryLocationPicker> {
           ),
         ],
         SizedBox(height: context.fs(12)),
-        PrimaryButton(
-          label: _locating ? 'Getting location…' : 'Use my current location',
-          enabled: !_locating,
-          onTap: _locating ? null : _useCurrentLocation,
+        // Secondary action: the form's Save button is the primary one.
+        OutlinedButton.icon(
+          onPressed: _locating ? null : _useCurrentLocation,
+          icon: _locating
+              ? SizedBox(
+                  width: context.fs(16),
+                  height: context.fs(16),
+                  child: const CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.brandTeal,
+                  ),
+                )
+              : Icon(
+                  Icons.my_location_rounded,
+                  size: context.fs(18),
+                  color: AppColors.brandTeal,
+                ),
+          label: Text(
+            _locating ? 'Getting location…' : 'Use my current location',
+            style: AppTextStyles.body(context).copyWith(
+              color: AppColors.brandGreenDeep,
+              fontWeight: FontWeight.w600,
+              fontSize: context.fs(14),
+            ),
+          ),
+          style: OutlinedButton.styleFrom(
+            minimumSize: Size.fromHeight(context.fs(48)),
+            side: const BorderSide(color: AppColors.brandTeal, width: 1.2),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(context.fs(14)),
+            ),
+          ),
         ),
       ],
     );

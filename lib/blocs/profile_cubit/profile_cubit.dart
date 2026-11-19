@@ -21,11 +21,25 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
-  Future<void> saveProfile(UserProfile profile) async {
-    emit(ProfileUpdating());
+  /// Re-fetches the profile without emitting [ProfileLoading], so the home
+  /// greeting does not flash "Guest" during pull-to-refresh. On failure the
+  /// current state is kept.
+  Future<void> refreshProfile(String userId) async {
     try {
-      await _profileService.saveProfile(profile);
-      emit(ProfileUpdateSuccess(profile: profile));
+      final profile = await _profileService.fetchProfile(userId);
+      if (profile != null) emit(ProfileLoaded(profile: profile));
+    } catch (_) {
+      // Keep whatever is already on screen.
+    }
+  }
+
+  Future<void> saveProfile(UserProfile profile) async {
+    emit(ProfileUpdating(profile: profile));
+    try {
+      final savedToServer = await _profileService.saveProfile(profile);
+      emit(
+        ProfileUpdateSuccess(profile: profile, savedToServer: savedToServer),
+      );
       emit(ProfileLoaded(profile: profile));
     } catch (e) {
       emit(ProfileError(message: e.toString()));

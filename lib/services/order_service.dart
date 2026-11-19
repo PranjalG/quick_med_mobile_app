@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:quick_med/models/cart_item_model.dart';
 import 'package:quick_med/models/order_model.dart';
+import 'package:quick_med/services/supabase_auth_bridge.dart';
 
 /// Result of a successful `place_order` call.
 class PlacedOrder {
@@ -76,6 +77,7 @@ class OrderService {
   /// Maps the RPC's SQLSTATE codes onto something a customer can act on.
   String _friendly(PostgrestException error) {
     final raw = error.message;
+    if (isGuestRoleDenial(error.code, raw)) return guestRoleMessage;
     return switch (error.code) {
       '28000' => 'Please sign in again to place this order.',
       '22023' => raw.contains('cart is empty')
@@ -91,7 +93,8 @@ class OrderService {
       '23514' => raw,
       'PGRST202' =>
         'Checkout is unavailable — run supabase/migrations/006_place_order.sql.',
-      _ => raw.isNotEmpty ? raw : 'Could not place the order. Please try again.',
+      _ =>
+        raw.isNotEmpty ? raw : 'Could not place the order. Please try again.',
     };
   }
 
@@ -99,7 +102,8 @@ class OrderService {
   /// medicine names embedded — one round trip, not one query per order.
   ///
   /// RLS scopes this to the caller; no user_id filter is needed or trusted.
-  Future<List<CustomerOrder>> fetchOrders({int limit = 20, int offset = 0}) async {
+  Future<List<CustomerOrder>> fetchOrders(
+      {int limit = 20, int offset = 0}) async {
     final List<dynamic> rows = await _client
         .from('orders')
         .select(

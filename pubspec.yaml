@@ -51,6 +51,7 @@ dependencies:
   hydrated_bloc: ^11.0.0
   path_provider: ^2.1.6
   geolocator: ^14.1.1
+  geocoding: ^5.0.1
 
 dev_dependencies:
   flutter_test:

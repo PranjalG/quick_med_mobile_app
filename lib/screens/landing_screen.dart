@@ -12,6 +12,7 @@ import 'package:quick_med/blocs/profile_cubit/profile_state.dart';
 import 'package:quick_med/screens/login/logo_widget.dart';
 import 'package:quick_med/services/app_colors.dart';
 import 'package:quick_med/services/app_text_styles.dart';
+import 'package:quick_med/services/auth_service.dart';
 import 'package:quick_med/utils/screen_size.dart';
 
 class LandingScreen extends StatelessWidget {
@@ -21,413 +22,452 @@ class LandingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // 1. Top Header Section (Brand, Greeting, Location, Bell Notification)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  BlocBuilder<ProfileCubit, ProfileState>(
-                    builder: (context, state) {
-                      String displayName = 'Guest';
-                      String displayArea = 'Kota';
-                      if (state is ProfileLoaded) {
-                        displayName = state.profile.name.split(' ').first;
-                        displayArea = state.profile.kotaArea;
-                      }
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const LogoWidget(
-                            horizontal: true,
-                            widthFactor: 0.09,
-                            showTagline: false,
-                          ),
-                          const SizedBox(height: 8),
-                                Text(
-                                  'Hi, $displayName 👋',
-                                  style: AppTextStyles.homeHeading(context),
+      body: RefreshIndicator(
+        onRefresh: () => _onRefresh(context),
+        color: AppColors.brandTeal,
+        backgroundColor: AppColors.white,
+        child: SingleChildScrollView(
+          // AlwaysScrollable so the pull gesture works even when the content
+          // (e.g. an empty or failed catalogue) is shorter than the screen.
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics(),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // 1. Top Header Section (Brand, Greeting, Location, Bell Notification)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    BlocBuilder<ProfileCubit, ProfileState>(
+                      builder: (context, state) {
+                        String displayName = 'Guest';
+                        String displayArea = 'Kota';
+                        if (state is ProfileLoaded) {
+                          displayName = state.profile.name.split(' ').first;
+                          displayArea = state.profile.kotaArea;
+                        }
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const LogoWidget(
+                              horizontal: true,
+                              widthFactor: 0.09,
+                              showTagline: false,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Hi, $displayName 👋',
+                              style: AppTextStyles.homeHeading(context),
+                            ),
+                            const SizedBox(height: 8),
+                            // Location chip
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: AppColors.cardBackground,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: AppColors.inputBorder,
+                                  width: 1.0,
                                 ),
-                                const SizedBox(height: 8),
-                                // Location chip
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.cardBackground,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: AppColors.inputBorder,
-                                      width: 1.0,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.location_on_outlined,
+                                    size: 16,
+                                    color: AppColors.brandTeal,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '$displayArea, Kota',
+                                    style: AppTextStyles.skipText(context)
+                                        .copyWith(
+                                      color: AppColors.brandGreenDeep,
+                                      fontSize: context.fs(13),
                                     ),
                                   ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(
-                                        Icons.location_on_outlined,
-                                        size: 16,
-                                        color: AppColors.brandTeal,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '$displayArea, Kota',
-                                        style: AppTextStyles.skipText(context).copyWith(
-                                          color: AppColors.brandGreenDeep,
-                                          fontSize: context.fs(13),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      const Icon(
-                                        Icons.keyboard_arrow_down_rounded,
-                                        size: 16,
-                                        color: AppColors.brandGreenDeep,
-                                      ),
-                                    ],
+                                  const SizedBox(width: 4),
+                                  const Icon(
+                                    Icons.keyboard_arrow_down_rounded,
+                                    size: 16,
+                                    color: AppColors.brandGreenDeep,
                                   ),
-                                ),
-                              ],
-                      );
-                    },
-                  ),
-                  Material(
-                    color: AppColors.cardBackground,
-                    shape: const CircleBorder(),
-                    child: InkWell(
-                      onTap: () => context.push('/alerts'),
-                      customBorder: const CircleBorder(),
-                      child: const Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Icon(
-                          Icons.notifications_none_rounded,
-                          size: 24,
-                          color: AppColors.textPrimary,
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                    Material(
+                      color: AppColors.cardBackground,
+                      shape: const CircleBorder(),
+                      child: InkWell(
+                        onTap: () => context.push('/alerts'),
+                        customBorder: const CircleBorder(),
+                        child: const Padding(
+                          padding: EdgeInsets.all(10),
+                          child: Icon(
+                            Icons.notifications_none_rounded,
+                            size: 24,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                      ],
-                    ),
-                  ),
+                  ],
+                ),
+              ),
 
-                  // 2. Search Trigger Bar & Upload Prescription Card
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Column(
-                      children: [
-                        GestureDetector(
-                          onTap: () => context.push('/search'),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                            decoration: BoxDecoration(
-                              color: AppColors.inputFill,
-                              borderRadius: BorderRadius.circular(25),
-                              border: Border.all(
-                                color: AppColors.inputBorder,
-                                width: 1.5,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 22),
-                                const SizedBox(width: 12),
-                                Text(
-                                  'Search medicines, salt or brand',
-                                  style: AppTextStyles.hintText(context),
-                                ),
-                              ],
-                            ),
+              // 2. Search Trigger Bar & Upload Prescription Card
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () => context.push('/search'),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: AppColors.inputFill,
+                          borderRadius: BorderRadius.circular(25),
+                          border: Border.all(
+                            color: AppColors.inputBorder,
+                            width: 1.5,
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        // Upload Prescription Card
-                        InkWell(
-                          onTap: () => PrescriptionUploadFlow.run(context),
-                          borderRadius: BorderRadius.circular(14),
-                          child: Container(
-                          height: 48,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [
-                                AppColors.brandGradientStart,
-                                AppColors.brandGradientEnd,
-                              ],
+                        child: Row(
+                          children: [
+                            const Icon(Icons.search_rounded,
+                                color: AppColors.textSecondary, size: 22),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Search medicines, salt or brand',
+                              style: AppTextStyles.hintText(context),
                             ),
-                            borderRadius: BorderRadius.circular(14),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.brandTeal.withValues(alpha: 0.25),
-                                offset: const Offset(0, 4),
-                                blurRadius: 10,
-                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Upload Prescription Card
+                    InkWell(
+                      onTap: () => PrescriptionUploadFlow.run(context),
+                      borderRadius: BorderRadius.circular(14),
+                      child: Container(
+                        height: 48,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [
+                              AppColors.brandGradientStart,
+                              AppColors.brandGradientEnd,
                             ],
                           ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.document_scanner_outlined, color: AppColors.white, size: 20),
-                              const SizedBox(width: 12),
-                              Text(
-                                'Upload Prescription',
-                                style: AppTextStyles.buttonText(context).copyWith(
-                                  fontSize: context.fs(14),
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color:
+                                  AppColors.brandTeal.withValues(alpha: 0.25),
+                              offset: const Offset(0, 4),
+                              blurRadius: 10,
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.document_scanner_outlined,
+                                color: AppColors.white, size: 20),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Upload Prescription',
+                              style: AppTextStyles.buttonText(context).copyWith(
+                                fontSize: context.fs(14),
+                                color: AppColors.white,
+                              ),
+                            ),
+                            const Spacer(),
+                            const Icon(Icons.arrow_forward_ios_rounded,
+                                color: AppColors.white, size: 14),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // 3. Hero Promo Card (30-Min Delivery with Super Delivery Agent Image)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        AppColors.secondaryBlue,
+                        AppColors.secondaryTeal,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.brandTeal.withValues(alpha: 0.25),
+                        offset: const Offset(0, 8),
+                        blurRadius: 16,
+                      )
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: AppColors.white.withValues(alpha: 0.22),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                '⚡ Fast Delivery',
+                                style:
+                                    AppTextStyles.chipTitle(context).copyWith(
+                                  fontSize: context.fs(12),
                                   color: AppColors.white,
                                 ),
                               ),
-                              const Spacer(),
-                              const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.white, size: 14),
-                            ],
-                          ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // 3. Hero Promo Card (30-Min Delivery with Super Delivery Agent Image)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [
-                            AppColors.secondaryBlue,
-                            AppColors.secondaryTeal,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.brandTeal.withValues(alpha: 0.25),
-                            offset: const Offset(0, 8),
-                            blurRadius: 16,
-                          )
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.white.withValues(alpha: 0.22),
-                                    borderRadius: BorderRadius.circular(999),
-                                  ),
-                                  child: Text(
-                                    '⚡ Fast Delivery',
-                                    style: AppTextStyles.chipTitle(context).copyWith(
-                                      fontSize: context.fs(12),
-                                      color: AppColors.white,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  '30-Min Delivery',
-                                  style: AppTextStyles.bannerTitle(context),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Get essentials at your door, instantly.',
-                                  style: AppTextStyles.bannerBody(context),
-                                ),
-                                const SizedBox(height: 16),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.white,
-                                    borderRadius: BorderRadius.circular(999),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        'Order Now',
-                                        style: AppTextStyles.bannerButton(context).copyWith(
-                                          color: AppColors.brandGreenDeep,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      const Icon(
-                                        Icons.arrow_forward_rounded,
-                                        size: 16,
-                                        color: AppColors.brandGreenDeep,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
                             ),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Center(
-                              child: SizedBox(
-                                height: 110,
-                                width: 110,
-                                child: Image.asset(
-                                  'assets/images/delivery_super_agent.png',
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  const _CategoriesSection(),
-                  const SizedBox(height: 24),
-
-                  // 5. Offers & Discounts Section
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
+                            const SizedBox(height: 12),
                             Text(
-                              'Offers & Discounts',
-                              style: AppTextStyles.homeSectionHeader(context),
+                              '30-Min Delivery',
+                              style: AppTextStyles.bannerTitle(context),
                             ),
-                            // LIVE Badge
+                            const SizedBox(height: 4),
+                            Text(
+                              'Get essentials at your door, instantly.',
+                              style: AppTextStyles.bannerBody(context),
+                            ),
+                            const SizedBox(height: 16),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
                               decoration: BoxDecoration(
-                                color: AppColors.brandGreenLight.withValues(alpha: 0.2),
+                                color: AppColors.white,
                                 borderRadius: BorderRadius.circular(999),
-                                border: Border.all(color: AppColors.brandGreenLight),
                               ),
                               child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Container(
-                                    height: 6,
-                                    width: 6,
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.brandGreen,
-                                      shape: BoxShape.circle,
+                                  Text(
+                                    'Order Now',
+                                    style: AppTextStyles.bannerButton(context)
+                                        .copyWith(
+                                      color: AppColors.brandGreenDeep,
                                     ),
                                   ),
                                   const SizedBox(width: 6),
-                                  Text(
-                                    'LIVE',
-                                    style: AppTextStyles.chipTitle(context).copyWith(
-                                      fontSize: context.fs(11),
-                                      color: AppColors.brandGreenDeep,
-                                    ),
+                                  const Icon(
+                                    Icons.arrow_forward_rounded,
+                                    size: 16,
+                                    color: AppColors.brandGreenDeep,
                                   ),
                                 ],
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16),
-                        // Hero Offer Banner Card
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [
-                                AppColors.brandGradientStart,
-                                AppColors.brandGradientEnd,
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Center(
+                          child: SizedBox(
+                            height: 110,
+                            width: 110,
+                            child: Image.asset(
+                              'assets/images/delivery_super_agent.png',
+                              fit: BoxFit.contain,
                             ),
-                            borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              const _CategoriesSection(),
+              const SizedBox(height: 24),
+
+              // 5. Offers & Discounts Section
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Offers & Discounts',
+                          style: AppTextStyles.homeSectionHeader(context),
+                        ),
+                        // LIVE Badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.brandGreenLight
+                                .withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(999),
+                            border:
+                                Border.all(color: AppColors.brandGreenLight),
+                          ),
+                          child: Row(
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: AppColors.white.withValues(alpha: 0.22),
-                                  borderRadius: BorderRadius.circular(999),
-                                ),
-                                child: Text(
-                                  'TODAY ONLY 🔥',
-                                  style: AppTextStyles.bannerButton(context).copyWith(
-                                    fontSize: context.fs(11),
-                                    color: AppColors.white,
-                                  ),
+                                height: 6,
+                                width: 6,
+                                decoration: const BoxDecoration(
+                                  color: AppColors.brandGreen,
+                                  shape: BoxShape.circle,
                                 ),
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(width: 6),
                               Text(
-                                '30% OFF',
-                                style: AppTextStyles.bannerTitle(context).copyWith(
-                                  fontSize: context.fs(36),
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                'On every medicine & health product',
-                                style: AppTextStyles.bannerBody(context),
-                              ),
-                              const SizedBox(height: 16),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: AppColors.white,
-                                  borderRadius: BorderRadius.circular(999),
-                                ),
-                                child: Text(
-                                  'Claim Offer →',
-                                  style: AppTextStyles.chipTitle(context).copyWith(
-                                    color: AppColors.brandGreenDeep,
-                                  ),
+                                'LIVE',
+                                style:
+                                    AppTextStyles.chipTitle(context).copyWith(
+                                  fontSize: context.fs(11),
+                                  color: AppColors.brandGreenDeep,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        // Bottom Chips Row
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildOfferChip(
-                                context: context,
-                                title: '🚚 Free Delivery',
-                                subtitle: 'Min. order ₹299',
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: _buildOfferChip(
-                                context: context,
-                                title: '💊 Generic Savings',
-                                subtitle: 'Salt-based options',
-                              ),
-                            ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    // Hero Offer Banner Card
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            AppColors.brandGradientStart,
+                            AppColors.brandGradientEnd,
                           ],
-                  ),
-                ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.white.withValues(alpha: 0.22),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              'TODAY ONLY 🔥',
+                              style:
+                                  AppTextStyles.bannerButton(context).copyWith(
+                                fontSize: context.fs(11),
+                                color: AppColors.white,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            '30% OFF',
+                            style: AppTextStyles.bannerTitle(context).copyWith(
+                              fontSize: context.fs(36),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'On every medicine & health product',
+                            style: AppTextStyles.bannerBody(context),
+                          ),
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: AppColors.white,
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              'Claim Offer →',
+                              style: AppTextStyles.chipTitle(context).copyWith(
+                                color: AppColors.brandGreenDeep,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Bottom Chips Row
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildOfferChip(
+                            context: context,
+                            title: '🚚 Free Delivery',
+                            subtitle: 'Min. order ₹299',
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildOfferChip(
+                            context: context,
+                            title: '💊 Generic Savings',
+                            subtitle: 'Salt-based options',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 40),
-          ],
+              const SizedBox(height: 40),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  /// Pull-to-refresh: reloads the catalogue and the greeting's profile in
+  /// parallel; the spinner stays until both finish.
+  Future<void> _onRefresh(BuildContext context) async {
+    final catalogue = context.read<CatalogueCubit>();
+    final profile = context.read<ProfileCubit>();
+    final userId = AuthService.currentUserId;
+    await Future.wait([
+      catalogue.refresh(),
+      if (userId != null) profile.refreshProfile(userId),
+    ]);
   }
 
   Widget _buildOfferChip({
@@ -746,8 +786,8 @@ class _MedicineCard extends StatelessWidget {
                 if (!outOfStock)
                   BlocBuilder<CartCubit, CartState>(
                     builder: (context, cart) {
-                      final inCart = cart.lines
-                          .any((l) => l.medicine.id == medicine.id);
+                      final inCart =
+                          cart.lines.any((l) => l.medicine.id == medicine.id);
                       return InkWell(
                         onTap: () {
                           context.read<CartCubit>().add(medicine);

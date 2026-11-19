@@ -10,6 +10,18 @@ class SupabaseSessionException implements Exception {
   String toString() => message;
 }
 
+/// Shown when Supabase treats the signed-in user as anonymous because their
+/// Firebase token has no `role: authenticated` claim, so RPCs granted only
+/// to `authenticated` (checkout) fail with "permission denied for function".
+const String guestRoleMessage =
+    'Ordering isn\'t enabled for your account yet — the server sees you as a '
+    'guest. Sign out and back in; if it persists, contact support.';
+
+/// True for Postgres "permission denied for function …" errors, which is how
+/// a missing `role: authenticated` claim shows up on checkout RPCs.
+bool isGuestRoleDenial(String? code, String message) =>
+    code == '42501' && message.contains('permission denied for function');
+
 class SupabaseAuthBridge {
   /// Makes sure the Firebase ID token Supabase will receive is valid.
   ///
@@ -26,10 +38,20 @@ class SupabaseAuthBridge {
     if (firebaseUser == null) return;
 
     try {
-      final idToken = await firebaseUser.getIdToken(forceRefresh);
+      final result = await firebaseUser.getIdTokenResult(forceRefresh);
+      final idToken = result.token;
       if (idToken == null || idToken.isEmpty) {
         throw const SupabaseSessionException(
           'Could not read your login token. Please try again.',
+        );
+      }
+      // Without this claim Supabase runs every request as `anon`.
+      if (result.claims?['role'] != 'authenticated') {
+        debugPrint(
+          'Firebase ID token has no role: "authenticated" claim, so Supabase '
+          'treats this user as anon and checkout RPCs will be denied. Set the '
+          'claim with the Firebase Admin SDK (see Supabase docs: Third-party '
+          'auth → Firebase).',
         );
       }
     } on FirebaseAuthException catch (error) {

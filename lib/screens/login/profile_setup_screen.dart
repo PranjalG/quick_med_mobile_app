@@ -6,6 +6,7 @@ import 'package:quick_med/screens/login/logo_widget.dart';
 import 'package:quick_med/services/auth_service.dart';
 import 'package:quick_med/blocs/profile_cubit/profile_cubit.dart';
 import 'package:quick_med/blocs/profile_cubit/profile_state.dart';
+import 'package:quick_med/services/geocoding_service.dart';
 import 'package:quick_med/services/profile_service.dart';
 import 'package:quick_med/services/app_colors.dart';
 import 'package:quick_med/services/app_text_styles.dart';
@@ -47,6 +48,30 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
   final _addressController = TextEditingController();
 
   String? _selectedKotaArea;
+
+  // Values filled in from the map pin. Moving the pin may replace these, but
+  // never something the user typed or picked themselves.
+  String? _autoFilledStreet;
+  String? _autoSelectedArea;
+
+  void _applyResolvedAddress(ResolvedAddress address) {
+    setState(() {
+      final typed = _addressController.text.trim();
+      if (address.streetLine.isNotEmpty &&
+          (typed.isEmpty || typed == _autoFilledStreet)) {
+        _addressController.text = address.streetLine;
+        _autoFilledStreet = address.streetLine;
+      }
+      final match = address.matchArea(kotaAreas);
+      if (match != null &&
+          (_selectedKotaArea == null ||
+              _selectedKotaArea == _autoSelectedArea)) {
+        _selectedKotaArea = match;
+        _autoSelectedArea = match;
+      }
+    });
+  }
+
   String _preservedEmail = '';
   double? _addressLatitude;
   double? _addressLongitude;
@@ -132,9 +157,16 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
           }
         } else if (state is ProfileUpdateSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Profile saved successfully! Welcome to QuickMed.'),
-              backgroundColor: AppColors.brandGreen,
+            SnackBar(
+              content: Text(
+                state.savedToServer
+                    ? 'Profile saved successfully! Welcome to QuickMed.'
+                    : 'Profile saved on this phone only — we could not reach '
+                        'the server. Your address can\'t be used for orders '
+                        'until it syncs.',
+              ),
+              backgroundColor:
+                  state.savedToServer ? AppColors.brandGreen : AppColors.accent,
             ),
           );
           context.go('/home_screen');
@@ -247,6 +279,10 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
 
                                 // Kota Area Dropdown
                                 DropdownButtonFormField<String>(
+                                  // initialValue is only read on first build;
+                                  // the key re-creates the field when the area
+                                  // is set from the saved profile or the map.
+                                  key: ValueKey(_selectedKotaArea),
                                   initialValue: _selectedKotaArea,
                                   hint: Text('Select Area in Kota',
                                       style: AppTextStyles.hintText(context)),
@@ -344,6 +380,7 @@ class _ProfileSetupViewState extends State<ProfileSetupView> {
                                   latitude: _addressLatitude,
                                   longitude: _addressLongitude,
                                   errorText: _locationValidationError,
+                                  onAddressResolved: _applyResolvedAddress,
                                   onLocationChanged: (latLng) {
                                     setState(() {
                                       _addressLatitude = latLng.latitude;

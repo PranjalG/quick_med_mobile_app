@@ -14,10 +14,22 @@ class CatalogueCubit extends Cubit<CatalogueState> {
 
   final MedicineService _service;
 
-  Future<void> load({int perCategory = 5}) async {
-    emit(const CatalogueLoading());
+  Future<void> load({int perCategory = 5}) =>
+      _fetch(perCategory: perCategory, keepContent: false);
+
+  /// Reloads the catalogue, e.g. on pull-to-refresh.
+  ///
+  /// If medicines are already on screen they stay visible while the request
+  /// runs (the pull-to-refresh spinner shows progress), and a failed reload
+  /// keeps them instead of replacing the page with an error. From an empty,
+  /// failed or initial state this behaves like [load].
+  Future<void> refresh() => _fetch(keepContent: state is CatalogueLoaded);
+
+  Future<void> _fetch({int perCategory = 5, required bool keepContent}) async {
+    if (!keepContent) emit(const CatalogueLoading());
     try {
-      final byCategory = await _service.fetchCatalogue(perCategory: perCategory);
+      final byCategory =
+          await _service.fetchCatalogue(perCategory: perCategory);
       if (byCategory.isEmpty) {
         emit(const CatalogueEmpty());
         return;
@@ -29,9 +41,8 @@ class CatalogueCubit extends Cubit<CatalogueState> {
         ),
       );
     } catch (error) {
+      if (keepContent) return;
       emit(CatalogueFailure(error.toString()));
     }
   }
-
-  Future<void> refresh() => load();
 }
